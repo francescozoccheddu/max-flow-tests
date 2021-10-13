@@ -1,0 +1,7 @@
+/out
+/app/out
+/lib/out
+/.vs
+/.vscode
+/lib/cplex.cmake
+/CMakeSettings.json

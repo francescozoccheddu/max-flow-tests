@@ -978,13 +978,13 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Graph (const Graph& _clone)
 	{
-		// TODO
+		*this = _clone;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Graph (Graph&& _moved)
 	{
-		// TODO
+		*this = std::move(_moved);
 	}
 
 	template<typename TVertexData, typename TEdgeData>
@@ -996,14 +996,35 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>& Graph<TVertexData, TEdgeData>::operator=(const Graph& _clone)
 	{
-		// TODO
+		destroyAllVertices ();
+		reserve (_clone.capacity ());
+		for (Vertex* pVert : _clone.m_vertices)
+		{
+			addVertex (**pVert);
+		}
+		for (Vertex* pVert : _clone.m_vertices)
+		{
+			Vertex& thisVert{ *m_vertices[pVert->m_index] };
+			Edge* pEdge{ pVert->m_pFirstOutEdge };
+			while (pEdge)
+			{
+				thisVert.addOutEdge (**pEdge, *m_vertices[pEdge->m_pTo->m_index]);
+				pEdge = pEdge->m_pNext;
+			}
+		}
 		return *this;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>& Graph<TVertexData, TEdgeData>::operator=(Graph&& _moved)
 	{
-		// TODO
+		destroyAllVertices ();
+		m_vertices.swap (_moved.m_vertices);
+		std::swap (m_edgesCount, _moved.m_edgesCount);
+		for (Vertex* pVert : m_vertices)
+		{
+			pVert->m_pGraph = this;
+		}
 		return *this;
 	}
 

@@ -15,7 +15,6 @@ int main ()
 	g[1].addOutEdge (2, g[2]);
 	g[1].addOutEdge (3, g[3]);
 
-	auto b = std::move(g);
 
 	for (MaxFlow::Graph<int, int>::Edge& e : g[1])
 	{

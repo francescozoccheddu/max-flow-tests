@@ -50,6 +50,8 @@ namespace MaxFlow
 			const TData* operator->() const;
 			TData* operator->();
 
+			bool operator==(const Node& _other) const;
+
 		};
 
 	public:
@@ -151,7 +153,7 @@ namespace MaxFlow
 			friend class Edge;
 
 			Edge* m_pFirstOutEdge{}, * m_pLastOutEdge{};
-			std::vector<Edge*> m_outEdges;
+			std::vector<Edge*> m_outVertexEdges;
 			std::size_t m_outEdgesCount{};
 			std::size_t m_index;
 			Graph* m_pGraph;
@@ -159,7 +161,13 @@ namespace MaxFlow
 			Vertex (const TVertexData& _data, Graph& _graph, std::size_t _index);
 			Vertex (TVertexData&& _data, Graph& _graph, std::size_t _index);
 
-			void addNewOutEdge (Edge& _edge);
+			void addNewValidatedOutEdge (Edge& _edge);
+
+			void insertVertex (Vertex& _vertex);
+			void eraseVertex (Vertex& _vertex);
+
+			void ensureValidNewOutEdge (const Vertex& _to) const;
+			void ensureValidNewOutEdgeBefore (const Vertex& _to, const Edge& _next) const;
 
 		public:
 
@@ -198,8 +206,6 @@ namespace MaxFlow
 
 			void destroy ();
 
-			bool operator==(const Vertex& _other) const;
-
 		};
 
 		class Edge final : public Node<TEdgeData, Edge>
@@ -234,8 +240,6 @@ namespace MaxFlow
 
 			void destroy ();
 
-			bool operator==(const Edge& _other) const;
-
 		};
 
 	private:
@@ -249,6 +253,9 @@ namespace MaxFlow
 		const Vertex** lastVertex () const;
 		Vertex** firstVertex ();
 		Vertex** lastVertex ();
+
+		static const Vertex** increasePtr (const Vertex** _p, std::size_t _diff);
+		static Vertex** increasePtr (Vertex** _p, std::size_t _diff);
 
 	public:
 
@@ -304,6 +311,8 @@ namespace MaxFlow
 
 #pragma region Node
 
+#pragma region Constructors
+
 	template<typename TVertexData, typename TEdgeData>
 	template<typename TData, typename TNode>
 	inline Graph<TVertexData, TEdgeData>::Node<TData, TNode>::Node (TData&& _data) : m_data{ _data }
@@ -313,6 +322,10 @@ namespace MaxFlow
 	template<typename TData, typename TNode>
 	inline Graph<TVertexData, TEdgeData>::Node<TData, TNode>::Node (const TData& _data) : m_data{ _data }
 	{}
+
+#pragma endregion
+
+#pragma region Data getters
 
 	template<typename TVertexData, typename TEdgeData>
 	template <typename TData, typename TNode>
@@ -358,12 +371,27 @@ namespace MaxFlow
 
 #pragma endregion
 
+	template<typename TVertexData, typename TEdgeData>
+	template <typename TData, typename TNode>
+	inline bool Graph<TVertexData, TEdgeData>::Node<TData, TNode>::operator== (const Node& _other) const
+	{
+		return this == &_other;
+	}
+
+#pragma endregion
+
 #pragma region VertexIterator
+
+#pragma region Constructors
 
 	template<typename TVertexData, typename TEdgeData>
 	template<bool constant, bool reversed>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<constant, reversed>::VertexIterator (pointer* _pCurrent) : m_p{ _pCurrent }
 	{}
+
+#pragma endregion
+
+#pragma region Getters
 
 	template<typename TVertexData, typename TEdgeData>
 	template<bool constant, bool reversed>
@@ -413,6 +441,10 @@ namespace MaxFlow
 			return *m_p[_diff];
 		}
 	}
+
+#pragma endregion
+
+#pragma region Iteration
 
 	template<typename TVertexData, typename TEdgeData>
 	template<bool constant, bool reversed>
@@ -480,12 +512,20 @@ namespace MaxFlow
 
 #pragma endregion
 
+#pragma endregion
+
 #pragma region EdgeIterator
+
+#pragma region Constructors
 
 	template<typename TVertexData, typename TEdgeData>
 	template<bool constant, bool reversed>
 	inline Graph<TVertexData, TEdgeData>::EdgeIterator<constant, reversed>::EdgeIterator (pointer _pCurrent) : m_p{ _pCurrent }
 	{}
+
+#pragma endregion
+
+#pragma region Getters
 
 	template<typename TVertexData, typename TEdgeData>
 	template<bool constant, bool reversed>
@@ -514,6 +554,10 @@ namespace MaxFlow
 	{
 		return m_p;
 	}
+
+#pragma endregion
+
+#pragma region Iteration
 
 	template<typename TVertexData, typename TEdgeData>
 	template<bool constant, bool reversed>
@@ -568,54 +612,47 @@ namespace MaxFlow
 
 #pragma endregion
 
+#pragma endregion
+
 #pragma region Vertex
+
+#pragma region Constructors
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Vertex::Vertex (const TVertexData& _data, Graph& _graph, std::size_t _index)
-		: Node<TVertexData, Vertex>{ _data }, m_pGraph{ &_graph }, m_index{ _index }, m_outEdges{ _graph.m_vertices.size () + 1 }
+		: Node<TVertexData, Vertex>{ _data }, m_pGraph{ &_graph }, m_index{ _index }, m_outVertexEdges{ _graph.m_vertices.size () + 1 }
 	{
-		if (_index < 0 || _index > _graph.m_vertices.size ())
+		if (_index < 0 || _index > _graph.verticesCount ())
 		{
 			throw std::out_of_range{ "bad index" };
 		}
-		m_outEdges.reserve (_graph.m_vertices.capacity ());
+		m_outVertexEdges.reserve (_graph.capacity ());
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Vertex::Vertex (TVertexData&& _data, Graph& _graph, std::size_t _index)
-		: Node<TVertexData, Vertex>{ _data }, m_pGraph{ &_graph }, m_index{ _index }, m_outEdges{ _graph.m_vertices.size () + 1 }
+		: Node<TVertexData, Vertex>{ _data }, m_pGraph{ &_graph }, m_index{ _index }, m_outVertexEdges{ _graph.m_vertices.size () + 1 }
 	{
-		if (_index < 0 || _index > _graph.m_vertices.size ())
+		if (_index < 0 || _index > _graph.verticesCount ())
 		{
 			throw std::out_of_range{ "bad index" };
 		}
-		m_outEdges.reserve (_graph.m_vertices.capacity ());
+		m_outVertexEdges.reserve (_graph.capacity ());
 	}
 
+#pragma endregion
+
+#pragma region Edge insertion
+
 	template<typename TVertexData, typename TEdgeData>
-	inline void Graph<TVertexData, TEdgeData>::Vertex::addNewOutEdge (Edge& _edge)
+	inline void Graph<TVertexData, TEdgeData>::Vertex::addNewValidatedOutEdge (Edge& _edge)
 	{
-		if (_edge.m_pFrom != this)
-		{
-			delete& _edge;
-			throw std::invalid_argument{ "not the same vertex" };
-		}
-		if (hasOutEdge (*_edge.m_pTo))
-		{
-			delete& _edge;
-			throw std::logic_error{ "edge already exists" };
-		}
 		if (!_edge.m_pNext)
 		{
 			m_pLastOutEdge = &_edge;
 		}
 		else
 		{
-			if (_edge.m_pNext->m_pFrom != this)
-			{
-				delete& _edge;
-				throw std::invalid_argument{ "not the same vertex" };
-			}
 			_edge.m_pNext->m_pPrevious = &_edge;
 		}
 		if (!_edge.m_pPrevious)
@@ -624,17 +661,95 @@ namespace MaxFlow
 		}
 		else
 		{
-			if (_edge.m_pPrevious->m_pFrom != this)
-			{
-				delete& _edge;
-				throw std::invalid_argument{ "not the same vertex" };
-			}
 			_edge.m_pPrevious->m_pNext = &_edge;
 		}
-		m_outEdges[_edge.m_pTo->m_index] = &_edge;
+		m_outVertexEdges[_edge.to ().index ()] = &_edge;
 		m_outEdgesCount++;
-		m_pGraph->m_edgesCount++;
+		graph ().m_edgesCount++;
 	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline void Graph<TVertexData, TEdgeData>::Vertex::ensureValidNewOutEdge (const Vertex& _to) const
+	{
+		if (_to.graph () != graph ())
+		{
+			throw std::invalid_argument{ "not the same graph" };
+		}
+		if (hasOutEdge (_to))
+		{
+			throw std::logic_error{ "edge already exists" };
+		}
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline void Graph<TVertexData, TEdgeData>::Vertex::ensureValidNewOutEdgeBefore (const Vertex& _to, const Edge& _next) const
+	{
+		ensureValidNewOutEdge (_to);
+		if (_next.from () != *this)
+		{
+			throw std::invalid_argument{ "not the same vertex" };
+		}
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdge (const TVertexData& _data, Vertex& _to)
+	{
+		ensureValidNewOutEdge (_to);
+		Edge& edge{ *new Edge{_data, *this, _to, m_pLastOutEdge, nullptr} };
+		addNewValidatedOutEdge (edge);
+		return edge;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdge (TVertexData&& _data, Vertex& _to)
+	{
+		ensureValidNewOutEdge (_to);
+		Edge& edge{ *new Edge{std::move (_data), *this, _to, m_pLastOutEdge, nullptr} };
+		addNewValidatedOutEdge (edge);
+		return edge;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdgeBefore (const TVertexData& _data, Vertex& _to, Edge& _next)
+	{
+		ensureValidNewOutEdgeBefore (_to, _next);
+		Edge& edge{ *new Edge{_data, *this, _to, _next.m_pPrevious, &_next} };
+		addNewValidatedOutEdge (edge);
+		return edge;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdgeBefore (TVertexData&& _data, Vertex& _to, Edge& _next)
+	{
+		ensureValidNewOutEdgeBefore (_to, _next);
+		Edge& edge{ *new Edge{std::move (_data), *this, _to, _next.m_pPrevious, &_next} };
+		addNewValidatedOutEdge (edge);
+		return edge;
+	}
+
+#pragma endregion
+
+#pragma region Vertex update
+
+	template<typename TVertexData, typename TEdgeData>
+	inline void Graph<TVertexData, TEdgeData>::Vertex::insertVertex (Vertex& _vertex)
+	{
+		m_outVertexEdges.insert (m_outVertexEdges.begin () + _vertex.index (), nullptr);
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline void Graph<TVertexData, TEdgeData>::Vertex::eraseVertex (Vertex& _vertex)
+	{
+		if (hasOutEdge (_vertex))
+		{
+			outEdge (_vertex).destroy ();
+		}
+		m_outVertexEdges.erase (m_outVertexEdges.begin () + _vertex.index ());
+	}
+
+#pragma endregion
+
+#pragma region Getters
 
 	template<typename TVertexData, typename TEdgeData>
 	inline const Graph<TVertexData, TEdgeData>& Graph<TVertexData, TEdgeData>::Vertex::graph () const
@@ -663,17 +778,17 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline bool Graph<TVertexData, TEdgeData>::Vertex::hasOutEdge (const Vertex& _to) const
 	{
-		if (_to.m_pGraph != m_pGraph)
+		if (_to.graph () != graph ())
 		{
 			throw std::invalid_argument{ "not the same graph" };
 		}
-		return m_outEdges[_to.m_index];
+		return m_outVertexEdges[_to.index ()];
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline const Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::outEdge (const Vertex& _to) const
 	{
-		return const_cast<Vertex*>(this)->edge (const_cast<Vertex&>(_to));
+		return const_cast<Vertex&>(*this).edge (const_cast<Vertex&>(_to));
 	}
 
 	template<typename TVertexData, typename TEdgeData>
@@ -683,54 +798,24 @@ namespace MaxFlow
 		{
 			throw std::invalid_argument{ "no edge" };
 		}
-		return *m_outEdges[_to.m_index];
+		return *m_outVertexEdges[_to.index ()];
 	}
 
 	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdge (const TVertexData& _data, Vertex& _to)
+	inline const Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::operator[] (const Vertex& _to) const
 	{
-		Edge& edge{ *new Edge{_data, *this, _to, m_pLastOutEdge, nullptr} };
-		addNewOutEdge (edge);
-		return edge;
+		return outEdge (_to);
 	}
 
 	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdge (TVertexData&& _data, Vertex& _to)
+	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::operator[] (Vertex& _to)
 	{
-		Edge& edge{ *new Edge{_data, *this, _to, m_pLastOutEdge, nullptr} };
-		addNewOutEdge (edge);
-		return edge;
+		return outEdge (_to);
 	}
 
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdgeBefore (const TVertexData& _data, Vertex& _to, Edge& _next)
-	{
-		Edge& edge{ *new Edge{_data, *this, _to, _next.m_pPrevious, &_next} };
-		addNewOutEdge (edge);
-		return edge;
-	}
+#pragma endregion
 
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::addOutEdgeBefore (TVertexData&& _data, Vertex& _to, Edge& _next)
-	{
-		Edge& edge{ *new Edge{_data, *this, _to, _next.m_pPrevious, &_next} };
-		addNewOutEdge (edge);
-		return edge;
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline void Graph<TVertexData, TEdgeData>::Vertex::destroyAllOutEdges ()
-	{
-		m_pGraph->m_edgesCount -= m_outEdgesCount;
-		m_outEdgesCount = 0;
-		while (m_pFirstOutEdge)
-		{
-			Edge* pCurrent = m_pFirstOutEdge;
-			m_pFirstOutEdge = pCurrent->m_pNext;
-			delete pCurrent;
-		}
-		m_pFirstOutEdge = m_pLastOutEdge = nullptr;
-	}
+#pragma region Iteration
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::EdgeIterator<true, false> Graph<TVertexData, TEdgeData>::Vertex::begin () const
@@ -804,59 +889,55 @@ namespace MaxFlow
 		return EdgeIterator<true, true>{nullptr};
 	}
 
-	template<typename TVertexData, typename TEdgeData>
-	inline const Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::operator[] (const Vertex& _to) const
-	{
-		return outEdge (_to);
-	}
+#pragma endregion
+
+#pragma region Destruction
 
 	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Vertex::operator[] (Vertex& _to)
+	inline void Graph<TVertexData, TEdgeData>::Vertex::destroyAllOutEdges ()
 	{
-		return outEdge (_to);
+		graph ().m_edgesCount -= outEdgesCount ();
+		m_outEdgesCount = 0;
+		while (m_pFirstOutEdge)
+		{
+			Edge* pCurrent = m_pFirstOutEdge;
+			m_pFirstOutEdge = pCurrent->m_pNext;
+			delete pCurrent;
+		}
+		m_pFirstOutEdge = m_pLastOutEdge = nullptr;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::Vertex::destroy ()
 	{
 		destroyAllOutEdges ();
-		std::vector<Vertex*>& vertices{ m_pGraph->m_vertices };
-		vertices.erase (vertices.begin () + m_index);
-		for (std::size_t i{ m_index }; i < vertices.size (); i++)
+		for (Vertex& vert : graph ())
 		{
-			vertices[i]->m_index--;
+			vert.eraseVertex (*this);
 		}
-		for (Vertex* pVert : vertices)
+		graph ().m_vertices.erase (graph ().m_vertices.begin () + index ());
+		for (std::size_t i{ index () }; i < graph ().verticesCount (); i++)
 		{
-			std::vector<Edge*>& outEdges{ pVert->m_outEdges };
-			if (outEdges[m_index])
-			{
-				pVert->m_outEdgesCount--;
-				m_pGraph->m_edgesCount--;
-			}
-			outEdges.erase (outEdges.begin () + m_index);
+			graph ()[i].m_index--;
 		}
 		m_index = -1;
 		m_pGraph = nullptr;
 		delete this;
 	}
 
-	template<typename TVertexData, typename TEdgeData>
-	inline bool Graph<TVertexData, TEdgeData>::Vertex::operator== (const Vertex& _other) const
-	{
-		return this == &_other;
-	}
-
+#pragma endregion
 
 #pragma endregion
 
 #pragma region Edge
 
+#pragma region Constructors
+
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Edge::Edge (const TEdgeData& _data, Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext)
 		: Node<TEdgeData, Edge>{ _data }, m_pFrom{ &_from }, m_pTo{ &_to }, m_pPrevious{ _pPrevious }, m_pNext{ _pNext }
 	{
-		if (_from.m_pGraph != _to.m_pGraph)
+		if (_from.graph () != _to.graph ())
 		{
 			throw std::invalid_argument{ "not the same graph" };
 		}
@@ -866,11 +947,15 @@ namespace MaxFlow
 	inline Graph<TVertexData, TEdgeData>::Edge::Edge (TEdgeData&& _data, Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext)
 		: Node<TEdgeData, Edge>{ _data }, m_pFrom{ &_from }, m_pTo{ &_to }, m_pPrevious{ _pPrevious }, m_pNext{ _pNext }
 	{
-		if (_from.m_pGraph != _to.m_pGraph)
+		if (_from.graph () != _to.graph ())
 		{
 			throw std::invalid_argument{ "not the same graph" };
 		}
 	}
+
+#pragma endregion
+
+#pragma region Getters
 
 	template<typename TVertexData, typename TEdgeData>
 	inline const Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::Edge::from () const
@@ -899,19 +984,19 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline bool Graph<TVertexData, TEdgeData>::Edge::hasAntiParallel () const
 	{
-		return m_pTo->hasOutEdge (*m_pFrom);
+		return to ().hasOutEdge (from ());
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline const Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Edge::antiParallel () const
 	{
-		return m_pTo->outEdge (*m_pFrom);
+		return to ().outEdge (from ());
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Edge& Graph<TVertexData, TEdgeData>::Edge::antiParallel ()
 	{
-		return m_pTo->outEdge (*m_pFrom);
+		return to ().outEdge (from ());
 	}
 
 	template<typename TVertexData, typename TEdgeData>
@@ -926,13 +1011,17 @@ namespace MaxFlow
 		switch (_index)
 		{
 			case 0:
-				return *m_pFrom;
+				return from ();
 			case 1:
-				return *m_pTo;
+				return to ();
 			default:
 				throw std::out_of_range{ "bad index" };
 		}
 	}
+
+#pragma endregion
+
+#pragma region Destruction
 
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::Edge::destroy ()
@@ -953,23 +1042,21 @@ namespace MaxFlow
 		{
 			m_pFrom->m_pLastOutEdge = m_pPrevious;
 		}
-		m_pFrom->m_pGraph->m_edgesCount--;
-		m_pFrom->m_outEdgesCount--;
-		m_pFrom->m_outEdges[m_pTo->m_index] = nullptr;
+		from ().graph ().m_edgesCount--;
+		from ().m_outEdgesCount--;
+		from ().m_outVertexEdges[to ().index ()] = nullptr;
 		m_pPrevious = m_pNext = nullptr;
 		m_pFrom = m_pTo = nullptr;
 		delete this;
 	}
 
-	template<typename TVertexData, typename TEdgeData>
-	inline bool Graph<TVertexData, TEdgeData>::Edge::operator== (const Edge& _other) const
-	{
-		return this == &_other;
-	}
+#pragma endregion
 
 #pragma endregion
 
 #pragma region Graph
+
+#pragma region Constructors
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Graph ()
@@ -984,8 +1071,12 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::Graph (Graph&& _moved)
 	{
-		*this = std::move(_moved);
+		*this = std::move (_moved);
 	}
+
+#pragma endregion
+
+#pragma region Destruction
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::~Graph ()
@@ -994,21 +1085,36 @@ namespace MaxFlow
 	}
 
 	template<typename TVertexData, typename TEdgeData>
+	inline void Graph<TVertexData, TEdgeData>::destroyAllVertices ()
+	{
+		for (Vertex& vert : *this)
+		{
+			vert.destroyAllOutEdges ();
+			delete& vert;
+		}
+		m_vertices.clear ();
+	}
+
+#pragma endregion
+
+#pragma region Assignment
+
+	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>& Graph<TVertexData, TEdgeData>::operator=(const Graph& _clone)
 	{
 		destroyAllVertices ();
 		reserve (_clone.capacity ());
-		for (Vertex* pVert : _clone.m_vertices)
+		for (Vertex& vert : _clone)
 		{
-			addVertex (**pVert);
+			addVertex (*vert);
 		}
-		for (Vertex* pVert : _clone.m_vertices)
+		for (Vertex& vert : _clone)
 		{
-			Vertex& thisVert{ *m_vertices[pVert->m_index] };
-			Edge* pEdge{ pVert->m_pFirstOutEdge };
+			Vertex& thisVert{ (*this)[vert.index ()] };
+			Edge* pEdge{ vert.m_pFirstOutEdge };
 			while (pEdge)
 			{
-				thisVert.addOutEdge (**pEdge, *m_vertices[pEdge->m_pTo->m_index]);
+				thisVert.addOutEdge (**pEdge, (*this)[pEdge->to ().index ()]);
 				pEdge = pEdge->m_pNext;
 			}
 		}
@@ -1021,31 +1127,133 @@ namespace MaxFlow
 		destroyAllVertices ();
 		m_vertices.swap (_moved.m_vertices);
 		std::swap (m_edgesCount, _moved.m_edgesCount);
-		for (Vertex* pVert : m_vertices)
+		for (Vertex& vert : *this)
 		{
-			pVert->m_pGraph = this;
+			vert.m_pGraph = this;
 		}
 		return *this;
 	}
 
+#pragma endregion
+
+#pragma region Vertex insertion
+
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::addNewVertex (Vertex& _vertex)
 	{
-		if (_vertex.m_index < 0 || _vertex.m_index > m_vertices.size ())
+		for (std::size_t i{ _vertex.index () }; i < verticesCount (); i++)
 		{
-			delete& _vertex;
+			(*this)[i].m_index++;
+		}
+		for (Vertex& vert : *this)
+		{
+			vert.insertVertex (_vertex);
+		}
+		m_vertices.insert (m_vertices.begin () + _vertex.index (), &_vertex);
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertex (const TVertexData& _data)
+	{
+		Vertex& vertex{ *new Vertex{_data, *this, verticesCount ()} };
+		addNewVertex (vertex);
+		return vertex;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertex (TVertexData&& _data)
+	{
+		Vertex& vertex{ *new Vertex{std::move (_data), *this, verticesCount ()} };
+		addNewVertex (vertex);
+		return vertex;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertexBefore (const TVertexData& _data, Vertex& _next)
+	{
+		if (_next.graph () != *this)
+		{
+			throw std::invalid_argument{ "not the same graph" };
+		}
+		Vertex& vertex{ *new Vertex{_data, *this, _next.index ()} };
+		addNewVertex (vertex);
+		return vertex;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertexBefore (TVertexData&& _data, Vertex& _next)
+	{
+		if (_next.graph () != *this)
+		{
+			throw std::invalid_argument{ "not the same graph" };
+		}
+		Vertex& vertex{ *new Vertex{std::move (_data), *this, _next.index ()} };
+		addNewVertex (vertex);
+		return vertex;
+	}
+
+#pragma endregion
+
+#pragma region Getters
+
+	template<typename TVertexData, typename TEdgeData>
+	inline std::size_t Graph<TVertexData, TEdgeData>::edgesCount () const
+	{
+		return m_edgesCount;
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline std::size_t Graph<TVertexData, TEdgeData>::verticesCount () const
+	{
+		return m_vertices.size ();
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline const Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::vertex (std::size_t _index) const
+	{
+		return const_cast<Graph&>(*this).vertex (_index);
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::vertex (std::size_t _index)
+	{
+		if (_index < 0 || _index >= verticesCount ())
+		{
 			throw std::out_of_range{ "bad vertex index" };
 		}
-		for (std::size_t i{ _vertex.m_index }; i < m_vertices.size (); i++)
-		{
-			m_vertices[i]->m_index++;
-		}
-		for (Vertex* pVert : m_vertices)
-		{
-			pVert->m_outEdges.insert (pVert->m_outEdges.begin () + _vertex.m_index, nullptr);
-		}
-		m_vertices.insert (m_vertices.begin () + _vertex.m_index, &_vertex);
+		return *m_vertices[_index];
 	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline const Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::operator[] (std::size_t _index) const
+	{
+		return vertex (_index);
+	}
+
+	template<typename TVertexData, typename TEdgeData>
+	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::operator[] (std::size_t _index)
+	{
+		return vertex (_index);
+	}
+
+#pragma endregion
+
+#pragma region Swap vertices
+
+	template<typename TVertexData, typename TEdgeData>
+	inline void Graph<TVertexData, TEdgeData>::swapVertices (Vertex& _a, Vertex& _b)
+	{
+		std::swap (_a.m_index, _b.m_index);
+		std::swap (m_vertices[_a.index ()], m_vertices[_b.index ()]);
+		for (Vertex& vert : *this)
+		{
+			std::swap (vert.m_outVertexEdges[_a.index ()], vert.m_outVertexEdges[_b.index ()]);
+		}
+	}
+
+#pragma endregion
+
+#pragma region Iteration
 
 	template<typename TVertexData, typename TEdgeData>
 	inline const Graph<TVertexData, TEdgeData>::Vertex** Graph<TVertexData, TEdgeData>::firstVertex () const
@@ -1072,109 +1280,15 @@ namespace MaxFlow
 	}
 
 	template<typename TVertexData, typename TEdgeData>
-	inline std::size_t Graph<TVertexData, TEdgeData>::edgesCount () const
+	inline const Graph<TVertexData, TEdgeData>::Vertex** Graph<TVertexData, TEdgeData>::increasePtr (const Vertex** _p, std::size_t _diff)
 	{
-		return m_edgesCount;
+		return _p ? _p + _diff : nullptr;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
-	inline std::size_t Graph<TVertexData, TEdgeData>::verticesCount () const
+	inline Graph<TVertexData, TEdgeData>::Vertex** Graph<TVertexData, TEdgeData>::increasePtr (Vertex** _p, std::size_t _diff)
 	{
-		return m_vertices.size ();
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline const Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::vertex (std::size_t _index) const
-	{
-		if (_index < 0 || _index >= m_vertices.size ())
-		{
-			throw std::out_of_range{ "bad vertex index" };
-		}
-		return m_vertices[_index];
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::vertex (std::size_t _index)
-	{
-		if (_index < 0 || _index >= m_vertices.size ())
-		{
-			throw std::out_of_range{ "bad vertex index" };
-		}
-		return *m_vertices[_index];
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertex (const TVertexData& _data)
-	{
-		Vertex& vertex{ *new Vertex{_data, *this, m_vertices.size ()} };
-		addNewVertex (vertex);
-		return vertex;
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertex (TVertexData&& _data)
-	{
-		Vertex& vertex{ *new Vertex{_data, *this, m_vertices.size ()} };
-		addNewVertex (vertex);
-		return vertex;
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertexBefore (const TVertexData& _data, Vertex& _next)
-	{
-		if (_next.m_pGraph != this)
-		{
-			throw std::invalid_argument{ "not the same graph" };
-		}
-		Vertex& vertex{ *new Vertex{_data, *this, _next.m_index} };
-		addNewVertex (vertex);
-		return vertex;
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::addVertexBefore (TVertexData&& _data, Vertex& _next)
-	{
-		if (_next.m_pGraph != this)
-		{
-			throw std::invalid_argument{ "not the same graph" };
-		}
-		Vertex& vertex{ *new Vertex{_data, *this, _next.m_index} };
-		addNewVertex (vertex);
-		return vertex;
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline void Graph<TVertexData, TEdgeData>::swapVertices (Vertex& _a, Vertex& _b)
-	{
-		std::swap (_a.m_index, _b.m_index);
-		std::swap (m_vertices[_a.m_index], m_vertices[_b.m_index]);
-		for (Vertex* pVert : m_vertices)
-		{
-			std::swap (pVert->m_outEdges[_a.m_index], pVert->m_outEdges[_b.m_index]);
-		}
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline void Graph<TVertexData, TEdgeData>::destroyAllVertices ()
-	{
-		for (Vertex* pVert : m_vertices)
-		{
-			pVert->destroyAllOutEdges ();
-			delete pVert;
-		}
-		m_vertices.clear ();
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline const Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::operator[] (std::size_t _index) const
-	{
-		return vertex (_index);
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex& Graph<TVertexData, TEdgeData>::operator[] (std::size_t _index)
-	{
-		return vertex (_index);
+		return _p ? _p + _diff : nullptr;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
@@ -1216,38 +1330,42 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<true, false> Graph<TVertexData, TEdgeData>::end () const
 	{
-		return VertexIterator<true, false>{lastVertex () + 1};
+		return VertexIterator<true, false>{increasePtr (lastVertex (), 1)};
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<false, false> Graph<TVertexData, TEdgeData>::end ()
 	{
-		return VertexIterator<false, false>{lastVertex () + 1};
+		return VertexIterator<false, false>{increasePtr (lastVertex (), 1)};
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<true, false> Graph<TVertexData, TEdgeData>::cend () const
 	{
-		return VertexIterator<true, false>{lastVertex () + 1};
+		return VertexIterator<true, false>{increasePtr (lastVertex (), 1)};
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<true, true> Graph<TVertexData, TEdgeData>::rend () const
 	{
-		return VertexIterator<true, true>{firstVertex () - 1};
+		return VertexIterator<true, true>{increasePtr (firstVertex (), -1)};
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<false, true> Graph<TVertexData, TEdgeData>::rend ()
 	{
-		return VertexIterator<false, true>{firstVertex () - 1};
+		return VertexIterator<false, true>{increasePtr (firstVertex (), -1)};
 	}
 
 	template<typename TVertexData, typename TEdgeData>
 	inline Graph<TVertexData, TEdgeData>::VertexIterator<true, true> Graph<TVertexData, TEdgeData>::crend () const
 	{
-		return VertexIterator<true, true>{firstVertex () - 1};
+		return VertexIterator<true, true>{increasePtr (firstVertex (), -1)};
 	}
+
+#pragma endregion
+
+#pragma region Capacity
 
 	template<typename TVertexData, typename TEdgeData>
 	inline std::size_t Graph<TVertexData, TEdgeData>::capacity () const
@@ -1263,9 +1381,9 @@ namespace MaxFlow
 			throw std::out_of_range{ "capacity < 0" };
 		}
 		m_vertices.reserve (_capacity);
-		for (Vertex* pVert : m_vertices)
+		for (Vertex& vert : *this)
 		{
-			pVert->m_outEdges.reserve (_capacity);
+			vert.m_outVertexEdges.reserve (_capacity);
 		}
 	}
 
@@ -1273,17 +1391,23 @@ namespace MaxFlow
 	inline void Graph<TVertexData, TEdgeData>::shrinkToFit ()
 	{
 		m_vertices.shrink_to_fit ();
-		for (Vertex* pVert : m_vertices)
+		for (Vertex& vert : *this)
 		{
-			pVert->m_outEdges.shrink_to_fit ();
+			vert.m_outVertexEdges.shrink_to_fit ();
 		}
 	}
+
+#pragma endregion
+
+#pragma region Comparison
 
 	template<typename TVertexData, typename TEdgeData>
 	inline bool Graph<TVertexData, TEdgeData>::operator== (const Graph& _other) const
 	{
 		return this == &_other;
 	}
+
+#pragma endregion
 
 #pragma endregion
 

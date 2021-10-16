@@ -161,8 +161,6 @@ namespace MaxFlow
 
 			void addNewOutEdge (Edge& _edge);
 
-			~Vertex ();
-
 		public:
 
 			const Graph& graph () const;
@@ -219,8 +217,6 @@ namespace MaxFlow
 
 			Edge (TEdgeData&& _data, Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext);
 			Edge (const TEdgeData& _data, Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext);
-
-			~Edge ();
 
 		public:
 
@@ -641,29 +637,6 @@ namespace MaxFlow
 	}
 
 	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Vertex::~Vertex ()
-	{
-		destroyAllOutEdges ();
-		std::vector<Vertex*>& vertices{ m_pGraph->m_vertices };
-		vertices.erase (vertices.begin () + m_index);
-		for (std::size_t i{ m_index }; i < vertices.size (); i++)
-		{
-			vertices[i]->m_index--;
-		}
-		for (Vertex* pVert : vertices)
-		{
-			std::vector<Edge*>& outEdges{ pVert->m_outEdges };
-			if (outEdges[m_index])
-			{
-				pVert->m_outEdgesCount--;
-				m_pGraph->m_edgesCount--;
-			}
-			outEdges.erase (outEdges.begin () + m_index);
-		}
-		m_index = -1;
-	}
-
-	template<typename TVertexData, typename TEdgeData>
 	inline const Graph<TVertexData, TEdgeData>& Graph<TVertexData, TEdgeData>::Vertex::graph () const
 	{
 		return *m_pGraph;
@@ -748,10 +721,15 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::Vertex::destroyAllOutEdges ()
 	{
+		m_pGraph->m_edgesCount -= m_outEdgesCount;
+		m_outEdgesCount = 0;
 		while (m_pFirstOutEdge)
 		{
-			m_pFirstOutEdge->destroy ();
+			Edge* pCurrent = m_pFirstOutEdge;
+			m_pFirstOutEdge = pCurrent->m_pNext;
+			delete pCurrent;
 		}
+		m_pFirstOutEdge = m_pLastOutEdge = nullptr;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
@@ -841,6 +819,25 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::Vertex::destroy ()
 	{
+		destroyAllOutEdges ();
+		std::vector<Vertex*>& vertices{ m_pGraph->m_vertices };
+		vertices.erase (vertices.begin () + m_index);
+		for (std::size_t i{ m_index }; i < vertices.size (); i++)
+		{
+			vertices[i]->m_index--;
+		}
+		for (Vertex* pVert : vertices)
+		{
+			std::vector<Edge*>& outEdges{ pVert->m_outEdges };
+			if (outEdges[m_index])
+			{
+				pVert->m_outEdgesCount--;
+				m_pGraph->m_edgesCount--;
+			}
+			outEdges.erase (outEdges.begin () + m_index);
+		}
+		m_index = -1;
+		m_pGraph = nullptr;
 		delete this;
 	}
 
@@ -849,7 +846,6 @@ namespace MaxFlow
 	{
 		return this == &_other;
 	}
-
 
 
 #pragma endregion
@@ -874,32 +870,6 @@ namespace MaxFlow
 		{
 			throw std::invalid_argument{ "not the same graph" };
 		}
-	}
-
-	template<typename TVertexData, typename TEdgeData>
-	inline Graph<TVertexData, TEdgeData>::Edge::~Edge ()
-	{
-		if (m_pPrevious)
-		{
-			m_pPrevious->m_pNext = m_pNext;
-		}
-		else
-		{
-			m_pFrom->m_pFirstOutEdge = m_pNext;
-		}
-		if (m_pNext)
-		{
-			m_pNext->m_pPrevious = m_pPrevious;
-		}
-		else
-		{
-			m_pFrom->m_pLastOutEdge = m_pPrevious;
-		}
-		m_pFrom->m_pGraph->m_edgesCount--;
-		m_pFrom->m_outEdgesCount--;
-		m_pFrom->m_outEdges[m_pTo->m_index] = nullptr;
-		m_pPrevious = m_pNext = nullptr;
-		m_pFrom = m_pTo = nullptr;
 	}
 
 	template<typename TVertexData, typename TEdgeData>
@@ -967,6 +937,27 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::Edge::destroy ()
 	{
+		if (m_pPrevious)
+		{
+			m_pPrevious->m_pNext = m_pNext;
+		}
+		else
+		{
+			m_pFrom->m_pFirstOutEdge = m_pNext;
+		}
+		if (m_pNext)
+		{
+			m_pNext->m_pPrevious = m_pPrevious;
+		}
+		else
+		{
+			m_pFrom->m_pLastOutEdge = m_pPrevious;
+		}
+		m_pFrom->m_pGraph->m_edgesCount--;
+		m_pFrom->m_outEdgesCount--;
+		m_pFrom->m_outEdges[m_pTo->m_index] = nullptr;
+		m_pPrevious = m_pNext = nullptr;
+		m_pFrom = m_pTo = nullptr;
 		delete this;
 	}
 
@@ -1145,10 +1136,12 @@ namespace MaxFlow
 	template<typename TVertexData, typename TEdgeData>
 	inline void Graph<TVertexData, TEdgeData>::destroyAllVertices ()
 	{
-		while (m_vertices.size () > 0)
+		for (Vertex* pVert : m_vertices)
 		{
-			m_vertices[0]->destroy ();
+			pVert->destroyAllOutEdges ();
+			delete pVert;
 		}
+		m_vertices.clear ();
 	}
 
 	template<typename TVertexData, typename TEdgeData>

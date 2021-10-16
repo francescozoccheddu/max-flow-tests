@@ -1,5 +1,0 @@
-#ifndef INCLUDED_MAX_FLOW_LIB_GRAPH
-#define INCLUDED_MAX_FLOW_LIB_GRAPH
-
-
-#endif

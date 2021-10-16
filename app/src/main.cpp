@@ -1,25 +1,30 @@
-﻿#include <max-flow/graph.hpp>
+﻿#include <max-flow/utils/graph.hpp>
+#include <max-flow/edge_flow.hpp>
 #include <iostream>
 
 int main ()
 {
-	MaxFlow::Graph<int, int> g;
-	g.addVertex (0);
-	g.addVertex (1);
-	g.addVertex (2);
-	g.addVertex (3);
-	g.addVertex (4);
+	MaxFlow::Utils::Graph<void, int> g;
+	g.reserve (10);
+	g.addVertex ();
+	g.addVertex ();
+	g.addVertex ();
+	g.addVertex ();
+	g.addVertex ();
 
-	g[1].addOutEdge (0, g[0]);
-	g[1].addOutEdge (1, g[1]);
-	g[1].addOutEdge (2, g[2]);
-	g[1].addOutEdge (3, g[3]);
+	g[1].addOutEdge (g[0]);
+	g[1].addOutEdge (g[1]);
+	g[1].addOutEdge (g[2]);
+	g[1].addOutEdge (g[3]);
+	g.shrinkToFit ();
 
 
-	for (MaxFlow::Graph<int, int>::Edge& e : g[1])
+	for (MaxFlow::Utils::Graph<void, int>::Edge& e : g[1])
 	{
 		std::cout << *e;
 	}
+
+	std::cout << g.capacity ();
 
 	return 0;
 }

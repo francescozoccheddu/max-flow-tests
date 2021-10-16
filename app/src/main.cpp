@@ -1,9 +1,12 @@
 ﻿#include <max-flow/utils/graph.hpp>
-#include <max-flow/edge_flow.hpp>
+#include <max-flow/solve.hpp>
 #include <iostream>
 
 int main ()
 {
+
+	MaxFlow::FlowGraphEdge<>* p;
+
 	MaxFlow::Utils::Graph<void, int> g;
 	g.reserve (10);
 	g.addVertex ();

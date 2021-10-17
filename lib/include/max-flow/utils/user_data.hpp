@@ -4,8 +4,8 @@
 #include <type_traits>
 #include <concepts>
 
-#define MAX_FLOW_UD_VALID_T_DECL(Type) template <std::same_as<T##Type> TValid##Type = T##Type> requires (!std::is_void_v<T##Type>)
-#define MAX_FLOW_UD_VALID_T_IMPL(Type) template <std::same_as<T##Type> TValid##Type> requires (!std::is_void_v<T##Type>)
+#define MAX_FLOW_UD_VALID_T_DECL(Type) template <::std::same_as<T##Type> TValid##Type = T##Type> requires (!::std::is_void_v<T##Type>)
+#define MAX_FLOW_UD_VALID_T_IMPL(Type) template <::std::same_as<T##Type> TValid##Type> requires (!::std::is_void_v<T##Type>)
 
 namespace MaxFlow::Utils
 {
@@ -39,18 +39,25 @@ namespace MaxFlow::Utils
 		const TData* operator->() const;
 		TData* operator->();
 
+		bool operator==(const UserData&) const = default;
 
 	};
 
 	template<>
 	class UserData<void>
-	{};
+	{
+
+	public:
+
+		bool operator==(const UserData<void>&) const = default;
+
+	};
 
 #pragma endregion
 
 #pragma region Implementation
 
-#pragma region Constructors
+#pragma region Construction
 
 	template<typename TData>
 	inline UserData<TData>::UserData () : m_data{ }

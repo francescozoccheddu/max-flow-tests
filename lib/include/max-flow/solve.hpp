@@ -9,6 +9,8 @@ namespace MaxFlow
 
 #pragma region Declaration
 
+	// Types
+
 	template<typename TVertexData = void, typename TEdgeData = TVertexData>
 	using FlowGraph = Utils::Graph<TVertexData, EdgeFlow<TEdgeData>>;
 
@@ -18,12 +20,16 @@ namespace MaxFlow
 	template<typename TVertexData = void, typename TEdgeData = TVertexData>
 	using FlowGraphEdge = FlowGraph<TVertexData, TEdgeData>::Vertex;
 
+	// Enums
+
 	enum class ESolver
 	{
 		Labeling
 	};
 
 	constexpr ESolver defaultSolver{ ESolver::Labeling };
+
+	// Functions
 
 	template<typename TVertexData, typename TEdgeData>
 	void solveInPlace (FlowGraph<TVertexData, TEdgeData>& _graph, FlowGraphVertex<TVertexData, TEdgeData>& _source, FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
@@ -38,7 +44,6 @@ namespace MaxFlow
 	// TODO
 
 #pragma endregion
-
 
 }
 

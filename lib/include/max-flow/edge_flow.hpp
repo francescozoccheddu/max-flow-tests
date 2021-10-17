@@ -10,7 +10,11 @@ namespace MaxFlow
 
 #pragma region Declaration
 
+	// Types
+
 	using flow_t = unsigned int;
+
+	// Classes
 
 	template<typename TData=void>
 	class EdgeFlow final : public Utils::UserData<TData>
@@ -18,18 +22,28 @@ namespace MaxFlow
 
 	private:
 
+		// Attributes
+
 		flow_t m_flow{}, m_capacity{};
+
+		// Utils
 
 		void validate () const;
 
 	public:
 
+		// Construction
+
 		EdgeFlow (flow_t _capacity = 0, flow_t _flow = 0);
 		MAX_FLOW_UD_VALID_T_DECL (Data) EdgeFlow (const TValidData& _data, flow_t _capacity = 0, flow_t _flow = 0);
 		MAX_FLOW_UD_VALID_T_DECL (Data) EdgeFlow (TValidData&& _data, flow_t _capacity = 0, flow_t _flow = 0);
 
+		// Getters
+
 		flow_t flow () const;
 		flow_t capacity () const;
+
+		// Setters
 
 		void setFlow (flow_t _flow);
 		void setCapacity (flow_t _capacity);
@@ -39,6 +53,8 @@ namespace MaxFlow
 #pragma endregion
 
 #pragma region Implementation
+
+#pragma region Utils
 
 	template<typename TData>
 	inline void EdgeFlow<TData>::validate () const
@@ -56,6 +72,10 @@ namespace MaxFlow
 			throw std::out_of_range{ "flow > capacity" };
 		}
 	}
+
+#pragma endregion
+
+#pragma region Construction
 
 	template<typename TData>
 	inline EdgeFlow<TData>::EdgeFlow (flow_t _capacity, flow_t _flow) : Utils::UserData<TData>{ }, m_capacity{ _capacity }, m_flow{ _flow }
@@ -75,6 +95,10 @@ namespace MaxFlow
 		validate ();
 	}
 
+#pragma endregion
+
+#pragma region Getters
+
 	template<typename TData>
 	inline flow_t EdgeFlow<TData>::flow () const
 	{
@@ -86,6 +110,10 @@ namespace MaxFlow
 	{
 		return m_capacity;
 	}
+
+#pragma endregion
+
+#pragma region Setters
 
 	template<typename TData>
 	inline void EdgeFlow<TData>::setFlow (flow_t _flow)
@@ -110,6 +138,8 @@ namespace MaxFlow
 		}
 		m_capacity = _capacity;
 	}
+
+#pragma endregion
 
 #pragma endregion
 

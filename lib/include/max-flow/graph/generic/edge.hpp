@@ -9,6 +9,8 @@
 namespace MaxFlow::Graph::Generic 
 {
 
+#pragma region Declaration
+
 	using std::size_t;
 
 	template<typename, typename>
@@ -37,6 +39,12 @@ namespace MaxFlow::Graph::Generic
 		Edge* antiParallelIfExists ();
 
 	};
+
+#pragma endregion
+
+#pragma region Implementation
+
+#pragma endregion
 
 }
 

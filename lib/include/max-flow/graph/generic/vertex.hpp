@@ -6,11 +6,13 @@
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/generic/graph.hpp>
 #include <max-flow/graph/generic/edge.hpp>
-#include <max-flow/graph/generic/edge_iterator.hpp>
+#include <max-flow/utils/vec_iterator.hpp>
 #include <max-flow/graph/base/vertex.hpp>
 
 namespace MaxFlow::Graph::Generic
 {
+
+#pragma region Declaration
 
 	using std::size_t;
 
@@ -19,9 +21,6 @@ namespace MaxFlow::Graph::Generic
 
 	template<typename, typename>
 	class Edge;
-
-	template<bool, bool, typename, typename>
-	class EdgeIterator;
 
 	template<typename TVertexData = void, typename TEdgeData = TVertexData>
 	class Vertex final : public Base::Vertex
@@ -33,7 +32,7 @@ namespace MaxFlow::Graph::Generic
 		using TEdge = Edge<TVertexData, TEdgeData>;
 
 		template<bool constant, bool reversed>
-		using TEdgeIterator = EdgeIterator<constant, reversed, TVertexData, TEdgeData>;
+		using TEdgeIterator = Utils::ListIterator<TEdge, constant, reversed>;
 
 	public:
 
@@ -80,6 +79,12 @@ namespace MaxFlow::Graph::Generic
 		TEdgeIterator<true, true> crend () const;
 
 	};
+
+#pragma endregion
+
+#pragma region Implementation
+
+#pragma endregion
 
 }
 

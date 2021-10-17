@@ -1,0 +1,74 @@
+#ifndef INCLUDED_MAX_FLOW_GRAPH_BASE_EDGE
+#define INCLUDED_MAX_FLOW_GRAPH_BASE_EDGE
+
+#include <cstddef>
+#include <max-flow/utils/reference_type.hpp>
+#include <max-flow/graph/base/vertex.hpp>
+
+namespace MaxFlow::Graph::Base 
+{
+
+	using std::size_t;
+
+	class Vertex;
+
+	class Edge final : private Utils::ReferenceType
+	{
+
+	private:
+
+		// Friends
+
+		friend class Vertex;
+		friend class Graph;
+
+		template<bool, bool>
+		friend class EdgeIterator;
+
+		// Attributes
+
+		Vertex* const m_pFrom{},* const m_pTo{};
+		Edge* m_pPrevious{},* m_pNext{};
+
+		// Construction
+
+		Edge (Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext);
+
+		// Vertex interface
+
+		void detachFromList ();
+		void attachToList ();
+
+		const Edge* next () const;
+		Edge* next ();
+		const Edge* previous () const;
+		Edge* previous ();
+
+	public:
+
+		// Getters
+
+		const Vertex& from () const;
+		Vertex& from ();
+		const Vertex& to () const;
+		Vertex& to ();
+
+		bool hasAntiParallel () const;
+		const Edge& antiParallel () const;
+		Edge& antiParallel ();
+		const Edge* antiParallelIfExists () const;
+		Edge* antiParallelIfExists ();
+
+		// Destruction
+
+		void destroy ();
+
+		// Comparison
+
+		using ReferenceType::operator==;
+
+	};
+
+}
+
+#endif

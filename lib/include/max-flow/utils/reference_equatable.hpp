@@ -8,20 +8,20 @@ namespace MaxFlow::Utils
 
 #pragma region Declaration
 
-	class ReferenceComparable
+	class ReferenceEquatable
 	{
 
 	protected:
 
 		// Construction
 
-		ReferenceComparable () = default;
+		ReferenceEquatable () = default;
 
 	public:
 
 		// Comparison
 
-		virtual bool operator==(const ReferenceComparable& _other) const;
+		bool operator==(const ReferenceEquatable& _other) const;
 
 	};
 
@@ -29,13 +29,12 @@ namespace MaxFlow::Utils
 
 #pragma region Implementation
 
-	bool MaxFlow::Utils::ReferenceComparable::operator==(const ReferenceComparable& _other) const
+	inline bool ReferenceEquatable::operator==(const ReferenceEquatable& _other) const
 	{
 		return this == std::addressof (_other);
 	}
 
 #pragma endregion
-
 
 }
 

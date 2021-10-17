@@ -1,15 +1,11 @@
-﻿#include <max-flow/utils/graph.hpp>
-#include <max-flow/utils/graph_equality.hpp>
-#include <max-flow/solve.hpp>
+﻿#include <max-flow/graph/base/graph.hpp>
 #include <iostream>
-
-#include <functional>
 
 int main ()
 {
-
-	MaxFlow::Utils::Graph<int, int> g;
+	MaxFlow::Graph::Base::Graph g;
 	g.reserve (10);
+	g.setMatrix (true);
 	g.addVertex ();
 	g.addVertex ();
 	g.addVertex ();
@@ -22,10 +18,6 @@ int main ()
 	g[1].addOutEdge (g[2]);
 	g[1].addOutEdge (g[3]);
 	g.shrinkToFit ();
-
-	auto b = g;
-
-	std::cout << MaxFlow::Utils::GraphEquality::equals (b, g);
 
 	return 0;
 }

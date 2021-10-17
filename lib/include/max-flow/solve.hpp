@@ -1,7 +1,6 @@
 #ifndef INCLUDED_MAX_FLOW_SOLVE
 #define INCLUDED_MAX_FLOW_SOLVE
 
-#include <max-flow/utils/graph.hpp>
 #include <max-flow/edge_flow.hpp>
 
 namespace MaxFlow

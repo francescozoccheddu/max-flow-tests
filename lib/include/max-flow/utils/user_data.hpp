@@ -1,12 +1,6 @@
 #ifndef INCLUDED_MAX_FLOW_USER_DATA
 #define INCLUDED_MAX_FLOW_USER_DATA
 
-#include <type_traits>
-#include <concepts>
-
-#define MAX_FLOW_UD_VALID_T_DECL(Type) template <::std::same_as<T##Type> TValid##Type = T##Type> requires (!::std::is_void_v<T##Type>)
-#define MAX_FLOW_UD_VALID_T_IMPL(Type) template <::std::same_as<T##Type> TValid##Type> requires (!::std::is_void_v<T##Type>)
-
 namespace MaxFlow::Utils
 {
 

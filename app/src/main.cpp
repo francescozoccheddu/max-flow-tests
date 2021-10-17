@@ -19,5 +19,10 @@ int main ()
 	g[1].addOutEdge (g[3]);
 	g.shrinkToFit ();
 
+	for (MaxFlow::Graph::Base::Edge& v : g[1])
+	{
+		std::cout << "O";
+	}
+
 	return 0;
 }

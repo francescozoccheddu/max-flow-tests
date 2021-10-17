@@ -7,5 +7,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Source files
 file(GLOB_RECURSE SRC_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
-add_library("lib" ${SRC_FILES})
+add_library("lib" ${SRC_FILES} "include/max-flow/graph/generic/edge.hpp"  "include/max-flow/graph/generic/graph.hpp" "include/max-flow/graph/generic/vertex.hpp" )
 target_include_directories("lib" PUBLIC "${PROJECT_SOURCE_DIR}/include")

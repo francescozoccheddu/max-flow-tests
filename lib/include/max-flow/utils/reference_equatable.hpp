@@ -6,8 +6,6 @@
 namespace MaxFlow::Utils
 {
 
-#pragma region Declaration
-
 	class ReferenceEquatable
 	{
 
@@ -24,8 +22,6 @@ namespace MaxFlow::Utils
 		bool operator==(const ReferenceEquatable& _other) const;
 
 	};
-
-#pragma endregion
 
 #pragma region Implementation
 

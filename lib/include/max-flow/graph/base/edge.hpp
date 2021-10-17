@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/base/vertex.hpp>
+#include <max-flow/utils/list_iterator.hpp>
 
 namespace MaxFlow::Graph::Base 
 {
@@ -12,7 +13,7 @@ namespace MaxFlow::Graph::Base
 
 	class Vertex;
 
-	class Edge final : private Utils::ReferenceType
+	class Edge : private Utils::ReferenceType, public Utils::IterableListNode
 	{
 
 	private:
@@ -20,10 +21,6 @@ namespace MaxFlow::Graph::Base
 		// Friends
 
 		friend class Vertex;
-		friend class Graph;
-
-		template<bool, bool>
-		friend class EdgeIterator;
 
 		// Attributes
 
@@ -40,9 +37,9 @@ namespace MaxFlow::Graph::Base
 		void attachToList ();
 
 		const Edge* next () const;
-		Edge* next ();
+		Edge* next () override;
 		const Edge* previous () const;
-		Edge* previous ();
+		Edge* previous () override;
 
 	public:
 

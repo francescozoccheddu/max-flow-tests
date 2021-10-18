@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <max-flow/utils/macros/non_void.hpp>
 #include <max-flow/utils/reference_type.hpp>
+#include <max-flow/utils/user_data.hpp>
 #include <max-flow/graph/generic/graph.hpp>
 #include <max-flow/graph/generic/edge.hpp>
 #include <max-flow/utils/iteration/list_iterator.hpp>
@@ -30,7 +31,7 @@ namespace MaxFlow::Graph::Generic
 	class Edge;
 
 	template<typename TVertexData = void, typename TEdgeData = TVertexData>
-	class Vertex final : public Base::Vertex
+	class Vertex final : public Base::Vertex, public Utils::UserData<TVertexData>
 	{
 
 	private:
@@ -48,9 +49,19 @@ namespace MaxFlow::Graph::Generic
 		using TEdgeIteratorRM = TEdgeIterator<false, true>;
 		using TEdgeIteratorRC = TEdgeIterator<true, true>;
 
+		// Friend classes
+
+		friend class TGraph;
+
 		// Vertex interface
 
 		TEdge& allocateEdge (Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext) override;
+
+		// Construction
+
+		Vertex (Base::Graph& _graph, size_t _index, Base::Edge* _pNext);
+		MF_U_NV_SA_D (VertexData) Vertex (Base::Graph& _graph, size_t _index, const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D (VertexData) Vertex (Base::Graph& _graph, size_t _index, TNonVoidVertexData&& _data);
 
 	public:
 
@@ -104,6 +115,10 @@ namespace MaxFlow::Graph::Generic
 		TEdgeIteratorFC cend () const;
 		TEdgeIteratorRC crend () const;
 
+		// Comparison
+
+		using Base::Vertex::operator==;
+
 	};
 
 #pragma endregion
@@ -149,7 +164,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdge (Base::Vertex& _to, const TNonVoidED& _data)
 	{
 		ensureValidNewOutEdge (_to);
-		TEdge& edge{ *new TEdge{*this, _to, last(), nullptr} };
+		TEdge& edge{ *new TEdge{*this, _to, last (), nullptr} };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -169,20 +184,20 @@ namespace MaxFlow::Graph::Generic
 
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdge (size_t _to, TNonVoidED&& _data)
 	{
-		return addOutEdge (graph ()[_to], std::move(_data));
+		return addOutEdge (graph ()[_to], std::move (_data));
 	}
 
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdgeBefore (Base::Vertex& _to, Base::Edge& _next, const TNonVoidED& _data)
 	{
 		ensureValidNewOutEdgeBefore (_to, _next);
-		TEdge& edge{ *new TEdge{*this, _to, previous(_next), _next} };
+		TEdge& edge{ *new TEdge{*this, _to, previous (_next), _next} };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
 
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdgeBefore (size_t _to, Base::Edge& _next, const TNonVoidED& _data)
 	{
-		return addOutEdge (graph ()[_to], _next, _data);
+		return addOutEdgeBefore (graph ()[_to], _next, _data);
 	}
 
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdgeBefore (Base::Vertex& _to, Base::Edge& _next, TNonVoidED&& _data)
@@ -195,7 +210,22 @@ namespace MaxFlow::Graph::Generic
 
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdgeBefore (size_t _to, Base::Edge& _next, TNonVoidED&& _data)
 	{
-		return addOutEdge (graph ()[_to], _next, std::move (_data));
+		return addOutEdgeBefore (graph ()[_to], _next, std::move (_data));
+	}
+
+	MF_GG_M_TT inline Vertex<TVD, TED>::Vertex (Base::Graph& _graph, size_t _index, Base::Edge* _pNext)
+		: Base::Vertex{ _graph, _index }, Utils::UserData<TVD> {}
+	{
+	}
+
+	MF_GG_M_TT MF_U_NV_SA_I (VD) inline Vertex<TVD, TED>::Vertex (Base::Graph& _graph, size_t _index, const TNonVoidVD& _data)
+		: Base::Vertex{ _graph, _index }, Utils::UserData<TVD> {_data}
+	{
+	}
+
+	MF_GG_M_TT MF_U_NV_SA_I (VD) inline Vertex<TVD, TED>::Vertex (Base::Graph& _graph, size_t _index, TNonVoidVD&& _data)
+		: Base::Vertex{ _graph, _index }, Utils::UserData<TVD> {std::move (_data)}
+	{
 	}
 
 #pragma endregion

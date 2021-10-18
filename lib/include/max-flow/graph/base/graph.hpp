@@ -67,6 +67,10 @@ namespace MaxFlow::Graph::Base
 		// Graph interface
 
 		virtual Vertex& allocateVertex (size_t _index);
+		
+		// Assignment
+
+		Graph& operator=(Graph&& _moved);
 
 	public:
 

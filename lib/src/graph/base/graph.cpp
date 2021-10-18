@@ -153,6 +153,23 @@ namespace MaxFlow::Graph::Base
 
 #pragma endregion
 
+#pragma region Assignment
+
+	Graph& Graph::operator=(Graph&& _moved)
+	{
+		destroyAllVertices ();
+		m_vertices.swap (_moved.m_vertices);
+		std::swap (m_edgesCount, _moved.m_edgesCount);
+		std::swap (m_hasMatrix, _moved.m_hasMatrix);
+		for (Vertex& vertex : *this)
+		{
+			vertex.setGraph (*this);
+		}
+		return *this;
+	}
+
+#pragma endregion
+
 #pragma region Getters
 
 	size_t Graph::edgesCount () const

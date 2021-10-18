@@ -1,10 +1,9 @@
-﻿#include <max-flow/graph/base/graph.hpp>
-#include <max-flow/graph/generic/edge.hpp>
+﻿#include <max-flow/graph/generic/graph.hpp>
 #include <iostream>
 
 int main ()
 {
-	MaxFlow::Graph::Base::Graph g;
+	MaxFlow::Graph::Generic::Graph<int,int> g;
 	g.reserve (10);
 	g.setMatrix (true);
 	g.addVertex ();

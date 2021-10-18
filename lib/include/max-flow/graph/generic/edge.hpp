@@ -37,7 +37,9 @@ namespace MaxFlow::Graph::Generic
 
 		friend class TVertex;
 
-		using Base::Edge::Edge;
+		// Construction
+
+		Edge (Base::Vertex& _from, Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext);
 		MF_U_NV_SA_D (EdgeData) Edge (Base::Vertex& _from, Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext, const TNonVoidEdgeData& _data);
 		MF_U_NV_SA_D (EdgeData) Edge (Base::Vertex& _from, Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext, TNonVoidEdgeData&& _data);
 
@@ -55,6 +57,8 @@ namespace MaxFlow::Graph::Generic
 		const Edge* antiParallelIfExists () const;
 		Edge* antiParallelIfExists ();
 
+		// Comparison
+
 		using Base::Edge::operator==;
 
 	};
@@ -68,12 +72,16 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_PMC0 (MF_GG_M_A (Edge)&, antiParallel);
 	MF_GG_M_PMC0 (MF_GG_M_A (Edge)*, antiParallelIfExists);
 
+	MF_GG_M_TT inline Edge<TVD, TED>::Edge (Base::Vertex& _from, Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext)
+		: Base::Edge{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {}
+	{}
+
 	MF_GG_M_TT MF_U_NV_SA_I (ED) inline Edge<TVD, TED>::Edge (Base::Vertex& _from, Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext, const TNonVoidED& _data)
-		: Base::Vertex{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {_data}
+		: Base::Edge{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {_data}
 	{}
 
 	MF_GG_M_TT MF_U_NV_SA_I (ED) inline Edge<TVD, TED>::Edge (Base::Vertex& _from, Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext, TNonVoidED&& _data)
-		: Base::Vertex{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {std::move(_data)}
+		: Base::Edge{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {std::move(_data)}
 	{}
 
 #pragma endregion

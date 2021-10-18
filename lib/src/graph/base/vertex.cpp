@@ -76,7 +76,7 @@ namespace MaxFlow::Graph::Base
 	Edge& Vertex::addOutEdge (Vertex& _to)
 	{
 		ensureValidNewOutEdge (_to);
-		Edge& edge{ *new Edge{*this, _to, m_pLastOutEdge, nullptr} };
+		Edge& edge{ allocateEdge(_to, m_pLastOutEdge, nullptr) };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -89,7 +89,7 @@ namespace MaxFlow::Graph::Base
 	Edge& Vertex::addOutEdgeBefore (Vertex& _to, Edge& _next)
 	{
 		ensureValidNewOutEdgeBefore (_to, _next);
-		Edge& edge{ *new Edge{*this, _to, _next.previous (), &_next} };
+		Edge& edge{ allocateEdge( _to, _next.previous (), &_next) };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -187,6 +187,35 @@ namespace MaxFlow::Graph::Base
 	void Vertex::setGraph (Graph& _graph)
 	{
 		m_pGraph = &_graph;
+	}
+
+#pragma endregion
+
+#pragma region Vertex interface
+
+	Edge& Vertex::allocateEdge (Vertex& _to, Edge* _pPrevious, Edge* _pNext)
+	{
+		return *new Edge{ *this, _to, _pPrevious, _pNext };
+	}
+
+	Edge* Vertex::previous (Edge& _edge)
+	{
+		return _edge.previous ();
+	}
+
+	Edge* Vertex::next (Edge& _edge)
+	{
+		return _edge.next ();
+	}
+
+	Edge* Vertex::first ()
+	{
+		return m_pFirstOutEdge;
+	}
+
+	Edge* Vertex::last ()
+	{
+		return m_pLastOutEdge;
 	}
 
 #pragma endregion

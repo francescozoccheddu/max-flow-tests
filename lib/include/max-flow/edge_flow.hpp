@@ -56,8 +56,8 @@ namespace MaxFlow
 
 #pragma region Utils
 
-	template<typename TData>
-	inline void EdgeFlow<TData>::validate () const
+	template<typename TD>
+	inline void EdgeFlow<TD>::validate () const
 	{
 		if (m_capacity < 0)
 		{
@@ -77,20 +77,20 @@ namespace MaxFlow
 
 #pragma region Construction
 
-	template<typename TData>
-	inline EdgeFlow<TData>::EdgeFlow (flow_t _capacity, flow_t _flow) : Utils::UserData<TData>{ }, m_capacity{ _capacity }, m_flow{ _flow }
+	template<typename TD>
+	inline EdgeFlow<TD>::EdgeFlow (flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ }, m_capacity{ _capacity }, m_flow{ _flow }
 	{
 		validate ();
 	}
 
-	template<typename TData>
-	MAX_FLOW_UD_VALID_T_IMPL (Data) inline EdgeFlow<TData>::EdgeFlow (const TValidData& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TData>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
+	template<typename TD>
+	MAX_FLOW_UD_VALID_T_IMPL (Data) inline EdgeFlow<TD>::EdgeFlow (const TValidData& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
 	{
 		validate ();
 	}
 
-	template<typename TData>
-	MAX_FLOW_UD_VALID_T_IMPL (Data) inline EdgeFlow<TData>::EdgeFlow (TValidData&& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TData>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
+	template<typename TD>
+	MAX_FLOW_UD_VALID_T_IMPL (Data) inline EdgeFlow<TD>::EdgeFlow (TValidData&& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
 	{
 		validate ();
 	}
@@ -99,14 +99,14 @@ namespace MaxFlow
 
 #pragma region Getters
 
-	template<typename TData>
-	inline flow_t EdgeFlow<TData>::flow () const
+	template<typename TD>
+	inline flow_t EdgeFlow<TD>::flow () const
 	{
 		return m_flow;
 	}
 
-	template<typename TData>
-	inline flow_t EdgeFlow<TData>::capacity () const
+	template<typename TD>
+	inline flow_t EdgeFlow<TD>::capacity () const
 	{
 		return m_capacity;
 	}
@@ -115,8 +115,8 @@ namespace MaxFlow
 
 #pragma region Setters
 
-	template<typename TData>
-	inline void EdgeFlow<TData>::setFlow (flow_t _flow)
+	template<typename TD>
+	inline void EdgeFlow<TD>::setFlow (flow_t _flow)
 	{
 		if (_flow < 0)
 		{
@@ -129,8 +129,8 @@ namespace MaxFlow
 		m_flow = _flow;
 	}
 
-	template<typename TData>
-	inline void EdgeFlow<TData>::setCapacity (flow_t _capacity)
+	template<typename TD>
+	inline void EdgeFlow<TD>::setCapacity (flow_t _capacity)
 	{
 		if (m_capacity < 0)
 		{

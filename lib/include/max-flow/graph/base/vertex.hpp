@@ -6,7 +6,7 @@
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/base/graph.hpp>
 #include <max-flow/graph/base/edge.hpp>
-#include <max-flow/utils/list_iterator.hpp>
+#include <max-flow/utils/iteration/list_iterator.hpp>
 
 namespace MaxFlow::Graph::Base
 {
@@ -17,7 +17,7 @@ namespace MaxFlow::Graph::Base
 	using std::size_t;
 
 	template<bool constant, bool reversed>
-	using EdgeIterator = Utils::ListIterator<Edge, constant, reversed>;
+	using EdgeIterator = Utils::Iteration::ListIterator<Edge, constant, reversed>;
 
 	class Vertex : private Utils::ReferenceType
 	{
@@ -71,6 +71,14 @@ namespace MaxFlow::Graph::Base
 		void ensureValidNewOutEdge (const Vertex& _to) const;
 		void ensureValidNewOutEdgeBefore (const Vertex& _to, const Edge& _next) const;
 
+		// Vertex interface
+
+		virtual Edge& allocateEdge(Vertex& _to, Edge* _pPrevious, Edge *_pNext);
+		Edge* previous (Edge& _edge);
+		Edge* next (Edge& _edge);
+		Edge* first ();
+		Edge* last ();
+
 	public:
 
 		//Getters
@@ -102,9 +110,9 @@ namespace MaxFlow::Graph::Base
 
 		// Edge insertion
 
-		virtual Edge& addOutEdge (Vertex& _to);
+		Edge& addOutEdge (Vertex& _to);
 		Edge& addOutEdge (size_t _to);
-		virtual Edge& addOutEdgeBefore (Vertex& _to, Edge& _next);
+		Edge& addOutEdgeBefore (Vertex& _to, Edge& _next);
 		Edge& addOutEdgeBefore (size_t _to, Edge& _next);
 
 		// Destruction

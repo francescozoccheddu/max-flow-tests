@@ -1,11 +1,11 @@
-#ifndef INCLUDED_MAX_FLOW_UTILS_LIST_ITERATOR
-#define INCLUDED_MAX_FLOW_UTILS_LIST_ITERATOR
+#ifndef INCLUDED_MAX_FLOW_UTILS_ITERATION_LIST_ITERATOR
+#define INCLUDED_MAX_FLOW_UTILS_ITERATION_LIST_ITERATOR
 
 #include <iterator>
 #include <type_traits>
 #include <cstddef>
 
-namespace MaxFlow::Utils
+namespace MaxFlow::Utils::Iteration
 {
 
 #pragma region Declaration
@@ -41,6 +41,7 @@ namespace MaxFlow::Utils
 		using iterator_category = std::bidirectional_iterator_tag;
 		using difference_type = std::ptrdiff_t;
 		using value_type = std::conditional_t<constant, const TNode, TNode>;
+		using node_pointer = std::conditional_t<constant, const IterableListNode*, IterableListNode*>;
 		using reference = value_type&;
 		using pointer = value_type*;
 		using const_pointer = const TNode*;
@@ -50,13 +51,16 @@ namespace MaxFlow::Utils
 
 		// Attributes
 
-		IterableListNode* m_p;
+		node_pointer m_p;
 
 	public:
 
 		// Construction
 
-		ListIterator (IterableListNode* _pCurrent);
+		ListIterator (pointer _pCurrent);
+
+		template<typename TNodeOther, bool constantOther, bool reversedOther>
+		operator ListIterator<TNodeOther, constantOther, reversedOther> () const;
 
 		// Getters
 
@@ -76,8 +80,8 @@ namespace MaxFlow::Utils
 
 		// Comparison
 
-		template<typename TOtherData, bool constantOther, bool reversedOther>
-		bool operator== (const ListIterator<TOtherData, constantOther, reversedOther>& _other) const;
+		template<typename TNodeOther, bool constantOther, bool reversedOther>
+		bool operator== (const ListIterator<TNodeOther, constantOther, reversedOther>& _other) const;
 
 	};
 
@@ -114,46 +118,53 @@ namespace MaxFlow::Utils
 
 #pragma region Construction
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>::ListIterator (IterableListNode* _pCurrent) : m_p{ _pCurrent }
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>::ListIterator (pointer _pCurrent) : m_p{ static_cast<node_pointer>(_pCurrent) }
 	{}
+
+	template<typename TN, bool c, bool r>
+	template<typename TNO, bool co, bool ro>
+	inline ListIterator<TN, c, r>::operator ListIterator<TNO, co, ro> () const
+	{
+		return ListIterator<TNO, co, ro>{static_cast<TNO*>(m_p)};
+	}
 
 #pragma endregion
 
 #pragma region Getters
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>::const_reference ListIterator<TNode, constant, reversed>::operator* () const
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>::const_reference ListIterator<TN, c, r>::operator* () const
 	{
 		return const_cast<ListIterator&>(*this).operator*();
 	}
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>::reference ListIterator<TNode, constant, reversed>::operator* ()
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>::reference ListIterator<TN, c, r>::operator* ()
 	{
-		return static_cast<TNode&>(*m_p);
+		return static_cast<TN&>(*m_p);
 	}
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>::const_pointer ListIterator<TNode, constant, reversed>::operator-> () const
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>::const_pointer ListIterator<TN, c, r>::operator-> () const
 	{
 		return const_cast<ListIterator&>(*this).operator->();
 	}
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>::pointer ListIterator<TNode, constant, reversed>::operator-> ()
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>::pointer ListIterator<TN, c, r>::operator-> ()
 	{
-		return static_cast<TNode*>(m_p);
+		return static_cast<TN*>(m_p);
 	}
 
 #pragma endregion
 
 #pragma region Iteration
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>& ListIterator<TNode, constant, reversed>::operator++ ()
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>& ListIterator<TN, c, r>::operator++ ()
 	{
-		if constexpr (reversed)
+		if constexpr (r)
 		{
 			m_p = m_p->previous ();
 		}
@@ -164,10 +175,10 @@ namespace MaxFlow::Utils
 		return *this;
 	}
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed>& ListIterator<TNode, constant, reversed>::operator-- ()
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r>& ListIterator<TN, c, r>::operator-- ()
 	{
-		if constexpr (reversed)
+		if constexpr (r)
 		{
 			m_p = m_p->next ();
 		}
@@ -178,16 +189,16 @@ namespace MaxFlow::Utils
 		return *this;
 	}
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed> ListIterator<TNode, constant, reversed>::operator++ (int)
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r> ListIterator<TN, c, r>::operator++ (int)
 	{
 		ListIterator last{ *this };
 		++* this;
 		return last;
 	}
 
-	template<typename TNode, bool constant, bool reversed>
-	inline ListIterator<TNode, constant, reversed> ListIterator<TNode, constant, reversed>::operator-- (int)
+	template<typename TN, bool c, bool r>
+	inline ListIterator<TN, c, r> ListIterator<TN, c, r>::operator-- (int)
 	{
 		ListIterator last{ *this };
 		--* this;
@@ -196,9 +207,9 @@ namespace MaxFlow::Utils
 
 #pragma endregion
 
-	template<typename TNode, bool constant, bool reversed>
-	template<typename TOtherData, bool constantOther, bool reversedOther>
-	inline bool ListIterator<TNode, constant, reversed>::operator== (const ListIterator<TOtherData, constantOther, reversedOther>& _other) const
+	template<typename TN, bool c, bool r>
+	template<typename TNO, bool co, bool ro>
+	inline bool ListIterator<TN, c, r>::operator== (const ListIterator<TNO, co, ro>& _other) const
 	{
 		return _other.m_p == m_p;
 	}

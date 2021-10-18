@@ -53,54 +53,54 @@ namespace MaxFlow::Utils
 
 #pragma region Construction
 
-	template<typename TData>
-	inline UserData<TData>::UserData () : m_data{ }
+	template<typename TD>
+	inline UserData<TD>::UserData () : m_data{ }
 	{}
 
-	template<typename TData>
-	inline UserData<TData>::UserData (TData&& _data) : m_data{ _data }
+	template<typename TD>
+	inline UserData<TD>::UserData (TD&& _data) : m_data{ _data }
 	{}
 
-	template<typename TData>
-	inline UserData<TData>::UserData (const TData& _data) : m_data{ _data }
+	template<typename TD>
+	inline UserData<TD>::UserData (const TD& _data) : m_data{ _data }
 	{}
 
 #pragma endregion
 
 #pragma region Data getters
 
-	template <typename TData>
-	inline const TData& UserData<TData>::data () const
+	template <typename TD>
+	inline const TD& UserData<TD>::data () const
 	{
 		return m_data;
 	}
 
-	template <typename TData>
-	inline TData& UserData<TData>::data ()
+	template <typename TD>
+	inline TD& UserData<TD>::data ()
 	{
 		return m_data;
 	}
 
-	template <typename TData>
-	inline const TData& UserData<TData>::operator* () const
+	template <typename TD>
+	inline const TD& UserData<TD>::operator* () const
 	{
 		return m_data;
 	}
 
-	template <typename TData>
-	inline TData& UserData<TData>::operator*  ()
+	template <typename TD>
+	inline TD& UserData<TD>::operator*  ()
 	{
 		return m_data;
 	}
 
-	template <typename TData>
-	inline const TData* UserData<TData>::operator-> () const
+	template <typename TD>
+	inline const TD* UserData<TD>::operator-> () const
 	{
 		return std::addressof (m_data);
 	}
 
-	template <typename TData>
-	inline TData* UserData<TData>::operator->  ()
+	template <typename TD>
+	inline TD* UserData<TD>::operator->  ()
 	{
 		return std::addressof (m_data);
 	}

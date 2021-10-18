@@ -1,4 +1,5 @@
 ﻿#include <max-flow/graph/base/graph.hpp>
+#include <max-flow/graph/generic/edge.hpp>
 #include <iostream>
 
 int main ()

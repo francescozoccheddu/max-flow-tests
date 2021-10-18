@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/base/vertex.hpp>
-#include <max-flow/utils/list_iterator.hpp>
+#include <max-flow/utils/iteration/list_iterator.hpp>
 
 namespace MaxFlow::Graph::Base 
 {
@@ -13,7 +13,7 @@ namespace MaxFlow::Graph::Base
 
 	class Vertex;
 
-	class Edge : private Utils::ReferenceType, public Utils::IterableListNode
+	class Edge : private Utils::ReferenceType, public Utils::Iteration::IterableListNode
 	{
 
 	private:

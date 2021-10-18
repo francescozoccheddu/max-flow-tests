@@ -86,6 +86,15 @@ namespace MaxFlow::Graph::Base
 
 #pragma endregion
 
+#pragma region Graph interface
+
+	Vertex& Graph::allocateVertex (size_t _index)
+	{
+		return *new Vertex{ *this, _index };
+	}
+
+#pragma endregion
+
 #pragma region Vertex insertion
 
 	void Graph::addNewValidatedVertex (Vertex& _vertex)
@@ -101,7 +110,7 @@ namespace MaxFlow::Graph::Base
 
 	Vertex& Graph::addVertex ()
 	{
-		Vertex& vertex{ *new Vertex{*this, verticesCount ()} };
+		Vertex& vertex{ allocateVertex(verticesCount ()) };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
@@ -116,7 +125,7 @@ namespace MaxFlow::Graph::Base
 	Vertex& Graph::addVertexBefore (size_t _next)
 	{
 		ensureValidVertexIndex (_next);
-		Vertex& vertex{ *new Vertex{*this, _next} };
+		Vertex& vertex{ allocateVertex (_next) };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}

@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/base/vertex.hpp>
-#include <max-flow/utils/vec_iterator.hpp>
+#include <max-flow/utils/iteration/vec_iterator.hpp>
 
 namespace MaxFlow::Graph::Base
 {
@@ -15,7 +15,7 @@ namespace MaxFlow::Graph::Base
 	class Vertex;
 
 	template<bool constant, bool reversed>
-	using VertexIterator = Utils::VecIterator<Vertex, constant, reversed>;
+	using VertexIterator = Utils::Iteration::VecIterator<Vertex, constant, reversed>;
 
 	class Graph : private Utils::ReferenceType
 	{
@@ -64,8 +64,11 @@ namespace MaxFlow::Graph::Base
 
 		void addNewValidatedVertex (Vertex& _vertex);
 
-	public:
+		// Graph interface
 
+		virtual Vertex& allocateVertex (size_t _index);
+
+	public:
 
 		// Construction
 
@@ -85,9 +88,9 @@ namespace MaxFlow::Graph::Base
 
 		// Vertex insertion
 
-		virtual Vertex& addVertex ();
+		Vertex& addVertex ();
 		Vertex& addVertexBefore (Vertex& _next);
-		virtual Vertex& addVertexBefore (size_t _next);
+		Vertex& addVertexBefore (size_t _next);
 
 		void swapVertices (Vertex& _a, Vertex& _b);
 		void swapVertices (size_t _a, size_t _b);

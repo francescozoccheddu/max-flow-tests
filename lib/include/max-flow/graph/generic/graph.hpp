@@ -114,7 +114,7 @@ namespace MaxFlow::Graph::Generic
 		*this = std::move (_graph);
 	}
 
-	MF_GG_M_S (MF_GG_M_A (Vertex)&) allocateVertex (size_t _index) override
+	MF_GG_M_S (MF_GG_M_A (Vertex)&) allocateVertex (size_t _index)
 	{
 		if constexpr (std::is_default_constructible_v<TVD>)
 		{

@@ -198,16 +198,6 @@ namespace MaxFlow::Graph::Base
 		return *new Edge{ *this, _to, _pPrevious, _pNext };
 	}
 
-	Edge* Vertex::previous (Edge& _edge)
-	{
-		return _edge.previous ();
-	}
-
-	Edge* Vertex::next (Edge& _edge)
-	{
-		return _edge.next ();
-	}
-
 	Edge* Vertex::first ()
 	{
 		return m_pFirstOutEdge;

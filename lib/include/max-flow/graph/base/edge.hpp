@@ -27,14 +27,19 @@ namespace MaxFlow::Graph::Base
 		Vertex* const m_pFrom{},* const m_pTo{};
 		Edge* m_pPrevious{},* m_pNext{};
 
-		// Construction
-
-		Edge (Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext);
 
 		// Vertex interface
 
 		void detachFromList ();
 		void attachToList ();
+
+	protected:
+
+		// Construction
+
+		Edge (Vertex& _from, Vertex& _to, Edge* _pPrevious, Edge* _pNext);
+
+		// Vertext and edge interface
 
 		const Edge* next () const;
 		Edge* next () override;

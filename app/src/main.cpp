@@ -12,16 +12,16 @@ int main ()
 	g.addVertex ();
 	g.addVertex ();
 
-	g[0].addOutEdge (g[0]);
-	g[1].addOutEdge (g[0]);
-	g[1].addOutEdge (g[1]);
-	g[1].addOutEdge (g[2]);
-	g[1].addOutEdge (g[3]);
+	g[0].addOutEdge (g[0], 1);
+	g[1].addOutEdge (g[0], 2);
+	g[1].addOutEdge (g[1], 3);
+	g[1].addOutEdge (g[2], 4);
+	g[1].addOutEdge (g[3], 5);
 	g.shrinkToFit ();
 
-	for (MaxFlow::Graph::Base::Edge& v : g[1])
+	for (MaxFlow::Graph::Generic::Edge<int, int>& v : g[1])
 	{
-		std::cout << "O";
+		std::cout << *v;
 	}
 
 	return 0;

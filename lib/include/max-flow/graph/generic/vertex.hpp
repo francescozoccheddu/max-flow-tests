@@ -59,7 +59,7 @@ namespace MaxFlow::Graph::Generic
 
 		// Construction
 
-		Vertex (Base::Graph& _graph, size_t _index, Base::Edge* _pNext);
+		Vertex (Base::Graph& _graph, size_t _index);
 		MF_U_NV_SA_D (VertexData) Vertex (Base::Graph& _graph, size_t _index, const TNonVoidVertexData& _data);
 		MF_U_NV_SA_D (VertexData) Vertex (Base::Graph& _graph, size_t _index, TNonVoidVertexData&& _data);
 
@@ -125,7 +125,7 @@ namespace MaxFlow::Graph::Generic
 
 #pragma region Implementation
 
-	MF_GG_M_S (MF_GG_M_A (Edge)&) allocateEdge (Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext) override
+	MF_GG_M_S (MF_GG_M_A (Edge)&) allocateEdge (Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext)
 	{
 		if constexpr (std::is_default_constructible_v<TED>)
 		{
@@ -164,7 +164,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdge (Base::Vertex& _to, const TNonVoidED& _data)
 	{
 		ensureValidNewOutEdge (_to);
-		TEdge& edge{ *new TEdge{*this, _to, last (), nullptr} };
+		TEdge& edge{ *new TEdge{*this, _to, last (), nullptr, _data} };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -177,7 +177,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdge (Base::Vertex& _to, TNonVoidED&& _data)
 	{
 		ensureValidNewOutEdge (_to);
-		TEdge& edge{ *new TEdge{*this, _to, last (), nullptr} };
+		TEdge& edge{ *new TEdge{*this, _to, last (), nullptr, std::move(_data)} };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -190,7 +190,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdgeBefore (Base::Vertex& _to, Base::Edge& _next, const TNonVoidED& _data)
 	{
 		ensureValidNewOutEdgeBefore (_to, _next);
-		TEdge& edge{ *new TEdge{*this, _to, previous (_next), _next} };
+		TEdge& edge{ *new TEdge{*this, _to, _next.previous(), _next, _data} };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -203,7 +203,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (ED) MF_GG_M_TS (MF_GG_M_A (Edge)&) addOutEdgeBefore (Base::Vertex& _to, Base::Edge& _next, TNonVoidED&& _data)
 	{
 		ensureValidNewOutEdgeBefore (_to, _next);
-		TEdge& edge{ *new TEdge{*this, _to, previous (_next), _next} };
+		TEdge& edge{ *new TEdge{*this, _to, _next.previous(), _next, std::move(_data)} };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -213,7 +213,7 @@ namespace MaxFlow::Graph::Generic
 		return addOutEdgeBefore (graph ()[_to], _next, std::move (_data));
 	}
 
-	MF_GG_M_TT inline Vertex<TVD, TED>::Vertex (Base::Graph& _graph, size_t _index, Base::Edge* _pNext)
+	MF_GG_M_TT inline Vertex<TVD, TED>::Vertex (Base::Graph& _graph, size_t _index)
 		: Base::Vertex{ _graph, _index }, Utils::UserData<TVD> {}
 	{
 	}

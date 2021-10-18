@@ -74,8 +74,6 @@ namespace MaxFlow::Graph::Base
 		// Vertex interface
 
 		virtual Edge& allocateEdge(Vertex& _to, Edge* _pPrevious, Edge *_pNext);
-		Edge* previous (Edge& _edge);
-		Edge* next (Edge& _edge);
 		Edge* first ();
 		Edge* last ();
 

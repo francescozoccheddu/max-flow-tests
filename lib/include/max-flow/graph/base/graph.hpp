@@ -67,16 +67,17 @@ namespace MaxFlow::Graph::Base
 		// Graph interface
 
 		virtual Vertex& allocateVertex (size_t _index);
-		
-		// Assignment
-
-		Graph& operator=(Graph&& _moved);
 
 	public:
 
 		// Construction
 
 		Graph () = default;
+		
+		// Assignment
+
+		Graph& operator=(const Graph& _moved);
+		Graph& operator=(Graph&& _moved);
 
 		// Getters
 

@@ -127,7 +127,7 @@ namespace MaxFlow::Graph::Generic
 
 	MF_GG_M_S (MF_GG_M_A (Edge)&) allocateEdge (Base::Vertex& _to, Base::Edge* _pPrevious, Base::Edge* _pNext)
 	{
-		if constexpr (std::is_default_constructible_v<TED>)
+		if constexpr (std::is_default_constructible_v<TED> || std::is_void_v<TED>)
 		{
 			return *new TEdge{ *this, _to, _pPrevious,  _pNext };
 		}

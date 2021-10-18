@@ -30,14 +30,13 @@ namespace MaxFlow::Utils::Iteration
 
 		pointer* m_p;
 
-
 	public:
 
 		// Construction
 
 		VecIterator (pointer* _pCurrent);
 
-		template<typename TDataOther, bool constantOther, bool reversedOther>
+		template<typename TDataOther, bool constantOther, bool reversedOther> requires (constantOther || !constant)
 		operator VecIterator<TDataOther, constantOther, reversedOther> () const;
 
 		// Getters
@@ -95,10 +94,10 @@ namespace MaxFlow::Utils::Iteration
 	{}
 
 	template<typename TD, bool c, bool r>
-	template<typename TDO, bool co, bool ro>
+	template<typename TDO, bool co, bool ro> requires (co || !c)
 	inline VecIterator<TD, c, r>::operator VecIterator<TDO, co, ro> () const
 	{
-		return VecIterator<TDO, co, ro>{static_cast<TDO**>(m_p)};
+		return VecIterator<TDO, co, ro>{reinterpret_cast<VecIterator<TDO, co, ro>::pointer*>(m_p)};
 	}
 
 #pragma endregion

@@ -110,7 +110,7 @@ namespace MaxFlow::Graph::Base
 
 	Vertex& Graph::addVertex ()
 	{
-		Vertex& vertex{ allocateVertex(verticesCount ()) };
+		Vertex& vertex{ allocateVertex (verticesCount ()) };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
@@ -154,6 +154,27 @@ namespace MaxFlow::Graph::Base
 #pragma endregion
 
 #pragma region Assignment
+
+	Graph& Graph::operator=(const Graph& _clone)
+	{
+		destroyAllVertices ();
+		shrinkToFit ();
+		reserve (_clone.capacity ());
+		setMatrix (_clone.hasMatrix ());
+		for (const Vertex& vertex : _clone)
+		{
+			addVertex ();
+		}
+		for (const Vertex& vertex : _clone)
+		{
+			Vertex& thisVert{ (*this)[vertex.index ()] };
+			for (const Edge& edge : vertex)
+			{
+				thisVert.addOutEdge ((*this)[edge.to ().index ()]);
+			}
+		}
+		return *this;
+	}
 
 	Graph& Graph::operator=(Graph&& _moved)
 	{

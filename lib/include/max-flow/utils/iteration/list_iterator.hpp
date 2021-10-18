@@ -59,7 +59,7 @@ namespace MaxFlow::Utils::Iteration
 
 		ListIterator (pointer _pCurrent);
 
-		template<typename TNodeOther, bool constantOther, bool reversedOther>
+		template<typename TNodeOther, bool constantOther, bool reversedOther> requires (constantOther || !constant)
 		operator ListIterator<TNodeOther, constantOther, reversedOther> () const;
 
 		// Getters
@@ -123,10 +123,10 @@ namespace MaxFlow::Utils::Iteration
 	{}
 
 	template<typename TN, bool c, bool r>
-	template<typename TNO, bool co, bool ro>
+	template<typename TNO, bool co, bool ro>  requires (co || !c)
 	inline ListIterator<TN, c, r>::operator ListIterator<TNO, co, ro> () const
 	{
-		return ListIterator<TNO, co, ro>{static_cast<TNO*>(m_p)};
+		return ListIterator<TNO, co, ro>{static_cast<ListIterator<TNO, co, ro>::pointer>(m_p)};
 	}
 
 #pragma endregion
@@ -142,7 +142,7 @@ namespace MaxFlow::Utils::Iteration
 	template<typename TN, bool c, bool r>
 	inline ListIterator<TN, c, r>::reference ListIterator<TN, c, r>::operator* ()
 	{
-		return static_cast<TN&>(*m_p);
+		return static_cast<reference>(*m_p);
 	}
 
 	template<typename TN, bool c, bool r>
@@ -154,7 +154,7 @@ namespace MaxFlow::Utils::Iteration
 	template<typename TN, bool c, bool r>
 	inline ListIterator<TN, c, r>::pointer ListIterator<TN, c, r>::operator-> ()
 	{
-		return static_cast<TN*>(m_p);
+		return static_cast<pointer>(m_p);
 	}
 
 #pragma endregion

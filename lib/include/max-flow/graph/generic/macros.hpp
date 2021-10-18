@@ -7,7 +7,9 @@
 
 #define MF_GG_M_TS(ReturnType) inline ReturnType MF_GG_M_C <TVD,TED>::
 
-#define MF_GG_M_S(ReturnType) MF_GG_M_TT inline ReturnType MF_GG_M_C <TVD,TED>::
+#define MF_GG_M_FS(ReturnType) MF_GG_M_TT inline ReturnType 
+
+#define MF_GG_M_S(ReturnType) MF_GG_M_FS(ReturnType) MF_GG_M_C <TVD,TED>::
 
 #define MF_GG_M_B(ReturnType, Method, ...) { return static_cast< ReturnType >(Base :: MF_GG_M_C :: Method ( __VA_ARGS__ )); }
 

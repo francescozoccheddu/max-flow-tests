@@ -116,7 +116,7 @@ namespace MaxFlow::Graph::Generic
 
 	MF_GG_M_S (MF_GG_M_A (Vertex)&) allocateVertex (size_t _index)
 	{
-		if constexpr (std::is_default_constructible_v<TVD>)
+		if constexpr (std::is_default_constructible_v<TVD> || std::is_void_v<TVD>)
 		{
 			return *new TVertex{ *this, _index };
 		}
@@ -155,7 +155,7 @@ namespace MaxFlow::Graph::Generic
 				}
 				else
 				{
-					thisVert.addOutEdge (*edge, (*this)[edge.to ().index ()]);
+					thisVert.addOutEdge ((*this)[edge.to ().index ()], *edge);
 				}
 			}
 		}
@@ -184,7 +184,7 @@ namespace MaxFlow::Graph::Generic
 
 	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertex (const TNonVoidVD& _data)
 	{
-		TVertex& vertex{ new TVertex {*this, verticesCount (),_data} };
+		TVertex& vertex{ *new TVertex {*this, verticesCount (), _data} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
@@ -204,7 +204,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertexBefore (size_t _next, const TNonVoidVD& _data)
 	{
 		ensureValidVertexIndex (_next);
-		TVertex& vertex{ new TVertex {*this, _next,_data} };
+		TVertex& vertex{ *new TVertex {*this, _next,_data} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
@@ -217,7 +217,7 @@ namespace MaxFlow::Graph::Generic
 	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertexBefore (size_t _next, TNonVoidVD&& _data)
 	{
 		ensureValidVertexIndex (_next);
-		TVertex& vertex{ new TVertex {*this, _next, std::move (_data)} };
+		TVertex& vertex{ *new TVertex {*this, _next, std::move (_data)} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}

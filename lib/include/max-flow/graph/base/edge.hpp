@@ -13,7 +13,7 @@ namespace MaxFlow::Graph::Base
 
 	class Vertex;
 
-	class Edge : private Utils::ReferenceType, public Utils::Iteration::IterableListNode
+	class Edge : public Utils::ReferenceType, public Utils::Iteration::IterableListNode
 	{
 
 	private:

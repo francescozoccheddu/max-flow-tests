@@ -19,7 +19,7 @@ namespace MaxFlow::Graph::Base
 	template<bool constant, bool reversed>
 	using EdgeIterator = Utils::Iteration::ListIterator<Edge, constant, reversed>;
 
-	class Vertex : private Utils::ReferenceType
+	class Vertex : public Utils::ReferenceType
 	{
 
 	private:
@@ -133,10 +133,6 @@ namespace MaxFlow::Graph::Base
 		EdgeIterator<false, true> rend ();
 		EdgeIterator<true, false> cend () const;
 		EdgeIterator<true, true> crend () const;
-
-		// Comparison
-
-		using ReferenceType::operator==;
 
 	};
 

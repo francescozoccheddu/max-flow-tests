@@ -17,7 +17,7 @@ namespace MaxFlow::Graph::Base
 	template<bool constant, bool reversed>
 	using VertexIterator = Utils::Iteration::VecIterator<Vertex, constant, reversed>;
 
-	class Graph : private Utils::ReferenceType
+	class Graph : public Utils::ReferenceType
 	{
 
 	private:
@@ -130,10 +130,6 @@ namespace MaxFlow::Graph::Base
 		VertexIterator<false, true> rend ();
 		VertexIterator<true, false> cend () const;
 		VertexIterator<true, true> crend () const;
-
-		// Comparison
-
-		using ReferenceType::operator==;
 
 	};
 

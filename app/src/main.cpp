@@ -18,8 +18,8 @@ int main ()
 	g[1].addOutEdge (3, EdgeFlow{ 5,0 });
 	g[2].addOutEdge (3, EdgeFlow{ 1,0 });
 
-	Algorithms::toGraphvizDot (g).toDotFile ("c:/users/franc/desktop/ciao.dot");
-	Algorithms::toGraphvizDot (g).exportToFile ("c:/users/franc/desktop/ciao.pdf", Algorithms::GraphVizBuilder::EFormat::PDF);
+	Algorithms::GraphVizSource::from (g).toDotFile ("c:/users/franc/desktop/ciao.dot");
+	Algorithms::GraphVizSource::from (g).exportToFile ("c:/users/franc/desktop/ciao.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 
 	return 0;
 }

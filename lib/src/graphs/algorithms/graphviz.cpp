@@ -9,18 +9,66 @@
 namespace MaxFlow::Graphs::Algorithms
 {
 
-	GraphVizBuilder::GraphVizBuilder ()
+#pragma region Builder
+
+	GraphVizSource::Builder::Builder ()
 	{
-		m_dot << "digraph" << '\n';
-		m_dot << '{' << '\n';
+		m_dot << "digraph";
+		addNewLine ();
 	}
 
-	void GraphVizBuilder::addLabel (const std::string& _label)
+	void GraphVizSource::Builder::addSpace ()
+	{
+		m_dot << ' ';
+	}
+
+	void GraphVizSource::Builder::addNewLine ()
+	{
+		m_dot << '\n';
+	}
+
+	void GraphVizSource::Builder::addStatementEnd ()
+	{
+		m_dot << ';';
+		addNewLine ();
+	}
+
+	void GraphVizSource::Builder::addIndent ()
+	{
+		for (size_t i{}; i < m_level; i++)
+		{
+			m_dot << '\t';
+		}
+	}
+
+	void GraphVizSource::Builder::addLabel (const std::string& _label)
 	{
 		m_dot << '[' << "label" << '=' << '"' << _label << '"' << ']';
 	}
 
-	void GraphVizBuilder::addComment (const std::string& _comment)
+	void GraphVizSource::Builder::addNode (size_t _node, const std::string& _label)
+	{
+		addIndent ();
+		m_dot << _node;
+		addSpace ();
+		addLabel (_label);
+		addStatementEnd ();
+	}
+
+	void GraphVizSource::Builder::addEdge (size_t _from, size_t _to, const std::string& _label)
+	{
+		addIndent ();
+		m_dot << _from;
+		addSpace ();
+		m_dot << "->";
+		addSpace ();
+		m_dot << _to;
+		addSpace ();
+		addLabel (_label);
+		addStatementEnd ();
+	}
+
+	void GraphVizSource::Builder::addComment (const std::string& _comment)
 	{
 		for (char c : _comment)
 		{
@@ -29,67 +77,81 @@ namespace MaxFlow::Graphs::Algorithms
 				throw std::invalid_argument{ "non print character" };
 			}
 		}
-		m_dot << '\t';
-		m_dot << "//" << ' ' << _comment;
-		m_dot << '\n';
+		addIndent ();
+		m_dot << "//";
+		addSpace ();
+		m_dot << _comment;
+		addNewLine ();
 	}
 
-	void GraphVizBuilder::addNode (size_t _node)
+	void GraphVizSource::Builder::addNode (size_t _node)
 	{
-		m_dot << '\t';
-		m_dot << _node;
-		addLabel (std::format ("{}", _node));
-		m_dot << ';' << '\n';
+		addNode (_node, std::format ("{}", _node));
 	}
 
-	void GraphVizBuilder::addNode (size_t _node, size_t _label)
+	void GraphVizSource::Builder::addNode (size_t _node, size_t _label)
 	{
-		m_dot << '\t';
-		m_dot << _node;
-		addLabel (std::format ("{},{}", _node, _label));
-		m_dot << ';' << '\n';
+		addNode (_node, std::format ("{},{}", _node, _label));
 	}
 
-	void GraphVizBuilder::addEdge (size_t _from, size_t _to, flow_t _flow)
+	void GraphVizSource::Builder::addEdge (size_t _from, size_t _to, flow_t _flow)
 	{
-		m_dot << '\t';
-		m_dot << _from << "->" << _to;
-		addLabel (std::format ("{}", _flow));
-		m_dot << ';' << '\n';
+		addEdge (_from, _to, std::format ("{}", _flow));
 	}
 
-	void GraphVizBuilder::addEdge (size_t _from, size_t _to, flow_t _flow, size_t _capacity)
+	void GraphVizSource::Builder::addEdge (size_t _from, size_t _to, flow_t _flow, size_t _capacity)
 	{
-		m_dot << '\t';
-		m_dot << _from << "->" << _to;
-		addLabel (std::format ("{},{}", _flow, _capacity));
-		m_dot << ';' << '\n';
+		addEdge (_from, _to, std::format ("{},{}", _flow, _capacity));
 	}
 
-	void GraphVizBuilder::toDotFile (const std::string& _file) const
+	void GraphVizSource::Builder::addPush ()
 	{
-		std::ofstream f{};
-		f.open (_file);
-		f << toDot ();
-		f.close ();
+		addIndent ();
+		m_dot << '{';
+		addNewLine ();
+		m_level++;
 	}
 
-	std::string GraphVizBuilder::formatCommandArgument (EFormat _format)
+	void GraphVizSource::Builder::addPop ()
+	{
+		if (m_level == 0)
+		{
+			throw std::logic_error{ "level zero" };
+		}
+		m_level--;
+		addIndent ();
+		m_dot << '}';
+		addNewLine ();
+	}
+
+	std::string GraphVizSource::Builder::toDot () const
+	{
+		return m_dot.str ();
+	}
+
+#pragma endregion
+
+#pragma region Source
+
+	GraphVizSource::GraphVizSource (const std::string& _dot) : m_dot{ _dot }
+	{}
+
+	std::string GraphVizSource::formatCommandArgument (EFormat _format)
 	{
 		switch (_format)
 		{
-			case GraphVizBuilder::EFormat::SVG:
+			case EFormat::SVG:
 				return "svg";
-			case GraphVizBuilder::EFormat::PNG:
+			case EFormat::PNG:
 				return "png";
-			case GraphVizBuilder::EFormat::PDF:
+			case EFormat::PDF:
 				return "pdf";
 			default:
 				throw std::invalid_argument{ "unknown format" };
 		}
 	}
 
-	std::string GraphVizBuilder::command (const std::string& _input, const std::string& _output, EFormat _format)
+	std::string GraphVizSource::command (const std::string& _input, const std::string& _output, EFormat _format)
 	{
 		std::stringstream cmd{};
 		cmd << "dot" << ' ';
@@ -104,7 +166,20 @@ namespace MaxFlow::Graphs::Algorithms
 		return cmd.str ();
 	}
 
-	void GraphVizBuilder::exportToFile (const std::string& _file, EFormat _format) const
+	std::string GraphVizSource::toDot () const
+	{
+		return m_dot;
+	}
+
+	void GraphVizSource::toDotFile (const std::string& _file) const
+	{
+		std::ofstream f{};
+		f.open (_file);
+		f << toDot ();
+		f.close ();
+	}
+
+	void GraphVizSource::exportToFile (const std::string& _file, EFormat _format) const
 	{
 		const char* pTempFileName{ std::tmpnam (nullptr) };
 		if (!pTempFileName)
@@ -120,30 +195,41 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
-	std::string GraphVizBuilder::toDot () const
-	{
-		return m_dot.str () + '}';
-	}
-
-	GraphVizBuilder toGraphvizDot (const ResidualGraph& _graph)
+	GraphVizSource GraphVizSource::from (const ResidualGraph& _graph)
 	{
 		using Graph = ResidualGraph::UnderlyingGraph;
-		GraphVizBuilder builder{};
+		Builder builder{};
+		builder.addPush ();
 		builder.addComment ("Residual Graph");
-		builder.addComment ("Vertices (index,label):");
-		for (const Graph::Vertex& v : _graph.graph ())
 		{
-			builder.addNode (v.index (), *v);
-		}
-		builder.addComment ("Edges (residual_capacity):");
-		for (const Graph::Vertex& v : _graph.graph ())
-		{
-			for (const Graph::Edge& e : v)
+			builder.addPush ();
+			builder.addComment ("Vertices (index,label):");
+			for (const Graph::Vertex& v : _graph.graph ())
 			{
-				builder.addEdge (e.from ().index (), e.to ().index (), *e);
+				builder.addNode (v.index (), *v);
 			}
+			builder.addPop ();
 		}
-		return builder;
+		{
+			builder.addPush ();
+			builder.addComment ("Edges (residual_capacity):");
+			for (const Graph::Vertex& v : _graph.graph ())
+			{
+				if (v.outEdgesCount ())
+				{
+					builder.addComment (std::format ("From {}", v.index ()));
+					for (const Graph::Edge& e : v)
+					{
+						builder.addEdge (e.from ().index (), e.to ().index (), *e);
+					}
+				}
+			}
+			builder.addPop ();
+		}
+		builder.addPop ();
+		return GraphVizSource{ builder.toDot () };
 	}
+
+#pragma endregion
 
 }

@@ -6,7 +6,7 @@
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/base/graph.hpp>
 #include <max-flow/graph/base/edge.hpp>
-#include <max-flow/utils/iteration/list_iterator.hpp>
+#include <max-flow/utils/iteration/doubly_linked.hpp>
 
 namespace MaxFlow::Graph::Base
 {
@@ -17,7 +17,7 @@ namespace MaxFlow::Graph::Base
 	using std::size_t;
 
 	template<bool constant, bool reversed>
-	using EdgeIterator = Utils::Iteration::ListIterator<Edge, constant, reversed>;
+	using EdgeIterator = Utils::Iteration::DoublyLinkedIterator<Edge, constant, reversed>;
 
 	class Vertex : public Utils::ReferenceType
 	{

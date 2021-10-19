@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/base/vertex.hpp>
-#include <max-flow/utils/iteration/vec_iterator.hpp>
+#include <max-flow/utils/iteration/contiguous_indirect.hpp>
 
 namespace MaxFlow::Graph::Base
 {
@@ -15,7 +15,7 @@ namespace MaxFlow::Graph::Base
 	class Vertex;
 
 	template<bool constant, bool reversed>
-	using VertexIterator = Utils::Iteration::VecIterator<Vertex, constant, reversed>;
+	using VertexIterator = Utils::Iteration::ContiguousIndirectIterator<Vertex, constant, reversed>;
 
 	class Graph : public Utils::ReferenceType
 	{

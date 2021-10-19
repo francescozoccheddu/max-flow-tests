@@ -1,8 +1,8 @@
 #ifndef INCLUDED_MAX_FLOW_EDGE_FLOW
 #define INCLUDED_MAX_FLOW_EDGE_FLOW
 
+#include <max-flow/utils/macros/non_void.hpp>
 #include <max-flow/utils/user_data.hpp>
-#include <max-flow/utils/graph.hpp>
 #include <stdexcept>
 
 namespace MaxFlow
@@ -35,8 +35,8 @@ namespace MaxFlow
 		// Construction
 
 		EdgeFlow (flow_t _capacity = 0, flow_t _flow = 0);
-		MAX_FLOW_UD_VALID_T_DECL (Data) EdgeFlow (const TValidData& _data, flow_t _capacity = 0, flow_t _flow = 0);
-		MAX_FLOW_UD_VALID_T_DECL (Data) EdgeFlow (TValidData&& _data, flow_t _capacity = 0, flow_t _flow = 0);
+		MF_U_NV_SA_D (Data) EdgeFlow (const TNonVoidData& _data, flow_t _capacity = 0, flow_t _flow = 0);
+		MF_U_NV_SA_D (Data) EdgeFlow (TNonVoidData&& _data, flow_t _capacity = 0, flow_t _flow = 0);
 
 		// Getters
 
@@ -84,13 +84,13 @@ namespace MaxFlow
 	}
 
 	template<typename TD>
-	MAX_FLOW_UD_VALID_T_IMPL (Data) inline EdgeFlow<TD>::EdgeFlow (const TValidData& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
+	MF_U_NV_SA_I (D) inline EdgeFlow<TD>::EdgeFlow (const TNonVoidD& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
 	{
 		validate ();
 	}
 
 	template<typename TD>
-	MAX_FLOW_UD_VALID_T_IMPL (Data) inline EdgeFlow<TD>::EdgeFlow (TValidData&& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
+	MF_U_NV_SA_I (D) inline EdgeFlow<TD>::EdgeFlow (TNonVoidD&& _data, flow_t _capacity, flow_t _flow) : Utils::UserData<TD>{ _data }, m_capacity{ _capacity }, m_flow{ _flow }
 	{
 		validate ();
 	}

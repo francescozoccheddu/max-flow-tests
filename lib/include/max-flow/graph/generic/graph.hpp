@@ -7,54 +7,38 @@
 #include <max-flow/utils/macros/non_void.hpp>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graph/generic/vertex.hpp>
-#include <max-flow/utils/iteration/vec_iterator.hpp>
+#include <max-flow/utils/iteration/contiguous_indirect.hpp>
 #include <max-flow/graph/base/graph.hpp>
 #include <max-flow/graph/generic/macros.hpp>
 
-#define MF_GG_M_C Graph
+#define MF_GG_D_T Graph
 
 namespace MaxFlow::Graph::Generic
 {
 
-#pragma region Declaration
-
 	using std::size_t;
 
-	template<typename, typename>
-	class Vertex;
+#pragma region Declaration
 
-	template<typename, typename>
-	class Edge;
-
-	template<typename TVertexData = void, typename TEdgeData = TVertexData>
-	class Graph final : public Base::Graph
+	MF_GG_D_TT_F class Graph final : public BGraph
 	{
+	public:
+
+		MF_GG_D_UV;
+		MF_GG_D_UE;
+		MF_GG_D_UI;
 
 	private:
 
-		// Aliases
-
-		using TGraph = Graph;
-		using TVertex = Vertex<TVertexData, TEdgeData>;
-		using TEdge = Edge<TVertexData, TEdgeData>;
-
-		template<bool constant, bool reversed>
-		using TVertexIterator = Utils::Iteration::VecIterator<TVertex, constant, reversed>;
-
-		using TVertexIteratorFM = TVertexIterator<false, false>;
-		using TVertexIteratorFC = TVertexIterator<true, false>;
-		using TVertexIteratorRM = TVertexIterator<false, true>;
-		using TVertexIteratorRC = TVertexIterator<true, true>;
-
 		// Graph interface
 
-		TVertex& allocateVertex (size_t _index) override;
+		Vertex& allocateVertex (size_t _index) override;
 
 	public:
 
 		// Construction
 
-		using Base::Graph::Graph;
+		using BGraph::Graph;
 		Graph (const Graph& _clone);
 		Graph (Graph&& _moved);
 
@@ -65,38 +49,38 @@ namespace MaxFlow::Graph::Generic
 
 		// Getters
 
-		const TVertex& vertex (size_t _index) const;
-		TVertex& vertex (size_t _index);
+		const Vertex& vertex (size_t _index) const;
+		Vertex& vertex (size_t _index);
 
-		const TVertex& operator[] (size_t _index) const;
-		TVertex& operator[] (size_t _index);
+		const Vertex& operator[] (size_t _index) const;
+		Vertex& operator[] (size_t _index);
 
 		// Vertex insertion
 
-		TVertex& addVertex ();
-		MF_U_NV_SA_D (VertexData) TVertex& addVertex (const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) TVertex& addVertex (TNonVoidVertexData&& _data);
-		TVertex& addVertexBefore (Base::Vertex& _next);
-		MF_U_NV_SA_D (VertexData) TVertex& addVertexBefore (Base::Vertex& _next, const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) TVertex& addVertexBefore (Base::Vertex& _next, TNonVoidVertexData&& _data);
-		TVertex& addVertexBefore (size_t _next);
-		MF_U_NV_SA_D (VertexData) TVertex& addVertexBefore (size_t _next, const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) TVertex& addVertexBefore (size_t _next, TNonVoidVertexData&& _data);
+		Vertex& addVertex ();
+		MF_U_NV_SA_D (VertexData) Vertex& addVertex (const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertex (TNonVoidVertexData&& _data);
+		Vertex& addVertexBefore (BVertex& _next);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (BVertex& _next, const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (BVertex& _next, TNonVoidVertexData&& _data);
+		Vertex& addVertexBefore (size_t _next);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (size_t _next, const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (size_t _next, TNonVoidVertexData&& _data);
 
 		// Iteration
 
-		TVertexIteratorFC begin () const;
-		TVertexIteratorFM begin ();
-		TVertexIteratorRC rbegin () const;
-		TVertexIteratorRM rbegin ();
-		TVertexIteratorFC cbegin () const;
-		TVertexIteratorRC crbegin () const;
-		TVertexIteratorFC end () const;
-		TVertexIteratorFM end ();
-		TVertexIteratorRC rend () const;
-		TVertexIteratorRM rend ();
-		TVertexIteratorFC cend () const;
-		TVertexIteratorRC crend () const;
+		VertexIteratorFC begin () const;
+		VertexIteratorFM begin ();
+		VertexIteratorRC rbegin () const;
+		VertexIteratorRM rbegin ();
+		VertexIteratorFC cbegin () const;
+		VertexIteratorRC crbegin () const;
+		VertexIteratorFC end () const;
+		VertexIteratorFM end ();
+		VertexIteratorRC rend () const;
+		VertexIteratorRM rend ();
+		VertexIteratorFC cend () const;
+		VertexIteratorRC crend () const;
 
 	};
 
@@ -104,21 +88,21 @@ namespace MaxFlow::Graph::Generic
 
 #pragma region Implementation
 
-	MF_GG_M_TT inline Graph<TVD, TED>::Graph (const Graph& _graph)
+	MF_GG_D_TT inline Graph<TVD, TED>::Graph (const Graph& _graph)
 	{
 		*this = _graph;
 	}
 
-	MF_GG_M_TT inline Graph<TVD, TED>::Graph (Graph&& _graph)
+	MF_GG_D_TT inline Graph<TVD, TED>::Graph (Graph&& _graph)
 	{
 		*this = std::move (_graph);
 	}
 
-	MF_GG_M_S (MF_GG_M_A (Vertex)&) allocateVertex (size_t _index)
+	MF_GG_D_MS (MF_GG_D_A (Vertex)&) allocateVertex (size_t _index)
 	{
 		if constexpr (std::is_default_constructible_v<TVD> || std::is_void_v<TVD>)
 		{
-			return *new TVertex{ *this, _index };
+			return *new Vertex{ *this, _index };
 		}
 		else
 		{
@@ -127,13 +111,13 @@ namespace MaxFlow::Graph::Generic
 	}
 
 
-	MF_GG_M_S (MF_GG_M_A (Graph)&) operator=(const Graph& _clone)
+	MF_GG_D_MS (MF_GG_D_TG&) operator=(const Graph& _clone)
 	{
 		destroyAllVertices ();
 		shrinkToFit ();
 		reserve (_clone.capacity ());
 		setMatrix (_clone.hasMatrix ());
-		for (const TVertex& vertex : _clone)
+		for (const Vertex& vertex : _clone)
 		{
 			if constexpr (std::is_void_v<TVD>)
 			{
@@ -144,10 +128,10 @@ namespace MaxFlow::Graph::Generic
 				addVertex (*vertex);
 			}
 		}
-		for (const TVertex& vertex : _clone)
+		for (const Vertex& vertex : _clone)
 		{
-			TVertex& thisVert{ (*this)[vertex.index ()] };
-			for (const TEdge& edge : vertex)
+			Vertex& thisVert{ (*this)[vertex.index ()] };
+			for (const Edge& edge : vertex)
 			{
 				if constexpr (std::is_void_v<TED>)
 				{
@@ -162,62 +146,62 @@ namespace MaxFlow::Graph::Generic
 		return *this;
 	}
 
-	MF_GG_M_PM1 (MF_GG_M_A (Graph)&, operator=, Graph&&);
-	MF_GG_M_PMC1 (MF_GG_M_A (Vertex)&, vertex, size_t);
-	MF_GG_M_PMC1 (MF_GG_M_A (Vertex)&, operator[], size_t);
-	MF_GG_M_PM0 (MF_GG_M_A (Vertex)&, addVertex);
-	MF_GG_M_PM1 (MF_GG_M_A (Vertex)&, addVertexBefore, Base::Vertex&);
-	MF_GG_M_PM1 (MF_GG_M_A (Vertex)&, addVertexBefore, size_t);
+	MF_GG_D_PM1 (MF_GG_D_TG&, operator=, Graph&&);
+	MF_GG_D_PMC1 (MF_GG_D_A (Vertex)&, vertex, size_t);
+	MF_GG_D_PMC1 (MF_GG_D_A (Vertex)&, operator[], size_t);
+	MF_GG_D_PM0 (MF_GG_D_A (Vertex)&, addVertex);
+	MF_GG_D_PM1 (MF_GG_D_A (Vertex)&, addVertexBefore, BVertex&);
+	MF_GG_D_PM1 (MF_GG_D_A (Vertex)&, addVertexBefore, size_t);
 
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorFC), begin);
-	MF_GG_M_PM0 (MF_GG_M_A (VertexIteratorFM), begin);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorRC), rbegin);
-	MF_GG_M_PM0 (MF_GG_M_A (VertexIteratorRM), rbegin);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorFC), cbegin);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorRC), crbegin);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorFC), end);
-	MF_GG_M_PM0 (MF_GG_M_A (VertexIteratorFM), end);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorRC), rend);
-	MF_GG_M_PM0 (MF_GG_M_A (VertexIteratorRM), rend);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorFC), cend);
-	MF_GG_M_PC0 (MF_GG_M_A (VertexIteratorRC), crend);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorFC), begin);
+	MF_GG_D_PM0 (MF_GG_D_A (VertexIteratorFM), begin);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorRC), rbegin);
+	MF_GG_D_PM0 (MF_GG_D_A (VertexIteratorRM), rbegin);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorFC), cbegin);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorRC), crbegin);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorFC), end);
+	MF_GG_D_PM0 (MF_GG_D_A (VertexIteratorFM), end);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorRC), rend);
+	MF_GG_D_PM0 (MF_GG_D_A (VertexIteratorRM), rend);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorFC), cend);
+	MF_GG_D_PC0 (MF_GG_D_A (VertexIteratorRC), crend);
 
-	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertex (const TNonVoidVD& _data)
+	MF_GG_D_TT MF_U_NV_SA_I (VD) MF_GG_D_TMS (MF_GG_D_A (Vertex)&) addVertex (const TNonVoidVD& _data)
 	{
-		TVertex& vertex{ *new TVertex {*this, verticesCount (), _data} };
+		Vertex& vertex{ *new Vertex {*this, verticesCount (), _data} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
 
-	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertex (TNonVoidVD&& _data)
+	MF_GG_D_TT MF_U_NV_SA_I (VD) MF_GG_D_TMS (MF_GG_D_A (Vertex)&) addVertex (TNonVoidVD&& _data)
 	{
-		TVertex& vertex{ new TVertex {*this, verticesCount (), std::move (_data)} };
+		Vertex& vertex{ new Vertex {*this, verticesCount (), std::move (_data)} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
 
-	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertexBefore (Base::Vertex& _next, const TNonVoidVD& _data)
+	MF_GG_D_TT MF_U_NV_SA_I (VD) MF_GG_D_TMS (MF_GG_D_A (Vertex)&) addVertexBefore (BVertex& _next, const TNonVoidVD& _data)
 	{
 		addVertexBefore (_next.index (), _data);
 	}
 
-	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertexBefore (size_t _next, const TNonVoidVD& _data)
+	MF_GG_D_TT MF_U_NV_SA_I (VD) MF_GG_D_TMS (MF_GG_D_A (Vertex)&) addVertexBefore (size_t _next, const TNonVoidVD& _data)
 	{
 		ensureValidVertexIndex (_next);
-		TVertex& vertex{ *new TVertex {*this, _next,_data} };
+		Vertex& vertex{ *new Vertex {*this, _next,_data} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
 
-	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertexBefore (Base::Vertex& _next, TNonVoidVD&& _data)
+	MF_GG_D_TT MF_U_NV_SA_I (VD) MF_GG_D_TMS (MF_GG_D_A (Vertex)&) addVertexBefore (BVertex& _next, TNonVoidVD&& _data)
 	{
 		addVertexBefore (_next.index (), std::move (_data));
 	}
 
-	MF_GG_M_TT MF_U_NV_SA_I (VD) MF_GG_M_TS (MF_GG_M_A (Vertex)&) addVertexBefore (size_t _next, TNonVoidVD&& _data)
+	MF_GG_D_TT MF_U_NV_SA_I (VD) MF_GG_D_TMS (MF_GG_D_A (Vertex)&) addVertexBefore (size_t _next, TNonVoidVD&& _data)
 	{
 		ensureValidVertexIndex (_next);
-		TVertex& vertex{ *new TVertex {*this, _next, std::move (_data)} };
+		Vertex& vertex{ *new Vertex {*this, _next, std::move (_data)} };
 		addNewValidatedVertex (vertex);
 		return vertex;
 	}
@@ -226,6 +210,6 @@ namespace MaxFlow::Graph::Generic
 
 }
 
-#undef MF_GG_M_C
+#undef MF_GG_D_T
 
 #endif

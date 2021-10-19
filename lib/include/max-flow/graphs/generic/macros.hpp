@@ -5,8 +5,8 @@
 #define MF_GG_D_TT_F template<typename TVertexData, typename TEdgeData>
 #define MF_GG_D_TT_FD template<typename TVertexData = void, typename TEdgeData = TVertexData>
 
-#define MF_GG_D_TG MaxFlow::Graph::Generic:: MF_GG_D_T <TVD,TED>
-#define MF_GG_D_TG_F MaxFlow::Graph::Generic:: MF_GG_D_T <TVertexData,TEdgeData>
+#define MF_GG_D_TG MaxFlow::Graphs::Generic:: MF_GG_D_T <TVD,TED>
+#define MF_GG_D_TG_F MaxFlow::Graphs::Generic:: MF_GG_D_T <TVertexData,TEdgeData>
 
 #define MF_GG_D_A(Alias) MF_GG_D_TG:: Alias
 #define MF_GG_D_A_F(Alias) MF_GG_D_TG_F :: Alias
@@ -20,7 +20,7 @@
 #define MF_GG_D_TCS inline MF_GG_D_TG :: MF_GG_D_T
 #define MF_GG_D_CS MF_GG_D_TT MF_GG_D_TCS
 
-#define MF_GG_D_PB(ReturnType, Method, ...) { return static_cast< ReturnType >( MaxFlow::Graph::Base:: MF_GG_D_T :: Method ( __VA_ARGS__ )); }
+#define MF_GG_D_PB(ReturnType, Method, ...) { return static_cast< ReturnType >( MaxFlow::Graphs::Base:: MF_GG_D_T :: Method ( __VA_ARGS__ )); }
 
 #define MF_GG_D_P0(ReturnType, Method, Modifier) MF_GG_D_MS(ReturnType) Method () Modifier MF_GG_D_PB(ReturnType, Method)
 #define MF_GG_D_P1(ReturnType, Method, Type1, Modifier) MF_GG_D_MS(ReturnType) Method (Type1 _a1) Modifier MF_GG_D_PB(ReturnType, Method, _a1)
@@ -54,9 +54,9 @@
 #define MF_GG_D_PMC5(ReturnType, Method, Type1, Type2, Type3, Type4, Type5) MF_GG_D_PC5(const ReturnType, Method, const Type1, const Type2, const Type3, const Type4, const Type5) MF_GG_D_PM5(ReturnType, Method, Type1, Type2, Type3, Type4, Type5)
 #define MF_GG_D_PMC6(ReturnType, Method, Type1, Type2, Type3, Type4, Type5, Type6) MF_GG_D_PC6(const ReturnType, Method, const Type1, const Type2, const Type3, const Type4, const Type5, const Type6) MF_GG_D_PM6(ReturnType, Method, Type1, Type2, Type3, Type4, Type5, Type6)
 
-#define MF_GG_D_UG using Graph = ::MaxFlow::Graph::Generic::Graph<TVertexData, TEdgeData>; 
-#define MF_GG_D_UV using Vertex = ::MaxFlow::Graph::Generic::Vertex<TVertexData, TEdgeData>; 
-#define MF_GG_D_UE using Edge = ::MaxFlow::Graph::Generic::Edge<TVertexData, TEdgeData>; 
+#define MF_GG_D_UG using Graph = ::MaxFlow::Graphs::Generic::Graph<TVertexData, TEdgeData>; 
+#define MF_GG_D_UV using Vertex = ::MaxFlow::Graphs::Generic::Vertex<TVertexData, TEdgeData>; 
+#define MF_GG_D_UE using Edge = ::MaxFlow::Graphs::Generic::Edge<TVertexData, TEdgeData>; 
 
 #define MF_GG_D_UI \
 template<bool constant, bool reversed> \
@@ -86,7 +86,7 @@ namespace MaxFlow::Utils::Iteration
 
 }
 
-namespace MaxFlow::Graph::Base
+namespace MaxFlow::Graphs::Base
 {
 
 	class Graph;
@@ -95,7 +95,7 @@ namespace MaxFlow::Graph::Base
 
 }
 
-namespace MaxFlow::Graph::Generic
+namespace MaxFlow::Graphs::Generic
 {
 
 	using BGraph = Base::Graph;

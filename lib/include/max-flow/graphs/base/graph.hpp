@@ -4,10 +4,10 @@
 #include <vector>
 #include <cstddef>
 #include <max-flow/utils/reference_type.hpp>
-#include <max-flow/graph/base/vertex.hpp>
+#include <max-flow/graphs/base/vertex.hpp>
 #include <max-flow/utils/iteration/contiguous_indirect.hpp>
 
-namespace MaxFlow::Graph::Base
+namespace MaxFlow::Graphs::Base
 {
 
 	using std::size_t;

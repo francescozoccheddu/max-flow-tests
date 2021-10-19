@@ -1,6 +1,6 @@
-#include <max-flow/graph/algorithms/equality.hpp>
+#include <max-flow/graphs/algorithms/equality.hpp>
 
-namespace MaxFlow::Graph::Algorithms::Equality
+namespace MaxFlow::Graphs::Algorithms
 {
 
 	bool EdgeComparer::operator()(const Base::Edge&, const Base::Edge&) const
@@ -52,4 +52,5 @@ namespace MaxFlow::Graph::Algorithms::Equality
 		}
 		return true;
 	}
+
 }

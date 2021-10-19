@@ -6,14 +6,14 @@
 #include <utility>
 #include <max-flow/utils/macros/non_void.hpp>
 #include <max-flow/utils/reference_type.hpp>
-#include <max-flow/graph/generic/vertex.hpp>
+#include <max-flow/graphs/generic/vertex.hpp>
 #include <max-flow/utils/iteration/contiguous_indirect.hpp>
-#include <max-flow/graph/base/graph.hpp>
-#include <max-flow/graph/generic/macros.hpp>
+#include <max-flow/graphs/base/graph.hpp>
+#include <max-flow/graphs/generic/macros.hpp>
 
 #define MF_GG_D_T Graph
 
-namespace MaxFlow::Graph::Generic
+namespace MaxFlow::Graphs::Generic
 {
 
 	using std::size_t;
@@ -113,10 +113,10 @@ namespace MaxFlow::Graph::Generic
 
 	MF_GG_D_MS (MF_GG_D_TG&) operator=(const Graph& _clone)
 	{
+		setMatrix (false);
 		destroyAllVertices ();
 		shrinkToFit ();
 		reserve (_clone.capacity ());
-		setMatrix (_clone.hasMatrix ());
 		for (const Vertex& vertex : _clone)
 		{
 			if constexpr (std::is_void_v<TVD>)

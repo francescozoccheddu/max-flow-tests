@@ -1,10 +1,10 @@
-#include <max-flow/graph/base/vertex.hpp>
+#include <max-flow/graphs/base/vertex.hpp>
 
 #include <vector>
 #include <utility>
 #include <stdexcept>
 
-namespace MaxFlow::Graph::Base
+namespace MaxFlow::Graphs::Base
 {
 
 #pragma region Utils

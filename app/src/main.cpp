@@ -1,4 +1,5 @@
-﻿#include <max-flow/flow_graph.hpp>
+﻿#include <max-flow/graphs/flow.hpp>
+#include <max-flow/solve.hpp>
 
 #include <iostream>
 

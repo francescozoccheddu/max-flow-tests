@@ -6,13 +6,13 @@
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/utils/user_data.hpp>
 #include <max-flow/utils/macros/non_void.hpp>
-#include <max-flow/graph/generic/vertex.hpp>
-#include <max-flow/graph/base/edge.hpp>
-#include <max-flow/graph/generic/macros.hpp>
+#include <max-flow/graphs/generic/vertex.hpp>
+#include <max-flow/graphs/base/edge.hpp>
+#include <max-flow/graphs/generic/macros.hpp>
 
 #define MF_GG_D_T Edge
 
-namespace MaxFlow::Graph::Generic
+namespace MaxFlow::Graphs::Generic
 {
 
 	using std::size_t;

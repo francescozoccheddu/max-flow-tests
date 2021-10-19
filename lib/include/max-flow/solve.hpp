@@ -1,8 +1,9 @@
 #ifndef INCLUDED_MAX_FLOW_SOLVE
 #define INCLUDED_MAX_FLOW_SOLVE
 
-#include <max-flow/edge_flow.hpp>
-#include <max-flow/flow_graph.hpp>
+#include <max-flow/graphs/flow.hpp>
+
+using namespace MaxFlow::Graphs;
 
 namespace MaxFlow
 {

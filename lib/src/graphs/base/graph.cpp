@@ -1,10 +1,10 @@
-#include <max-flow/graph/base/graph.hpp>
+#include <max-flow/graphs/base/graph.hpp>
 
 #include <vector>
 #include <utility>
 #include <stdexcept>
 
-namespace MaxFlow::Graph::Base
+namespace MaxFlow::Graphs::Base
 {
 
 #pragma region Utils
@@ -157,10 +157,10 @@ namespace MaxFlow::Graph::Base
 
 	Graph& Graph::operator=(const Graph& _clone)
 	{
+		setMatrix (false);
 		destroyAllVertices ();
 		shrinkToFit ();
 		reserve (_clone.capacity ());
-		setMatrix (_clone.hasMatrix ());
 		for (const Vertex& vertex : _clone)
 		{
 			addVertex ();

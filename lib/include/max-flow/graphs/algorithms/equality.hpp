@@ -1,11 +1,11 @@
 #ifndef INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_EQUALITY
 #define INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_EQUALITY
 
-#include <max-flow/graph/base/graph.hpp>
-#include <max-flow/graph/generic/graph.hpp>
+#include <max-flow/graphs/base/graph.hpp>
+#include <max-flow/graphs/generic/graph.hpp>
 #include <type_traits>
 
-namespace MaxFlow::Graph::Algorithms::Equality
+namespace MaxFlow::Graphs::Algorithms
 {
 
 #pragma region Declaration

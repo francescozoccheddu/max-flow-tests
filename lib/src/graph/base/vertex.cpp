@@ -411,6 +411,11 @@ namespace MaxFlow::Graph::Base
 		delete& _edge;
 	}
 
+	void Vertex::destroyEdge (size_t _to)
+	{
+		destroyEdge ((*this)[_to]);
+	}
+
 	void Vertex::destroyAllOutEdges ()
 	{
 		while (m_pFirstOutEdge)

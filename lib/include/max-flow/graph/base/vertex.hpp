@@ -116,6 +116,7 @@ namespace MaxFlow::Graph::Base
 		// Destruction
 
 		void destroyEdge (Edge& _edge);
+		void destroyEdge (size_t _to);
 		void destroyAllOutEdges ();
 		void destroy ();
 

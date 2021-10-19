@@ -39,6 +39,20 @@ namespace MaxFlow::Graphs::Base
 
 #pragma endregion
 
+#pragma region Construction
+
+	Graph::Graph (size_t _verticesCount)
+	{
+		reserve (_verticesCount);
+		for (size_t i{ 0 }; i < _verticesCount; i++)
+		{
+			addVertex ();
+		}
+	}
+
+#pragma endregion
+
+
 #pragma region Destruction
 
 	void Graph::destroyVertex (Vertex& _vertex)

@@ -8,9 +8,11 @@ namespace MaxFlow::Graphs
 
 #pragma region Declaration
 
+	using std::size_t;
+
 	// Types
 
-	using flow_t = unsigned int;
+	using flow_t = size_t;
 
 	// Classes
 
@@ -50,9 +52,9 @@ namespace MaxFlow::Graphs
 
 	// Types
 
-	MF_GG_D_TT_FD using FlowGraph = Generic::Graph<TVertexData, EdgeFlow<TEdgeData>>;
-	MF_GG_D_TT_FD using FlowGraphVertex = FlowGraph<TVertexData, TEdgeData>::Vertex;
-	MF_GG_D_TT_FD using FlowGraphEdge = FlowGraph<TVertexData, TEdgeData>::Edge;
+	MF_GG_TT_FD using FlowGraph = Generic::Graph<TVertexData, EdgeFlow<TEdgeData>>;
+	MF_GG_TT_FD using FlowGraphVertex = FlowGraph<TVertexData, TEdgeData>::Vertex;
+	MF_GG_TT_FD using FlowGraphEdge = FlowGraph<TVertexData, TEdgeData>::Edge;
 
 #pragma endregion
 

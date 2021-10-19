@@ -73,6 +73,7 @@ namespace MaxFlow::Graphs::Base
 		// Construction
 
 		Graph () = default;
+		Graph (size_t _verticesCount);
 		
 		// Assignment
 

@@ -10,7 +10,7 @@
 #include <max-flow/graphs/base/edge.hpp>
 #include <max-flow/graphs/generic/macros.hpp>
 
-#define MF_GG_D_T Edge
+#define MF_GG_T Edge
 
 namespace MaxFlow::Graphs::Generic
 {
@@ -19,14 +19,14 @@ namespace MaxFlow::Graphs::Generic
 
 #pragma region Declaration
 
-	MF_GG_D_TT_F class Edge final : public BEdge, public Utils::UserData<TEdgeData>
+	MF_GG_TT_F class Edge final : public BEdge, public Utils::UserData<TEdgeData>
 	{
 
 	public:
 
-		MF_GG_D_UG;
-		MF_GG_D_UV;
-		MF_GG_D_UI;
+		MF_GG_UG;
+		MF_GG_UV;
+		MF_GG_UI;
 
 	private:
 
@@ -64,22 +64,22 @@ namespace MaxFlow::Graphs::Generic
 
 #pragma region Implementation
 
-	MF_GG_D_PMC0 (MF_GG_D_A (Vertex)&, from);
-	MF_GG_D_PMC0 (MF_GG_D_A (Vertex)&, to);
-	MF_GG_D_PMC0 (MF_GG_D_TG&, antiParallel);
-	MF_GG_D_PMC0 (MF_GG_D_TG*, antiParallelIfExists);
+	MF_GG_PMC0 (MF_GG_A (Vertex)&, from);
+	MF_GG_PMC0 (MF_GG_A (Vertex)&, to);
+	MF_GG_PMC0 (MF_GG_TG&, antiParallel);
+	MF_GG_PMC0 (MF_GG_TG*, antiParallelIfExists);
 
-	MF_GG_D_CS (BVertex& _from, BVertex& _to, BEdge* _pPrevious, BEdge* _pNext)
+	MF_GG_CS (BVertex& _from, BVertex& _to, BEdge* _pPrevious, BEdge* _pNext)
 		: BEdge{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {}
 	{
 	}
 
-	MF_GG_D_TT MF_U_NV_SA_I (ED) MF_GG_D_TCS (BVertex& _from, BVertex& _to, BEdge* _pPrevious, BEdge* _pNext, const TNonVoidED& _data)
+	MF_GG_TT MF_U_NV_SA_I (ED) MF_GG_TCS (BVertex& _from, BVertex& _to, BEdge* _pPrevious, BEdge* _pNext, const TNonVoidED& _data)
 		: BEdge{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {_data}
 	{
 	}
 
-	MF_GG_D_TT MF_U_NV_SA_I (ED) MF_GG_D_TCS (BVertex& _from, BVertex& _to, BEdge* _pPrevious, BEdge* _pNext, TNonVoidED&& _data)
+	MF_GG_TT MF_U_NV_SA_I (ED) MF_GG_TCS (BVertex& _from, BVertex& _to, BEdge* _pPrevious, BEdge* _pNext, TNonVoidED&& _data)
 		: BEdge{ _from, _to, _pPrevious, _pNext }, Utils::UserData<TED> {std::move (_data)}
 	{
 	}
@@ -88,6 +88,6 @@ namespace MaxFlow::Graphs::Generic
 
 }
 
-#undef MF_GG_D_T
+#undef MF_GG_T
 
 #endif

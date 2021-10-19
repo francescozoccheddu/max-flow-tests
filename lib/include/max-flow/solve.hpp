@@ -3,8 +3,6 @@
 
 #include <max-flow/graphs/flow.hpp>
 
-using namespace MaxFlow::Graphs;
-
 namespace MaxFlow
 {
 
@@ -22,10 +20,10 @@ namespace MaxFlow
 	// Functions
 
 	template<typename TVertexData, typename TEdgeData>
-	void solveInPlace (FlowGraph<TVertexData, TEdgeData>& _graph, FlowGraphVertex<TVertexData, TEdgeData>& _source, FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
+	void solveInPlace (Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
 
 	template<typename TVertexData, typename TEdgeData>
-	FlowGraph<TVertexData, TEdgeData> solve (const FlowGraph<TVertexData, TEdgeData>& _graph, const FlowGraphVertex<TVertexData, TEdgeData>& _source, const FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
+	Graphs::FlowGraph<TVertexData, TEdgeData> solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
 
 #pragma endregion
 

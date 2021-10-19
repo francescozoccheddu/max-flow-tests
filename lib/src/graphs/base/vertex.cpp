@@ -1,4 +1,4 @@
-#include <max-flow/graph/base/vertex.hpp>
+#include <max-flow/graphs/base/vertex.hpp>
 
 #include <vector>
 #include <utility>

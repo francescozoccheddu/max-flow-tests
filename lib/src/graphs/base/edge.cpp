@@ -1,4 +1,4 @@
-#include <max-flow/graph/base/edge.hpp>
+#include <max-flow/graphs/base/edge.hpp>
 
 namespace MaxFlow::Graph::Base
 {

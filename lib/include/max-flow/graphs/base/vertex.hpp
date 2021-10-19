@@ -4,8 +4,8 @@
 #include <vector>
 #include <cstddef>
 #include <max-flow/utils/reference_type.hpp>
-#include <max-flow/graph/base/graph.hpp>
-#include <max-flow/graph/base/edge.hpp>
+#include <max-flow/graphs/base/graph.hpp>
+#include <max-flow/graphs/base/edge.hpp>
 #include <max-flow/utils/iteration/doubly_linked.hpp>
 
 namespace MaxFlow::Graph::Base

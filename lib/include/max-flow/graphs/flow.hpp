@@ -1,11 +1,9 @@
-#ifndef INCLUDED_MAX_FLOW_EDGE_FLOW
-#define INCLUDED_MAX_FLOW_EDGE_FLOW
+#ifndef INCLUDED_MAX_FLOW_GRAPHS_FLOW
+#define INCLUDED_MAX_FLOW_GRAPHS_FLOW
 
-#include <max-flow/utils/macros/non_void.hpp>
-#include <max-flow/utils/user_data.hpp>
-#include <stdexcept>
+#include <max-flow/graphs/generic/graph.hpp>
 
-namespace MaxFlow
+namespace MaxFlow::Graphs
 {
 
 #pragma region Declaration
@@ -16,7 +14,7 @@ namespace MaxFlow
 
 	// Classes
 
-	template<typename TData=void>
+	template<typename TData = void>
 	class EdgeFlow final : public Utils::UserData<TData>
 	{
 
@@ -49,6 +47,12 @@ namespace MaxFlow
 		void setCapacity (flow_t _capacity);
 
 	};
+
+	// Types
+
+	MF_GG_D_TT_FD using FlowGraph = Graph::Generic::Graph<TVertexData, EdgeFlow<TEdgeData>>;
+	MF_GG_D_TT_FD using FlowGraphVertex = FlowGraph<TVertexData, TEdgeData>::Vertex;
+	MF_GG_D_TT_FD using FlowGraphEdge = FlowGraph<TVertexData, TEdgeData>::Edge;
 
 #pragma endregion
 

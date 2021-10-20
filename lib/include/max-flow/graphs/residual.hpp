@@ -32,7 +32,7 @@ namespace MaxFlow::Graphs
 
 		const UnderlyingGraph& graph () const;
 
-		MF_GG_TT_F void toFlowGraph (FlowGraph<TVertexData, TEdgeData>& _flowGraph) const;
+		MF_GG_TT_F void updateFlows (FlowGraph<TVertexData, TEdgeData>& _flowGraph) const;
 
 	};
 
@@ -53,16 +53,32 @@ namespace MaxFlow::Graphs
 				UnderlyingGraph::Edge* pExistingEdge{ vertex.outEdgeIfExists (originalEdge.to ().index ()) };
 				UnderlyingGraph::Edge& edge{ pExistingEdge ? *pExistingEdge : vertex.addOutEdge (originalEdge.to ().index ()) };
 				UnderlyingGraph::Edge& reverseEdge{ pExistingEdge ? edge.antiParallel () : graph[originalEdge.to ().index ()].addOutEdge (vertex.index ()) };
-				*edge += originalEdge->capacity () - originalEdge->flow ();
+				*edge += originalEdge->residualCapacity();
 				*reverseEdge += originalEdge->flow ();
 			}
 		}
 		return ResidualGraph{ std::move (graph) };
 	}
 
-	MF_GG_TT void ResidualGraph::toFlowGraph (FlowGraph<TVD, TED>& _flowGraph) const
+	MF_GG_TT void ResidualGraph::updateFlows (FlowGraph<TVD, TED>& _flowGraph) const
 	{
-
+		for (FlowGraphVertex<TVD, TED>& originalVertex : _flowGraph)
+		{
+			const UnderlyingGraph::Vertex& vertex{ m_graph[originalVertex.index ()] };
+			for (FlowGraphEdge<TVD, TED>& originalEdge : originalVertex)
+			{
+				const flow_t r{ *vertex[m_graph[originalEdge.to ().index ()]] };
+				if (originalEdge->capacity () > r 
+					|| (originalEdge->capacity () == r && originalEdge.from ().index () < originalEdge.to ().index ()))
+				{
+					originalEdge->setFlow (originalEdge->capacity () - r);
+				}
+				else
+				{
+					originalEdge->setFlow (0);
+				}
+			}
+		}
 	}
 
 #pragma endregion

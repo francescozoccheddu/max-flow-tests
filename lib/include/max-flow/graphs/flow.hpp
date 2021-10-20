@@ -42,6 +42,7 @@ namespace MaxFlow::Graphs
 
 		flow_t flow () const;
 		flow_t capacity () const;
+		flow_t residualCapacity () const;
 
 		// Setters
 
@@ -115,6 +116,12 @@ namespace MaxFlow::Graphs
 	inline flow_t EdgeFlow<TD>::capacity () const
 	{
 		return m_capacity;
+	}
+
+	template<typename TD>
+	inline flow_t EdgeFlow<TD>::residualCapacity () const
+	{
+		return m_capacity - m_flow;
 	}
 
 #pragma endregion

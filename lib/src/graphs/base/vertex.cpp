@@ -17,14 +17,6 @@ namespace MaxFlow::Graphs::Base
 		}
 	}
 
-	void Vertex::ensureValidOrLastIndex (size_t _index)
-	{
-		if (_index != graph ().verticesCount ())
-		{
-			graph ().ensureValidVertexIndex (_index);
-		}
-	}
-
 #pragma endregion
 
 #pragma region Construction
@@ -32,7 +24,7 @@ namespace MaxFlow::Graphs::Base
 	Vertex::Vertex (Graph& _graph, size_t _index)
 		: m_pGraph{ &_graph }, m_index{ _index }
 	{
-		ensureValidOrLastIndex (_index);
+		_graph.ensureValidOrLastVertexIndex (_index);
 	}
 
 #pragma endregion
@@ -76,7 +68,7 @@ namespace MaxFlow::Graphs::Base
 	Edge& Vertex::addOutEdge (Vertex& _to)
 	{
 		ensureValidNewOutEdge (_to);
-		Edge& edge{ allocateEdge(_to, m_pLastOutEdge, nullptr) };
+		Edge& edge{ allocateEdge (_to, m_pLastOutEdge, nullptr) };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -89,7 +81,7 @@ namespace MaxFlow::Graphs::Base
 	Edge& Vertex::addOutEdgeBefore (Vertex& _to, Edge& _next)
 	{
 		ensureValidNewOutEdgeBefore (_to, _next);
-		Edge& edge{ allocateEdge( _to, _next.previous (), &_next) };
+		Edge& edge{ allocateEdge (_to, _next.previous (), &_next) };
 		addNewValidatedOutEdge (edge);
 		return edge;
 	}
@@ -103,35 +95,39 @@ namespace MaxFlow::Graphs::Base
 
 #pragma region Graph interface
 
-	void Vertex::vertexAdded (Vertex& _vertex)
+	void Vertex::verticesAdded (size_t _index, size_t _count)
 	{
-		Graph::ensureSameGraph (_vertex.graph (), graph ());
+		graph ().ensureValidOrLastVertexIndex (_index);
+		Graph::ensureValidCount (_count);
 		if (hasMatrix ())
 		{
-			m_pOutVertexEdges->insert (m_pOutVertexEdges->begin () + _vertex.index (), nullptr);
+			m_pOutVertexEdges->insert (m_pOutVertexEdges->begin () + _index, _count, nullptr);
 		}
 	}
 
-	void Vertex::vertexDestroyed (Vertex& _vertex)
+	void Vertex::verticesDestroyed (size_t _index, size_t _count)
 	{
-		Graph::ensureSameGraph (_vertex.graph (), graph ());
-		if (hasOutEdge (_vertex))
+		graph ().ensureValidVertexIndex (_index);
+		Graph::ensureValidCount (_count);
+		graph ().ensureValidVertexIndex (_index + _count - 1);
+		Edge* pEdge{ outEdgeIfExists (_index) };
+		if (pEdge)
 		{
-			outEdge (_vertex).destroy ();
+			pEdge->destroy ();
 		}
 		if (hasMatrix ())
 		{
-			m_pOutVertexEdges->erase (m_pOutVertexEdges->begin () + _vertex.index ());
+			m_pOutVertexEdges->erase (m_pOutVertexEdges->begin () + _index, m_pOutVertexEdges->begin () + _index + _count);
 		}
 	}
 
-	void Vertex::vertexSwapped (Vertex& _a, Vertex& _b)
+	void Vertex::vertexSwapped (size_t _a, size_t _b)
 	{
-		Graph::ensureSameGraph (_a.graph (), graph ());
-		Graph::ensureSameGraph (_b.graph (), graph ());
+		graph ().ensureValidVertexIndex (_a);
+		graph ().ensureValidVertexIndex (_b);
 		if (hasMatrix ())
 		{
-			std::swap ((*m_pOutVertexEdges)[_a.index ()], (*m_pOutVertexEdges)[_a.index ()]);
+			std::swap ((*m_pOutVertexEdges)[_a], (*m_pOutVertexEdges)[_a]);
 		}
 	}
 

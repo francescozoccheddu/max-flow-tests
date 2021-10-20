@@ -93,7 +93,8 @@ namespace MaxFlow::Graphs::Algorithms
 		builder.addComment ("Residual Graph");
 		{
 			builder.addPush ();
-			builder.addComment ("Vertices (index)");
+			builder.addComment ("Vertices:");
+			builder.addComment ("v [index]");
 			for (const Graph::Vertex& v : _graph)
 			{
 				builder.addNode (v.index ());
@@ -102,7 +103,8 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 		{
 			builder.addPush ();
-			builder.addComment ("Edges (residual_capacity)");
+			builder.addComment ("Edges:");
+			builder.addComment ("a -> b [flow/capacity]");
 			for (const Graph::Vertex& v : _graph)
 			{
 				if (v.outEdgesCount ())

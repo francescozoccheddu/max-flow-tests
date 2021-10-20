@@ -91,7 +91,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void GraphVizSource::Builder::addNode (size_t _node, size_t _label)
 	{
-		addNode (_node, std::format ("{},{}", _node, _label));
+		addNode (_node, std::format ("{}({})", _node, _label));
 	}
 
 	void GraphVizSource::Builder::addEdge (size_t _from, size_t _to, flow_t _flow)
@@ -101,7 +101,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void GraphVizSource::Builder::addEdge (size_t _from, size_t _to, flow_t _flow, size_t _capacity)
 	{
-		addEdge (_from, _to, std::format ("{},{}", _flow, _capacity));
+		addEdge (_from, _to, std::format ("{}/{}", _flow, _capacity));
 	}
 
 	void GraphVizSource::Builder::addPush ()
@@ -203,7 +203,8 @@ namespace MaxFlow::Graphs::Algorithms
 		builder.addComment ("Residual Graph");
 		{
 			builder.addPush ();
-			builder.addComment ("Vertices (index,label):");
+			builder.addComment ("Vertices:");
+			builder.addComment ("v [index(label)]");
 			for (const Graph::Vertex& v : _graph.graph ())
 			{
 				builder.addNode (v.index (), *v);
@@ -212,7 +213,8 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 		{
 			builder.addPush ();
-			builder.addComment ("Edges (residual_capacity):");
+			builder.addComment ("Edges:");
+			builder.addComment ("a -> b [residual_capacity]");
 			for (const Graph::Vertex& v : _graph.graph ())
 			{
 				if (v.outEdgesCount ())

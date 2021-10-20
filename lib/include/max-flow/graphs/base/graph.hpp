@@ -36,6 +36,7 @@ namespace MaxFlow::Graphs::Base
 		// Utils
 
 		void updateIndices (size_t _first);
+		void prepareForVertexInsertion (size_t _index, size_t _count);
 
 		// Iteration
 
@@ -58,7 +59,9 @@ namespace MaxFlow::Graphs::Base
 		// Utils
 
 		static void ensureSameGraph (const Graph& _a, const Graph& _b);
+		static void ensureValidCount (size_t _count) ;
 		void ensureValidVertexIndex (size_t _index) const;
+		void ensureValidOrLastVertexIndex (size_t _index) const;
 
 		// Vertex insertion
 
@@ -73,7 +76,6 @@ namespace MaxFlow::Graphs::Base
 		// Construction
 
 		Graph () = default;
-		Graph (size_t _verticesCount);
 		
 		// Assignment
 
@@ -95,8 +97,10 @@ namespace MaxFlow::Graphs::Base
 		// Vertex insertion
 
 		Vertex& addVertex ();
+		void addVertices (size_t _count);
 		Vertex& addVertexBefore (Vertex& _next);
-		Vertex& addVertexBefore (size_t _next);
+		Vertex& addVertexAt (size_t _index);
+		void addVerticesAt (size_t _count, size_t _next);
 
 		void swapVertices (Vertex& _a, Vertex& _b);
 		void swapVertices (size_t _a, size_t _b);

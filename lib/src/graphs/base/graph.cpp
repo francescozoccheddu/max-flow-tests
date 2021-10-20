@@ -17,6 +17,14 @@ namespace MaxFlow::Graphs::Base
 		}
 	}
 
+	void Graph::ensureValidCount (size_t _count)
+	{
+		if (_count < 0)
+		{
+			throw std::out_of_range{ "count < 0" };
+		}
+	}
+
 	void Graph::updateIndices (size_t _first)
 	{
 		for (size_t i{ _first }; i < verticesCount (); i++)
@@ -37,21 +45,15 @@ namespace MaxFlow::Graphs::Base
 		}
 	}
 
-#pragma endregion
-
-#pragma region Construction
-
-	Graph::Graph (size_t _verticesCount)
+	void Graph::ensureValidOrLastVertexIndex (size_t _index) const
 	{
-		reserve (_verticesCount);
-		for (size_t i{ 0 }; i < _verticesCount; i++)
+		if (_index != verticesCount ())
 		{
-			addVertex ();
+			ensureValidVertexIndex (_index);
 		}
 	}
 
 #pragma endregion
-
 
 #pragma region Destruction
 
@@ -61,6 +63,10 @@ namespace MaxFlow::Graphs::Base
 		_vertex.destroyAllOutEdges ();
 		m_vertices.erase (m_vertices.begin () + _vertex.index ());
 		updateIndices (_vertex.index ());
+		for (Vertex& vertex : *this)
+		{
+			vertex.verticesDestroyed (_vertex.index (), 1);
+		}
 		delete& _vertex;
 	}
 
@@ -111,37 +117,62 @@ namespace MaxFlow::Graphs::Base
 
 #pragma region Vertex insertion
 
-	void Graph::addNewValidatedVertex (Vertex& _vertex)
+	void Graph::prepareForVertexInsertion (size_t _index, size_t _count)
 	{
+		ensureValidOrLastVertexIndex (_index);
+		ensureValidCount (_count);
+		reserve (verticesCount () + _count);
 		for (Vertex& vertex : *this)
 		{
-			vertex.vertexAdded (_vertex);
+			vertex.verticesAdded (_index, _count);
 		}
-		m_vertices.insert (m_vertices.begin () + _vertex.index (), &_vertex);
-		updateIndices (_vertex.index () + 1);
+		m_vertices.insert (m_vertices.begin () + _index, _count, nullptr);
+		updateIndices (_index + _count);
+	}
+
+	void Graph::addNewValidatedVertex (Vertex& _vertex)
+	{
+		prepareForVertexInsertion (_vertex.index (), 1);
+		m_vertices[_vertex.index ()] = &_vertex;
 		_vertex.setMatrix (hasMatrix ());
 	}
 
 	Vertex& Graph::addVertex ()
 	{
-		Vertex& vertex{ allocateVertex (verticesCount ()) };
-		addNewValidatedVertex (vertex);
-		return vertex;
+		return addVertexAt (verticesCount ());
 	}
 
+	void Graph::addVertices (size_t _count)
+	{
+		addVerticesAt (_count, verticesCount ());
+
+	}
 
 	Vertex& Graph::addVertexBefore (Vertex& _next)
 	{
 		ensureSameGraph (_next.graph (), *this);
-		return addVertexBefore (_next.index ());
+		return addVertexAt (_next.index ());
 	}
 
-	Vertex& Graph::addVertexBefore (size_t _next)
+	Vertex& Graph::addVertexAt (size_t _index)
 	{
-		ensureValidVertexIndex (_next);
-		Vertex& vertex{ allocateVertex (_next) };
+		ensureValidOrLastVertexIndex (_index);
+		Vertex& vertex{ allocateVertex (_index) };
 		addNewValidatedVertex (vertex);
 		return vertex;
+	}
+
+	void Graph::addVerticesAt (size_t _count, size_t _index)
+	{
+		ensureValidOrLastVertexIndex (_index);
+		ensureValidCount (_count);
+		prepareForVertexInsertion (_index, _count);
+		for (size_t i{ _index }; i < _index + _count; i++)
+		{
+			Vertex& vertex{ allocateVertex (i) };
+			m_vertices[i] = &allocateVertex (i);
+			vertex.setMatrix (hasMatrix ());
+		}
 	}
 
 	void Graph::swapVertices (Vertex& _a, Vertex& _b)
@@ -156,7 +187,7 @@ namespace MaxFlow::Graphs::Base
 		std::swap (m_vertices[_a.index ()], m_vertices[_b.index ()]);
 		for (Vertex& vertex : *this)
 		{
-			vertex.vertexSwapped (_a, _b);
+			vertex.vertexSwapped (_a.index (), _b.index ());
 		}
 	}
 

@@ -32,7 +32,7 @@ namespace MaxFlow::Graphs::Generic
 
 		// Graph interface
 
-		Vertex& allocateVertex (size_t _index) override;
+		BVertex& allocateVertex (size_t _index) override;
 
 	public:
 
@@ -63,9 +63,9 @@ namespace MaxFlow::Graphs::Generic
 		Vertex& addVertexBefore (BVertex& _next);
 		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (BVertex& _next, const TNonVoidVertexData& _data);
 		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (BVertex& _next, TNonVoidVertexData&& _data);
-		Vertex& addVertexBefore (size_t _next);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (size_t _next, const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (size_t _next, TNonVoidVertexData&& _data);
+		Vertex& addVertexAt (size_t _next);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertexAt (size_t _next, const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D (VertexData) Vertex& addVertexAt (size_t _next, TNonVoidVertexData&& _data);
 
 		// Iteration
 
@@ -98,7 +98,7 @@ namespace MaxFlow::Graphs::Generic
 		*this = std::move (_graph);
 	}
 
-	MF_GG_MS (MF_GG_A (Vertex)&) allocateVertex (size_t _index)
+	MF_GG_MS (BVertex&) allocateVertex (size_t _index)
 	{
 		if constexpr (std::is_default_constructible_v<TVD> || std::is_void_v<TVD>)
 		{
@@ -146,12 +146,16 @@ namespace MaxFlow::Graphs::Generic
 		return *this;
 	}
 
-	MF_GG_PM1 (MF_GG_TG&, operator=, Graph&&);
+	MF_GG_MS (MF_GG_TG&) operator=(Graph&& _moved)
+	{
+		return static_cast<Graph&>(BGraph::operator=(std::move (_moved)));
+	}
+
 	MF_GG_PMC1 (MF_GG_A (Vertex)&, vertex, size_t);
 	MF_GG_PMC1 (MF_GG_A (Vertex)&, operator[], size_t);
 	MF_GG_PM0 (MF_GG_A (Vertex)&, addVertex);
 	MF_GG_PM1 (MF_GG_A (Vertex)&, addVertexBefore, BVertex&);
-	MF_GG_PM1 (MF_GG_A (Vertex)&, addVertexBefore, size_t);
+	MF_GG_PM1 (MF_GG_A (Vertex)&, addVertexAt, size_t);
 
 	MF_GG_PC0 (MF_GG_A (VertexIteratorFC), begin);
 	MF_GG_PM0 (MF_GG_A (VertexIteratorFM), begin);
@@ -168,26 +172,23 @@ namespace MaxFlow::Graphs::Generic
 
 	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertex (const TNonVoidVD& _data)
 	{
-		Vertex& vertex{ *new Vertex {*this, verticesCount (), _data} };
-		addNewValidatedVertex (vertex);
-		return vertex;
+		return addVertexAt (verticesCount (), _data);
 	}
 
 	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertex (TNonVoidVD&& _data)
 	{
-		Vertex& vertex{ new Vertex {*this, verticesCount (), std::move (_data)} };
-		addNewValidatedVertex (vertex);
-		return vertex;
+		return addVertexAt (verticesCount (), std::move(_data));
 	}
 
 	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexBefore (BVertex& _next, const TNonVoidVD& _data)
 	{
-		addVertexBefore (_next.index (), _data);
+		ensureSameGraph (_next.graph (), *this);
+		return addVertexAt (_next.index (), _data);
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexBefore (size_t _next, const TNonVoidVD& _data)
+	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexAt (size_t _next, const TNonVoidVD& _data)
 	{
-		ensureValidVertexIndex (_next);
+		ensureValidOrLastVertexIndex (_next);
 		Vertex& vertex{ *new Vertex {*this, _next,_data} };
 		addNewValidatedVertex (vertex);
 		return vertex;
@@ -195,12 +196,13 @@ namespace MaxFlow::Graphs::Generic
 
 	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexBefore (BVertex& _next, TNonVoidVD&& _data)
 	{
-		addVertexBefore (_next.index (), std::move (_data));
+		ensureSameGraph (_next.graph (), *this);
+		return addVertexAt (_next.index (), std::move (_data));
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexBefore (size_t _next, TNonVoidVD&& _data)
+	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexAt (size_t _next, TNonVoidVD&& _data)
 	{
-		ensureValidVertexIndex (_next);
+		ensureValidOrLastVertexIndex (_next);
 		Vertex& vertex{ *new Vertex {*this, _next, std::move (_data)} };
 		addNewValidatedVertex (vertex);
 		return vertex;

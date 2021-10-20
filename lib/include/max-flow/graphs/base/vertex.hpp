@@ -40,13 +40,12 @@ namespace MaxFlow::Graphs::Base
 		// Utils
 
 		static void ensureSameVertex (const Vertex& _a, const Vertex& _b);
-		void ensureValidOrLastIndex (size_t _index);
 
 		// Graph interface
 
-		void vertexAdded (Vertex& _vertex);
-		void vertexDestroyed (Vertex& _vertex);
-		void vertexSwapped (Vertex& _a, Vertex& _b);
+		void verticesAdded (size_t _index, size_t _count);
+		void verticesDestroyed (size_t _index, size_t _count);
+		void vertexSwapped (size_t _a, size_t _b);
 
 		void reserve (size_t _capacity);
 		void shrinkToFit ();

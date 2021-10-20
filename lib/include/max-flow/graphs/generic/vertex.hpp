@@ -40,7 +40,7 @@ namespace MaxFlow::Graphs::Generic
 
 		// Vertex interface
 
-		Edge& allocateEdge (BVertex& _to, BEdge* _pPrevious, BEdge* _pNext) override;
+		BEdge& allocateEdge (BVertex& _to, BEdge* _pPrevious, BEdge* _pNext) override;
 
 		// Construction
 
@@ -110,7 +110,7 @@ namespace MaxFlow::Graphs::Generic
 
 #pragma region Implementation
 
-	MF_GG_MS (MF_GG_A (Edge)&) allocateEdge (BVertex& _to, BEdge* _pPrevious, BEdge* _pNext)
+	MF_GG_MS (BEdge&) allocateEdge (BVertex& _to, BEdge* _pPrevious, BEdge* _pNext) 
 	{
 		if constexpr (std::is_default_constructible_v<TED> || std::is_void_v<TED>)
 		{

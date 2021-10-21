@@ -195,7 +195,7 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
-	GraphVizSource GraphVizSource::from (const ResidualGraph& _graph)
+	GraphVizSource GraphVizSource::from (const ResidualGraph& _graph, bool _includeVertexLabel, bool _skipZeroEdges)
 	{
 		Builder builder{};
 		builder.addPush ();
@@ -203,10 +203,24 @@ namespace MaxFlow::Graphs::Algorithms
 		{
 			builder.addPush ();
 			builder.addComment ("Vertices:");
-			builder.addComment ("v [index(label)]");
+			if (_includeVertexLabel)
+			{
+				builder.addComment ("v [index(label)]");
+			}
+			else
+			{
+				builder.addComment ("v [index]");
+			}
 			for (const ResidualVertex& v : _graph)
 			{
-				builder.addNode (v.index (), *v);
+				if (_includeVertexLabel)
+				{
+					builder.addNode (v.index (), *v);
+				}
+				else
+				{
+					builder.addNode (v.index ());
+				}
 			}
 			builder.addPop ();
 		}
@@ -218,10 +232,18 @@ namespace MaxFlow::Graphs::Algorithms
 			{
 				if (v.outEdgesCount ())
 				{
-					builder.addComment (std::format ("From {}", v.index ()));
+					bool commented{};
 					for (const ResidualEdge& e : v)
 					{
-						builder.addEdge (e.from ().index (), e.to ().index (), *e);
+						if (!_skipZeroEdges || *e)
+						{
+							if (!commented)
+							{
+								builder.addComment (std::format ("From {}", v.index ()));
+								commented = true;
+							}
+							builder.addEdge (e.from ().index (), e.to ().index (), *e);
+						}
 					}
 				}
 			}

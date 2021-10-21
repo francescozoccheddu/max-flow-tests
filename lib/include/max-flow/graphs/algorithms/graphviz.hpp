@@ -72,7 +72,7 @@ namespace MaxFlow::Graphs::Algorithms
 	public:
 
 		MF_GG_TT_F static GraphVizSource from (const FlowGraph<TVertexData, TEdgeData>& _graph);
-		static GraphVizSource from (const ResidualGraph& _graph);
+		static GraphVizSource from (const ResidualGraph& _graph, bool _includeVertexLabel = true, bool _skipZeroEdges = true);
 
 		void toDotFile (const std::string& _file) const;
 		void exportToFile (const std::string& _file, EFormat _format = EFormat::PNG) const;

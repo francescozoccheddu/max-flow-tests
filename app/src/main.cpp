@@ -15,9 +15,8 @@ int main ()
 	o.addVertices (4);
 	o[0].addOutEdge (1, EdgeFlow{ 4,0 });
 	o[0].addOutEdge (2, EdgeFlow{ 2,0 });
-	o[1].addOutEdge (2, EdgeFlow{ 10,2 });
 	o[1].addOutEdge (3, EdgeFlow{ 5,0 });
-	o[2].addOutEdge (1, EdgeFlow{ 5,3 });
+	o[2].addOutEdge (1, EdgeFlow{ 3,0 });
 	o[2].addOutEdge (3, EdgeFlow{ 1,0 });
 
 	FlowGraph<> s{ o };

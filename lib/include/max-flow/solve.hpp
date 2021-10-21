@@ -36,6 +36,7 @@ namespace MaxFlow
 		Graphs::Base::Graph::ensureSameGraph (_source.graph (), _graph);
 		Graphs::Base::Graph::ensureSameGraph (_sink.graph (), _graph);
 		Graphs::ResidualGraph residualGraph{ Graphs::createResidualGraph (_graph) };
+		residualGraph.setMatrix (true);
 		solve (residualGraph, residualGraph[_source.index ()], residualGraph[_sink.index ()], _solver);
 		Graphs::updateFlowsFromResidualGraph (residualGraph, _graph);
 	}

@@ -53,10 +53,11 @@ namespace MaxFlow::Graphs
 		}
 		for (FlowGraphVertex<TVD, TED>& originalVertex : _flowGraph)
 		{
-			const ResidualVertex& vertex{ _residualGraph[originalVertex.index ()] };
+			const ResidualVertex& residualVertex{ _residualGraph[originalVertex.index ()] };
 			for (FlowGraphEdge<TVD, TED>& originalEdge : originalVertex)
 			{
-				const flow_t r{ *vertex[_residualGraph[originalEdge.to ().index ()]] };
+				const ResidualEdge* pResidualEdge{ residualVertex.outEdgeIfExists (originalEdge.to ().index ()) };
+				const flow_t r{ pResidualEdge ? **pResidualEdge : 0 };
 				if (originalEdge->capacity () > r
 					|| (originalEdge->capacity () == r && originalEdge.from ().index () < originalEdge.to ().index ()))
 				{

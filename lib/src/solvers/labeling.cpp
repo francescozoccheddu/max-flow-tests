@@ -3,6 +3,8 @@
 #include <max-flow/graphs/algorithms/residual.hpp>
 #include <queue>
 #include <limits>
+#include <vector>
+#include <algorithm>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -21,28 +23,22 @@ namespace MaxFlow::Solvers
 		{
 			removeZeroEdges (_graph);
 		}
-		if (_graph.verticesCount () >= std::numeric_limits<size_t>::max () - 1)
-		{
-			throw std::runtime_error{ "vertices count overflow" };
-		}
 		std::queue<ResidualVertex*> list{};
+		std::vector<ResidualVertex*> predecessors{ _graph.verticesCount (), nullptr };
 		// label node t
-		*_sink = _source.index () + 1;
+		predecessors[_sink.index ()] = &_source;
 		// while t is labeled
-		while (*_sink)
+		while (predecessors[_sink.index ()])
 		{
 			// unlabel all nodes
 			// set pred(j):=0 for each j in N
-			for (ResidualVertex& vertex : _graph)
-			{
-				*vertex = 0;
-			}
+			std::fill (predecessors.begin (), predecessors.end (), nullptr);
 			// label node s and set LIST:={s}
-			*_source = _source.index () + 1;
+			predecessors[_source.index ()] = &_source;
 			list = {};
 			list.push (&_source);
 			// while LIST is not empty and t is unlabeled
-			while (!list.empty () && !*_sink)
+			while (!list.empty () && !predecessors[_sink.index ()])
 			{
 				// remove a node i from LIST
 				ResidualVertex& vertex{ *list.front () };
@@ -51,23 +47,23 @@ namespace MaxFlow::Solvers
 				for (ResidualEdge& edge : vertex)
 				{
 					// if node j is unlabeled
-					if (*edge && !*edge.to ())
+					if (*edge && !predecessors[edge.to ().index ()])
 					{
 						// set pred(j):=i, label node j, and add j to LIST
-						*edge.to () = vertex.index () + 1;
+						predecessors[edge.to ().index ()] = &vertex;
 						list.push (&edge.to ());
 					}
 				}
 			}
 			// if t is labeled then augment
-			if (*_sink)
+			if (predecessors[_sink.index ()])
 			{
 				// minR:=min{r:(i,j) in P}
 				ResidualVertex* pVertex{ &_sink };
 				Graphs::flow_t minR{ std::numeric_limits<Graphs::flow_t>::max () };
 				while (pVertex != &_source)
 				{
-					ResidualVertex& previous{ _graph[(**pVertex) - 1] };
+					ResidualVertex& previous{ *predecessors[pVertex->index()] };
 					ResidualEdge& edge{ previous[*pVertex] };
 					if (*edge < minR)
 					{
@@ -79,7 +75,7 @@ namespace MaxFlow::Solvers
 				pVertex = &_sink;
 				while (pVertex != &_source)
 				{
-					ResidualVertex& previous{ _graph[(**pVertex) - 1] };
+					ResidualVertex& previous{ *predecessors[pVertex->index()] };
 					ResidualEdge& edge{ previous[*pVertex] };
 					augment (edge, minR);
 					pVertex = &previous;

@@ -8,7 +8,7 @@ using namespace MaxFlow::Graphs;
 namespace MaxFlow
 {
 
-	constexpr void (*solverFunc (ESolver _solver))(ResidualGraph&, ResidualGraph::UnderlyingGraph::Vertex&, ResidualGraph::UnderlyingGraph::Vertex&)
+	constexpr void (*solverFunc (ESolver _solver))(ResidualGraph&, ResidualVertex&, ResidualVertex&)
 	{
 		switch (_solver)
 		{
@@ -19,10 +19,10 @@ namespace MaxFlow
 		}
 	}
 
-	void solve (ResidualGraph& _residualGraph, ResidualGraph::UnderlyingGraph::Vertex& _source, ResidualGraph::UnderlyingGraph::Vertex& _sink, ESolver _solver)
+	void solve (ResidualGraph& _residualGraph, ResidualVertex& _source, ResidualVertex& _sink, ESolver _solver)
 	{
-		Base::Graph::ensureSameGraph (_residualGraph.graph (), _source.graph ());
-		Base::Graph::ensureSameGraph (_residualGraph.graph (), _sink.graph ());
+		Base::Graph::ensureSameGraph (_residualGraph, _source.graph ());
+		Base::Graph::ensureSameGraph (_residualGraph, _sink.graph ());
 		solverFunc (_solver)(_residualGraph, _source, _sink);
 	}
 

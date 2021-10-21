@@ -13,67 +13,51 @@ namespace MaxFlow::Graphs
 
 #pragma region Declaration
 
-	class ResidualGraph final
-	{
+	using ResidualGraph = Generic::Graph<size_t, flow_t>;
+	using ResidualVertex = ResidualGraph::Vertex;
+	using ResidualEdge = ResidualGraph::Edge;
 
-	public:
+	MF_GG_TT_F static ResidualGraph createResidualGraph (const FlowGraph<TVertexData, TEdgeData>& _flowGraph);
 
-		using UnderlyingGraph = Generic::Graph<size_t, flow_t>;
-
-	private:
-
-		UnderlyingGraph m_graph;
-
-		ResidualGraph (const UnderlyingGraph& _graph);
-		ResidualGraph (UnderlyingGraph&& _graph);
-
-	public:
-
-		MF_GG_TT_F static ResidualGraph create (const FlowGraph<TVertexData, TEdgeData>& _flowGraph);
-
-		const UnderlyingGraph& graph () const;
-
-		MF_GG_TT_F void updateFlows (FlowGraph<TVertexData, TEdgeData>& _flowGraph) const;
-
-	};
+	MF_GG_TT_F void updateFlowsFromResidualGraph (const ResidualGraph& _residualGraph, FlowGraph<TVertexData, TEdgeData>& _flowGraph);
 
 #pragma endregion
 
 #pragma region Implementation
 
-	MF_GG_TT ResidualGraph ResidualGraph::create (const FlowGraph<TVD, TED>& _flowGraph)
+	MF_GG_TT ResidualGraph createResidualGraph (const FlowGraph<TVD, TED>& _flowGraph)
 	{
-		UnderlyingGraph graph;
+		ResidualGraph graph;
 		graph.setMatrix (true);
 		graph.addVertices (_flowGraph.verticesCount ());
 		for (const FlowGraph<TVD, TED>::Vertex& originalVertex : _flowGraph)
 		{
-			UnderlyingGraph::Vertex& vertex{ graph[originalVertex.index ()] };
+			ResidualVertex& vertex{ graph[originalVertex.index ()] };
 			for (const FlowGraph<TVD, TED>::Edge& originalEdge : originalVertex)
 			{
-				UnderlyingGraph::Edge* pExistingEdge{ vertex.outEdgeIfExists (originalEdge.to ().index ()) };
-				UnderlyingGraph::Edge& edge{ pExistingEdge ? *pExistingEdge : vertex.addOutEdge (originalEdge.to ().index ()) };
-				UnderlyingGraph::Edge& reverseEdge{ pExistingEdge ? edge.antiParallel () : graph[originalEdge.to ().index ()].addOutEdge (vertex.index ()) };
-				*edge += originalEdge->residualCapacity();
+				ResidualEdge* pExistingEdge{ vertex.outEdgeIfExists (originalEdge.to ().index ()) };
+				ResidualEdge& edge{ pExistingEdge ? *pExistingEdge : vertex.addOutEdge (originalEdge.to ().index ()) };
+				ResidualEdge& reverseEdge{ pExistingEdge ? edge.antiParallel () : graph[originalEdge.to ().index ()].addOutEdge (vertex.index ()) };
+				*edge += originalEdge->residualCapacity ();
 				*reverseEdge += originalEdge->flow ();
 			}
 		}
-		return ResidualGraph{ std::move (graph) };
+		return graph;
 	}
 
-	MF_GG_TT void ResidualGraph::updateFlows (FlowGraph<TVD, TED>& _flowGraph) const
+	MF_GG_TT void updateFlowsFromResidualGraph (const ResidualGraph& _residualGraph, FlowGraph<TVD, TED>& _flowGraph)
 	{
-		if (_flowGraph.verticesCount () != graph ().verticesCount ())
+		if (_flowGraph.verticesCount () != _residualGraph.verticesCount ())
 		{
 			throw std::logic_error{ "vertices count mismatch" };
 		}
 		for (FlowGraphVertex<TVD, TED>& originalVertex : _flowGraph)
 		{
-			const UnderlyingGraph::Vertex& vertex{ m_graph[originalVertex.index ()] };
+			const ResidualVertex& vertex{ _residualGraph[originalVertex.index ()] };
 			for (FlowGraphEdge<TVD, TED>& originalEdge : originalVertex)
 			{
-				const flow_t r{ *vertex[m_graph[originalEdge.to ().index ()]] };
-				if (originalEdge->capacity () > r 
+				const flow_t r{ *vertex[_residualGraph[originalEdge.to ().index ()]] };
+				if (originalEdge->capacity () > r
 					|| (originalEdge->capacity () == r && originalEdge.from ().index () < originalEdge.to ().index ()))
 				{
 					originalEdge->setFlow (originalEdge->capacity () - r);

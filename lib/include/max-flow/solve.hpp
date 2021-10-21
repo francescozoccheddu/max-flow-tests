@@ -25,7 +25,7 @@ namespace MaxFlow
 
 	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData> solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
 
-	void solve (Graphs::ResidualGraph& _residualGraph, Graphs::ResidualGraph::UnderlyingGraph::Vertex& _source, Graphs::ResidualGraph::UnderlyingGraph::Vertex& _sink, ESolver _solver = defaultSolver);
+	void solve (Graphs::ResidualGraph& _residualGraph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, ESolver _solver = defaultSolver);
 
 #pragma endregion
 
@@ -35,10 +35,9 @@ namespace MaxFlow
 	{
 		Graphs::Base::Graph::ensureSameGraph (_source.graph (), _graph);
 		Graphs::Base::Graph::ensureSameGraph (_sink.graph (), _graph);
-		Graphs::ResidualGraph residualGraph{ Graphs::ResidualGraph::create (_graph) };
-		using ResidualVertex = Graphs::ResidualGraph::UnderlyingGraph::Vertex;
-		solve (residualGraph, const_cast<ResidualVertex&>(residualGraph.graph ()[_source.index ()]), const_cast<ResidualVertex&>(residualGraph.graph ()[_sink.index ()]), _solver);
-		residualGraph.updateFlows (_graph);
+		Graphs::ResidualGraph residualGraph{ Graphs::createResidualGraph (_graph) };
+		solve (residualGraph, residualGraph[_source.index ()], residualGraph[_sink.index ()], _solver);
+		Graphs::updateFlowsFromResidualGraph (residualGraph, _graph);
 	}
 
 	MF_GG_TT Graphs::FlowGraph<TVD, TED> solve (const Graphs::FlowGraph<TVD, TED>& _graph, const Graphs::FlowGraphVertex<TVD, TED>& _source, const Graphs::FlowGraphVertex<TVD, TED>& _sink, ESolver _solver)

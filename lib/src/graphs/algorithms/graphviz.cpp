@@ -197,7 +197,6 @@ namespace MaxFlow::Graphs::Algorithms
 
 	GraphVizSource GraphVizSource::from (const ResidualGraph& _graph)
 	{
-		using Graph = ResidualGraph::UnderlyingGraph;
 		Builder builder{};
 		builder.addPush ();
 		builder.addComment ("Residual Graph");
@@ -205,7 +204,7 @@ namespace MaxFlow::Graphs::Algorithms
 			builder.addPush ();
 			builder.addComment ("Vertices:");
 			builder.addComment ("v [index(label)]");
-			for (const Graph::Vertex& v : _graph.graph ())
+			for (const ResidualVertex& v : _graph)
 			{
 				builder.addNode (v.index (), *v);
 			}
@@ -215,12 +214,12 @@ namespace MaxFlow::Graphs::Algorithms
 			builder.addPush ();
 			builder.addComment ("Edges:");
 			builder.addComment ("a -> b [residual_capacity]");
-			for (const Graph::Vertex& v : _graph.graph ())
+			for (const ResidualVertex& v : _graph)
 			{
 				if (v.outEdgesCount ())
 				{
 					builder.addComment (std::format ("From {}", v.index ()));
-					for (const Graph::Edge& e : v)
+					for (const ResidualEdge& e : v)
 					{
 						builder.addEdge (e.from ().index (), e.to ().index (), *e);
 					}

@@ -20,13 +20,12 @@ int main ()
 	o[2].addOutEdge (1, EdgeFlow{ 5,3 });
 	o[2].addOutEdge (3, EdgeFlow{ 1,0 });
 
-	ResidualGraph r{ ResidualGraph::create (o) };
 	FlowGraph<> s{ o };
 
 	MaxFlow::solve (s, s[0], s[3]);
 
 	Algorithms::GraphVizSource::from (o).exportToFile ("c:/users/franc/desktop/original.pdf", Algorithms::GraphVizSource::EFormat::PDF);
-	Algorithms::GraphVizSource::from (r).exportToFile ("c:/users/franc/desktop/residual.pdf", Algorithms::GraphVizSource::EFormat::PDF);
+	Algorithms::GraphVizSource::from (s).exportToFile ("c:/users/franc/desktop/solution.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 
 	return 0;
 }

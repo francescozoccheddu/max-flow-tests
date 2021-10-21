@@ -56,13 +56,6 @@ namespace MaxFlow::Graphs::Base
 
 	protected:
 
-		// Utils
-
-		static void ensureSameGraph (const Graph& _a, const Graph& _b);
-		static void ensureValidCount (size_t _count) ;
-		void ensureValidVertexIndex (size_t _index) const;
-		void ensureValidOrLastVertexIndex (size_t _index) const;
-
 		// Vertex insertion
 
 		void addNewValidatedVertex (Vertex& _vertex);
@@ -72,6 +65,13 @@ namespace MaxFlow::Graphs::Base
 		virtual Vertex& allocateVertex (size_t _index);
 
 	public:
+
+		// Utils
+
+		static void ensureSameGraph (const Graph& _a, const Graph& _b);
+		static void ensureValidCount (size_t _count) ;
+		void ensureValidVertexIndex (size_t _index) const;
+		void ensureValidOrLastVertexIndex (size_t _index) const;
 
 		// Construction
 

@@ -4,6 +4,7 @@
 #include <max-flow/graphs/generic/graph.hpp>
 #include <max-flow/graphs/flow.hpp>
 #include <utility>
+#include <stdexcept>
 
 namespace MaxFlow::Graphs
 {
@@ -62,6 +63,10 @@ namespace MaxFlow::Graphs
 
 	MF_GG_TT void ResidualGraph::updateFlows (FlowGraph<TVD, TED>& _flowGraph) const
 	{
+		if (_flowGraph.verticesCount () != graph ().verticesCount ())
+		{
+			throw std::logic_error{ "vertices count mismatch" };
+		}
 		for (FlowGraphVertex<TVD, TED>& originalVertex : _flowGraph)
 		{
 			const UnderlyingGraph::Vertex& vertex{ m_graph[originalVertex.index ()] };

@@ -55,6 +55,33 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
+	void removeBiZeroEdges (ResidualGraph& _graph)
+	{
+		_graph.setMatrix (true);
+		for (ResidualVertex& vertex : _graph)
+		{
+			ResidualGraph::EdgeIteratorFM it{ vertex.begin () };
+			while (it != vertex.end ())
+			{
+				ResidualEdge& edge{ *it };
+				ResidualEdge* pAntiparallel{ edge.antiParallelIfExists () };
+				++it;
+				if (!*edge && (!pAntiparallel || !**pAntiparallel))
+				{
+					edge.destroy ();
+					if (pAntiparallel)
+					{
+						if (pAntiparallel == &*it)
+						{
+							++it;
+						}
+						pAntiparallel->destroy ();
+					}
+				}
+			}
+		}
+	}
+
 	void addZeroEdges (ResidualGraph& _graph)
 	{
 		_graph.setMatrix (true);

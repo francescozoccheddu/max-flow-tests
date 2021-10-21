@@ -21,7 +21,7 @@ int main ()
 
 	FlowGraph<> s{ o };
 
-	MaxFlow::solve (s, s[0], s[3]);
+	MaxFlow::solve (s, s[0], s[3], MaxFlow::ESolver::CapacityScaling);
 
 	Algorithms::GraphVizSource::from (o).exportToFile ("c:/users/franc/desktop/original.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 	Algorithms::GraphVizSource::from (s).exportToFile ("c:/users/franc/desktop/solution.pdf", Algorithms::GraphVizSource::EFormat::PDF);

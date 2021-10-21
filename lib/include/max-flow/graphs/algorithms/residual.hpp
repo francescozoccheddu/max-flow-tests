@@ -18,6 +18,8 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void removeZeroEdges (Graphs::ResidualGraph& _graph);
 
+	void removeBiZeroEdges (Graphs::ResidualGraph& _graph);
+
 	void addZeroEdges (Graphs::ResidualGraph& _graph);
 
 }

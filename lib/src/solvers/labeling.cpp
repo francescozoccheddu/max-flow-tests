@@ -14,14 +14,20 @@ using namespace MaxFlow::Graphs::Algorithms;
 namespace MaxFlow::Solvers
 {
 
-	void labeling (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink)
+	constexpr bool removeZeroEdgesOnAugment = false;
+
+	void labeling MF_S_PL
 	{
 		ResidualGraph::ensureSameGraph (_graph, _source.graph ());
 		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
 		_graph.setMatrix (true);
-		if (defaultRemoveZeroEdgeOnAugment)
+		if (removeZeroEdgesOnAugment)
 		{
 			removeZeroEdges (_graph);
+		}
+		else
+		{
+			removeBiZeroEdges (_graph);
 		}
 		std::queue<ResidualVertex*> list{};
 		std::vector<ResidualVertex*> predecessors{ _graph.verticesCount (), nullptr };
@@ -77,7 +83,7 @@ namespace MaxFlow::Solvers
 				{
 					ResidualVertex& previous{ *predecessors[pVertex->index()] };
 					ResidualEdge& edge{ previous[*pVertex] };
-					augment (edge, minR);
+					augment (edge, minR, removeZeroEdgesOnAugment);
 					pVertex = &previous;
 				}
 			}

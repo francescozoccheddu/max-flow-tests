@@ -31,36 +31,16 @@ namespace MaxFlow::Solvers
 		{
 			removeBiZeroEdges (_graph);
 		}
-		std::vector<size_t> distances (_graph.verticesCount (), 0);
-		std::vector<size_t> numb (detectMinCut ? _graph.verticesCount () : 0, 0);
+		Labeler labeler{ _graph, _source, _sink };
+		std::vector<size_t> distances{ labeler.distances () };
+		std::vector<size_t> distanceCounts (detectMinCut ? _graph.verticesCount () : 0, 0);
+		if (detectMinCut)
 		{
-			std::queue<ResidualVertex*> queue{};
-			queue.push (&_sink);
-			if (detectMinCut)
+			for (size_t distance : distances)
 			{
-				numb[0] = 1;
-			}
-			size_t distance{};
-			while (!queue.empty ())
-			{
-				distance++;
-				ResidualVertex& vertex{ *queue.front () };
-				queue.pop ();
-				for (ResidualEdge& edge : vertex)
-				{
-					if (!distances[edge.to ().index ()] && edge.to () != _sink)
-					{
-						if (detectMinCut)
-						{
-							numb[distance] ++;
-						}
-						distances[edge.to ().index ()] = distance;
-						queue.push (&edge.to ());
-					}
-				}
+				distanceCounts[distance]++;
 			}
 		}
-		Labeler labeler{ _graph, _source, _sink };
 		labeler.setPredecessor (_source, _source);
 		ResidualVertex* pCurrent{ &_source };
 		while (distances[_source.index ()] < _graph.verticesCount ())
@@ -102,9 +82,9 @@ namespace MaxFlow::Solvers
 				pCurrent = &labeler[*pCurrent];
 				if (detectMinCut)
 				{
-					numb[distance]--;
-					numb[minDistance + 1]++;
-					if (!numb[distance])
+					distanceCounts[distance]--;
+					distanceCounts[minDistance + 1]++;
+					if (!distanceCounts[distance])
 					{
 						break;
 					}

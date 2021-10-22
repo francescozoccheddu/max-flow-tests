@@ -39,6 +39,36 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
+	void Labeler::distances (std::vector<size_t>& _distances) const
+	{
+		_distances.resize (m_graph.verticesCount ());
+		std::fill (_distances.begin (), _distances.end (), 0);
+		m_queue = {};
+		m_queue.push (&m_sink);
+		size_t distance{};
+		while (!m_queue.empty ())
+		{
+			distance++;
+			ResidualVertex& vertex{ *m_queue.front () };
+			m_queue.pop ();
+			for (ResidualEdge& edge : vertex)
+			{
+				if (!_distances[edge.to ().index ()] && edge.to () != m_sink)
+				{
+					_distances[edge.to ().index ()] = distance;
+					m_queue.push (&edge.to ());
+				}
+			}
+		}
+	}
+
+	std::vector<size_t> Labeler::distances () const
+	{
+		std::vector<size_t> buffer (m_graph.verticesCount (), 0);
+		distances (buffer);
+		return buffer;
+	}
+
 	const ResidualVertex& Labeler::operator[](const ResidualVertex& _vertex) const
 	{
 		return const_cast<Labeler&>(*this)[const_cast<ResidualVertex&>(_vertex)];
@@ -61,7 +91,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void Labeler::setPredecessor (ResidualEdge& _edge)
 	{
-		setPredecessor (_edge.to (), _edge.from());
+		setPredecessor (_edge.to (), _edge.from ());
 	}
 
 	bool Labeler::isLabeled (const ResidualVertex& _vertex) const

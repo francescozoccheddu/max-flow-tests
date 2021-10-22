@@ -3,6 +3,7 @@
 #include <max-flow/solvers/labeling.hpp>
 #include <max-flow/solvers/capacity_scaling.hpp>
 #include <max-flow/solvers/shortest_augmenting_path.hpp>
+#include <max-flow/solvers/preflow_push.hpp>
 #include <stdexcept>
 
 using namespace MaxFlow::Graphs;
@@ -20,6 +21,8 @@ namespace MaxFlow
 				return Solvers::capacityScaling;
 			case MaxFlow::ESolver::ShortestAugmentingPath:
 				return Solvers::shortestAugmentingPath;
+			case MaxFlow::ESolver::PreflowPush:
+				return Solvers::preflowPush;
 			default:
 				throw std::invalid_argument{ "unknown solver" };
 		}

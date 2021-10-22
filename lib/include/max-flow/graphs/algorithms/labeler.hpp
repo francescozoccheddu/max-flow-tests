@@ -21,7 +21,7 @@ namespace MaxFlow::Graphs::Algorithms
 		ResidualGraph& m_graph;
 		ResidualVertex& m_source, & m_sink;
 		std::vector<ResidualVertex*> m_predecessors;
-		std::queue<ResidualVertex*> m_queue;
+		mutable std::queue<ResidualVertex*> m_queue;
 
 	public:
 
@@ -49,6 +49,7 @@ namespace MaxFlow::Graphs::Algorithms
 			Iterator (labeler& _labeler, vertex& _current);
 
 		public:
+
 
 			// Getters
 
@@ -85,8 +86,11 @@ namespace MaxFlow::Graphs::Algorithms
 
 		void unlabel ();
 
+		void distances (std::vector<size_t>& _distances) const;
+		std::vector<size_t> distances () const;
+
 		void label (const EdgeSelector& _edgeSelector = {});
-		
+
 		void setPredecessor (ResidualVertex& _vertex, ResidualVertex& _predecessor);
 		void setPredecessor (ResidualEdge& _edge);
 

@@ -223,13 +223,16 @@ namespace MaxFlow::Graphs::Base
 
 	Graph& Graph::operator=(Graph&& _moved)
 	{
-		destroyAllVertices ();
-		m_vertices.swap (_moved.m_vertices);
-		std::swap (m_edgesCount, _moved.m_edgesCount);
-		std::swap (m_hasMatrix, _moved.m_hasMatrix);
-		for (Vertex& vertex : *this)
+		if (&_moved != this)
 		{
-			vertex.setGraph (*this);
+			destroyAllVertices ();
+			m_vertices.swap (_moved.m_vertices);
+			std::swap (m_edgesCount, _moved.m_edgesCount);
+			std::swap (m_hasMatrix, _moved.m_hasMatrix);
+			for (Vertex& vertex : *this)
+			{
+				vertex.setGraph (*this);
+			}
 		}
 		return *this;
 	}

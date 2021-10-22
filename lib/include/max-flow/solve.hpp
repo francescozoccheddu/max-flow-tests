@@ -16,7 +16,7 @@ namespace MaxFlow
 
 	enum class ESolver
 	{
-		Labeling, CapacityScaling, ShortestAugmentingPath
+		Labeling, CapacityScaling, ShortestAugmentingPath, PreflowPush
 	};
 
 	constexpr ESolver defaultSolver{ ESolver::Labeling };

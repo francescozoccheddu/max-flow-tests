@@ -50,6 +50,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 			void addComment (const std::string& _comment);
 			void addNode (size_t _node);
+			void addNode (size_t _node, size_t _label);
 			void addEdge (size_t _from, size_t _to, flow_t _residualCapacity);
 			void addEdge (size_t _from, size_t _to, flow_t _flow, flow_t _capacity);
 			void addPush ();
@@ -69,7 +70,7 @@ namespace MaxFlow::Graphs::Algorithms
 	public:
 
 		MF_GG_TT_F static GraphVizSource from (const FlowGraph<TVertexData, TEdgeData>& _graph);
-		static GraphVizSource from (const ResidualGraph& _graph, bool _skipZeroEdges = true);
+		static GraphVizSource from (const ResidualGraph& _graph, bool _skipZeroEdges = true, const size_t* _plabels = nullptr);
 
 		void toDotFile (const std::string& _file) const;
 		void exportToFile (const std::string& _file, EFormat _format = EFormat::PNG) const;

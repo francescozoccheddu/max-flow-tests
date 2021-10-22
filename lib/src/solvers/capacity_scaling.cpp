@@ -48,7 +48,7 @@ namespace MaxFlow::Solvers
 		while (edgeSelector.delta >= 1)
 		{
 			labeler.label (edgeSelector);
-			while (labeler.hasPathToSink ())
+			while (labeler.isSinkLabeled ())
 			{
 				augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
 				labeler.label (edgeSelector);
@@ -88,7 +88,7 @@ namespace MaxFlow::Solvers
 				}
 			}
 			labeler.label ();
-			while (labeler.hasPathToSink ())
+			while (labeler.isSinkLabeled ())
 			{
 				augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
 				labeler.label ();

@@ -10,9 +10,9 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void augment (ResidualEdge& _edge, flow_t _amount, bool _removeZeroEdge)
 	{
-		*_edge += _amount;
+		*_edge -= _amount;
 		ResidualEdge& antiparallel{ antiparallelEdgeOrCreate (_edge) };
-		*antiparallel -= _amount;
+		*antiparallel += _amount;
 		if (_removeZeroEdge)
 		{
 			if (!*_edge)

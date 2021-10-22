@@ -31,12 +31,12 @@ namespace MaxFlow::Solvers
 		do
 		{
 			labeler.label ();
-			if (labeler.hasPathToSink ())
+			if (labeler.isSinkLabeled ())
 			{
 				augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
 			}
 		}
-		while (labeler.hasPathToSink ());
+		while (labeler.isSinkLabeled ());
 	}
 
 }

@@ -12,22 +12,27 @@ namespace MaxFlow::Graphs::Algorithms
 		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
 	}
 
-	void Labeler::label (const EdgeSelector& _edgeSelector)
+	void Labeler::unlabel ()
 	{
 		m_predecessors.resize (m_graph.verticesCount ());
 		std::fill (m_predecessors.begin (), m_predecessors.end (), nullptr);
-		m_predecessors[m_source.index ()] = &m_source;
+	}
+
+	void Labeler::label (const EdgeSelector& _edgeSelector)
+	{
+		unlabel ();
+		setPredecessor (m_source, m_source);
 		m_queue = {};
 		m_queue.push (&m_source);
-		while (!m_queue.empty () && !m_predecessors[m_sink.index ()])
+		while (!m_queue.empty () && !isSinkLabeled ())
 		{
 			ResidualVertex& vertex{ *m_queue.front () };
 			m_queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
-				if (*edge && !m_predecessors[edge.to ().index ()] && _edgeSelector.shouldVisit (edge))
+				if (*edge && !isLabeled (edge.to ()) && _edgeSelector.shouldVisit (edge))
 				{
-					m_predecessors[edge.to ().index ()] = &vertex;
+					setPredecessor (edge.to (), vertex);
 					m_queue.push (&edge.to ());
 				}
 			}
@@ -46,9 +51,33 @@ namespace MaxFlow::Graphs::Algorithms
 		return *m_predecessors[_vertex.index ()];
 	}
 
-	bool Labeler::hasPathToSink () const
+	void Labeler::setPredecessor (ResidualVertex& _vertex, ResidualVertex& _predecessor)
 	{
-		return m_predecessors[m_sink.index ()];
+		ResidualGraph::ensureSameGraph (m_graph, _vertex.graph ());
+		ResidualGraph::ensureSameGraph (m_graph, _predecessor.graph ());
+		m_predecessors.resize (m_graph.verticesCount ());
+		m_predecessors[_vertex.index ()] = &_predecessor;
+	}
+
+	void Labeler::setPredecessor (ResidualEdge& _edge)
+	{
+		setPredecessor (_edge.to (), _edge.from());
+	}
+
+	bool Labeler::isLabeled (const ResidualVertex& _vertex) const
+	{
+		ResidualGraph::ensureSameGraph (_vertex.graph (), m_graph);
+		return m_predecessors[_vertex.index ()];
+	}
+
+	bool Labeler::isSinkLabeled () const
+	{
+		return isLabeled (m_sink);
+	}
+
+	bool Labeler::isSourceLabeled () const
+	{
+		return isLabeled (m_source);
 	}
 
 	Labeler::IteratorC Labeler::begin () const

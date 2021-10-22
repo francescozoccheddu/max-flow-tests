@@ -89,6 +89,11 @@ namespace MaxFlow::Graphs::Algorithms
 		addNode (_node, std::format ("{}", _node));
 	}
 
+	void GraphVizSource::Builder::addNode (size_t _node, size_t _label)
+	{
+		addNode (_node, std::format ("{} ({})", _node, _label));
+	}
+
 	void GraphVizSource::Builder::addEdge (size_t _from, size_t _to, flow_t _flow)
 	{
 		addEdge (_from, _to, std::format ("{}", _flow));
@@ -190,7 +195,7 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
-	GraphVizSource GraphVizSource::from (const ResidualGraph& _graph, bool _skipZeroEdges)
+	GraphVizSource GraphVizSource::from (const ResidualGraph& _graph, bool _skipZeroEdges, const size_t* _pLabels)
 	{
 		Builder builder{};
 		builder.addPush ();
@@ -198,10 +203,17 @@ namespace MaxFlow::Graphs::Algorithms
 		{
 			builder.addPush ();
 			builder.addComment ("Vertices:");
-			builder.addComment ("v [index]");
+			builder.addComment (_pLabels ? "v [index (label)]" : "v [index]");
 			for (const ResidualVertex& v : _graph)
 			{
-				builder.addNode (v.index ());
+				if (_pLabels)
+				{
+					builder.addNode (v.index (), _pLabels[v.index ()]);
+				}
+				else
+				{
+					builder.addNode (v.index ());
+				}
 			}
 			builder.addPop ();
 		}

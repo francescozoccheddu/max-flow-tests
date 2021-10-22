@@ -83,12 +83,19 @@ namespace MaxFlow::Graphs::Algorithms
 
 		Labeler (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink);
 
+		void unlabel ();
+
 		void label (const EdgeSelector& _edgeSelector = {});
+		
+		void setPredecessor (ResidualVertex& _vertex, ResidualVertex& _predecessor);
+		void setPredecessor (ResidualEdge& _edge);
 
 		const ResidualVertex& operator[](const ResidualVertex& _vertex) const;
 		ResidualVertex& operator[](ResidualVertex& _vertex);
 
-		bool hasPathToSink () const;
+		bool isLabeled (const ResidualVertex& _vertex) const;
+		bool isSinkLabeled () const;
+		bool isSourceLabeled () const;
 
 		IteratorC begin () const;
 		IteratorC cbegin () const;
@@ -97,7 +104,6 @@ namespace MaxFlow::Graphs::Algorithms
 		IteratorC end () const;
 		IteratorC cend () const;
 		IteratorM end ();
-
 
 	};
 

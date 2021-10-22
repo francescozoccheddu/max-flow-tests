@@ -20,6 +20,7 @@ namespace MaxFlow::Utils
 		// Comparison
 
 		bool operator==(const ReferenceEquatable& _other) const;
+		bool operator!=(const ReferenceEquatable& _other) const;
 
 	};
 
@@ -28,6 +29,11 @@ namespace MaxFlow::Utils
 	inline bool ReferenceEquatable::operator==(const ReferenceEquatable& _other) const
 	{
 		return this == std::addressof (_other);
+	}
+
+	inline bool ReferenceEquatable::operator!=(const ReferenceEquatable& _other) const
+	{
+		return this != std::addressof (_other);
 	}
 
 #pragma endregion

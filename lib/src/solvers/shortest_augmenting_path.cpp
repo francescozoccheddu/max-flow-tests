@@ -16,6 +16,7 @@ namespace MaxFlow::Solvers
 {
 
 	constexpr bool removeZeroEdgesOnAugment = false;
+	constexpr bool detectMinCut = true;
 
 	void shortestAugmentingPath MF_S_PL
 	{
@@ -31,9 +32,14 @@ namespace MaxFlow::Solvers
 			removeBiZeroEdges (_graph);
 		}
 		std::vector<size_t> distances (_graph.verticesCount (), 0);
+		std::vector<size_t> numb (detectMinCut ? _graph.verticesCount () : 0, 0);
 		{
 			std::queue<ResidualVertex*> queue{};
 			queue.push (&_sink);
+			if (detectMinCut)
+			{
+				numb[0] = 1;
+			}
 			size_t distance{};
 			while (!queue.empty ())
 			{
@@ -44,6 +50,10 @@ namespace MaxFlow::Solvers
 				{
 					if (!distances[edge.to ().index ()] && edge.to () != _sink)
 					{
+						if (detectMinCut)
+						{
+							numb[distance] ++;
+						}
 						distances[edge.to ().index ()] = distance;
 						queue.push (&edge.to ());
 					}
@@ -90,6 +100,15 @@ namespace MaxFlow::Solvers
 				}
 				distances[pCurrent->index ()] = minDistance + 1;
 				pCurrent = &labeler[*pCurrent];
+				if (detectMinCut)
+				{
+					numb[distance]--;
+					numb[minDistance + 1]++;
+					if (!numb[distance])
+					{
+						break;
+					}
+				}
 			}
 		}
 	}

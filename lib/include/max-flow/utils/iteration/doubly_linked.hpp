@@ -44,8 +44,6 @@ namespace MaxFlow::Utils::Iteration
 		using node_pointer = std::conditional_t<constant, const DoublyLinkedNode*, DoublyLinkedNode*>;
 		using reference = value_type&;
 		using pointer = value_type*;
-		using const_pointer = const TNode*;
-		using const_reference = const TNode&;
 
 	private:
 
@@ -64,11 +62,8 @@ namespace MaxFlow::Utils::Iteration
 
 		// Getters
 
-		const_reference operator*() const;
-		reference operator*();
-
-		const_pointer operator->() const;
-		pointer operator->();
+		reference operator*() const;
+		pointer operator->() const;
 
 		// Iteration
 
@@ -134,25 +129,13 @@ namespace MaxFlow::Utils::Iteration
 #pragma region Getters
 
 	template<typename TN, bool c, bool r>
-	inline DoublyLinkedIterator<TN, c, r>::const_reference DoublyLinkedIterator<TN, c, r>::operator* () const
-	{
-		return const_cast<DoublyLinkedIterator&>(*this).operator*();
-	}
-
-	template<typename TN, bool c, bool r>
-	inline DoublyLinkedIterator<TN, c, r>::reference DoublyLinkedIterator<TN, c, r>::operator* ()
+	inline DoublyLinkedIterator<TN, c, r>::reference DoublyLinkedIterator<TN, c, r>::operator* () const
 	{
 		return static_cast<reference>(*m_p);
 	}
 
 	template<typename TN, bool c, bool r>
-	inline DoublyLinkedIterator<TN, c, r>::const_pointer DoublyLinkedIterator<TN, c, r>::operator-> () const
-	{
-		return const_cast<DoublyLinkedIterator&>(*this).operator->();
-	}
-
-	template<typename TN, bool c, bool r>
-	inline DoublyLinkedIterator<TN, c, r>::pointer DoublyLinkedIterator<TN, c, r>::operator-> ()
+	inline DoublyLinkedIterator<TN, c, r>::pointer DoublyLinkedIterator<TN, c, r>::operator-> () const
 	{
 		return static_cast<pointer>(m_p);
 	}

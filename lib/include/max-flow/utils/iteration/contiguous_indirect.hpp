@@ -21,8 +21,6 @@ namespace MaxFlow::Utils::Iteration
 		using value_type = std::conditional_t<constant, const TData, TData>;
 		using pointer = value_type*;
 		using reference = value_type&;
-		using const_pointer = const TData*;
-		using const_reference = const TData&;
 
 	private:
 
@@ -41,14 +39,11 @@ namespace MaxFlow::Utils::Iteration
 
 		// Getters
 
-		const_reference operator*() const;
-		reference operator*();
+		reference operator*() const;
 
-		const_pointer operator->() const;
-		pointer operator->();
+		pointer operator->() const;
 
-		const_reference operator[](difference_type _diff) const;
-		reference operator[](difference_type _diff);
+		reference operator[](difference_type _diff) const;
 
 		// Iteration
 
@@ -105,37 +100,19 @@ namespace MaxFlow::Utils::Iteration
 #pragma region Getters
 
 	template<typename TD, bool c, bool r>
-	inline ContiguousIndirectIterator<TD, c, r>::const_reference ContiguousIndirectIterator<TD, c, r>::operator* () const
-	{
-		return const_cast<ContiguousIndirectIterator&>(*this).operator*();
-	}
-
-	template<typename TD, bool c, bool r>
-	inline ContiguousIndirectIterator<TD, c, r>::reference ContiguousIndirectIterator<TD, c, r>::operator* ()
+	inline ContiguousIndirectIterator<TD, c, r>::reference ContiguousIndirectIterator<TD, c, r>::operator* () const 
 	{
 		return **m_p;
 	}
 
 	template<typename TD, bool c, bool r>
-	inline ContiguousIndirectIterator<TD, c, r>::const_pointer ContiguousIndirectIterator<TD, c, r>::operator-> () const
-	{
-		return const_cast<ContiguousIndirectIterator&>(*this).operator->();
-	}
-
-	template<typename TD, bool c, bool r>
-	inline ContiguousIndirectIterator<TD, c, r>::pointer ContiguousIndirectIterator<TD, c, r>::operator-> ()
+	inline ContiguousIndirectIterator<TD, c, r>::pointer ContiguousIndirectIterator<TD, c, r>::operator-> () const
 	{
 		return *m_p;
 	}
 
 	template<typename TD, bool c, bool r>
-	inline ContiguousIndirectIterator<TD, c, r>::const_reference ContiguousIndirectIterator<TD, c, r>::operator[] (difference_type _diff) const
-	{
-		return const_cast<ContiguousIndirectIterator&>(*this)[_diff];
-	}
-
-	template<typename TD, bool c, bool r>
-	inline ContiguousIndirectIterator<TD, c, r>::reference ContiguousIndirectIterator<TD, c, r>::operator[] (difference_type _diff)
+	inline ContiguousIndirectIterator<TD, c, r>::reference ContiguousIndirectIterator<TD, c, r>::operator[] (difference_type _diff) const
 	{
 		if constexpr (r)
 		{

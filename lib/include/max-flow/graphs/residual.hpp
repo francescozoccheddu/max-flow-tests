@@ -9,8 +9,6 @@
 namespace MaxFlow::Graphs
 {
 
-	using std::size_t;
-
 #pragma region Declaration
 
 	using ResidualGraph = Generic::Graph<void, flow_t>;

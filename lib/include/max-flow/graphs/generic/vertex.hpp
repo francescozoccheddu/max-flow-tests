@@ -20,8 +20,6 @@
 namespace MaxFlow::Graphs::Generic
 {
 
-	using std::size_t;
-
 #pragma region Declaration
 
 	MF_GG_TT_F class Vertex final : public BVertex, public Utils::UserData<TVertexData>

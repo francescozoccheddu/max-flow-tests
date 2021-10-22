@@ -10,8 +10,6 @@
 namespace MaxFlow::Graphs::Algorithms
 {
 
-	using std::size_t;
-
 #pragma region Declaration
 
 

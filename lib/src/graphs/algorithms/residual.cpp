@@ -11,7 +11,7 @@ namespace MaxFlow::Graphs::Algorithms
 	void augment (ResidualEdge& _edge, flow_t _amount, bool _removeZeroEdge)
 	{
 		*_edge += _amount;
-		ResidualEdge& antiparallel{ antiparallelEdge (_edge) };
+		ResidualEdge& antiparallel{ antiparallelEdgeOrCreate (_edge) };
 		*antiparallel -= _amount;
 		if (_removeZeroEdge)
 		{
@@ -32,10 +32,15 @@ namespace MaxFlow::Graphs::Algorithms
 		return pAntiparallel ? **pAntiparallel : 0;
 	}
 
-	ResidualEdge& antiparallelEdge (ResidualEdge& _edge)
+	ResidualEdge& antiparallelEdgeOrCreate (ResidualEdge& _edge)
 	{
-		ResidualEdge* pAntiparallel{ _edge.antiParallelIfExists () };
-		return pAntiparallel ? *pAntiparallel : _edge.to ().addOutEdge (_edge.from ());
+		return edgeOrCreate (_edge.to (), _edge.from ());
+	}
+
+	ResidualEdge& edgeOrCreate (ResidualVertex& _from, ResidualVertex& _to)
+	{
+		ResidualEdge* pEdge{ _from.outEdgeIfExists(_to) };
+		return pEdge ? *pEdge : _from.addOutEdge (_to);
 	}
 
 	void removeZeroEdges (ResidualGraph& _graph)
@@ -89,8 +94,26 @@ namespace MaxFlow::Graphs::Algorithms
 		{
 			for (ResidualEdge& edge : vertex)
 			{
-				antiparallelEdge (edge);
+				antiparallelEdgeOrCreate (edge);
 			}
+		}
+	}
+
+	void augmentMax (const Labeler::IteratorM _start, const Labeler::IteratorM _end, bool _removeZeroEdge)
+	{
+		Graphs::flow_t minR{ std::numeric_limits<Graphs::flow_t>::max () };
+		for (Labeler::IteratorM it{_start}; it != _end; ++it)
+		{
+			ResidualEdge& edge{ *it };
+			if (*edge < minR)
+			{
+				minR = *edge;
+			}
+		}
+		for (Labeler::IteratorM it{ _start }; it != _end; ++it)
+		{
+			ResidualEdge& edge{ *it };
+			augment (edge, minR, _removeZeroEdge);
 		}
 	}
 

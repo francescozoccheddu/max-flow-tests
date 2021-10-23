@@ -11,6 +11,8 @@ namespace MaxFlow::Graphs
 
 #pragma region Declaration
 
+
+
 	using ResidualGraph = Generic::Graph<void, flow_t>;
 	using ResidualVertex = ResidualGraph::Vertex;
 	using ResidualEdge = ResidualGraph::Edge;

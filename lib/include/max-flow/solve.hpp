@@ -5,12 +5,38 @@
 #include <max-flow/graphs/flow.hpp>
 #include <max-flow/graphs/residual.hpp>
 
-#define MF_S_PL (MaxFlow::Graphs::ResidualGraph& _graph, MaxFlow::Graphs::ResidualVertex& _source, MaxFlow::Graphs::ResidualVertex& _sink, MaxFlow::Graphs::flow_t _maxCapacity)
+#define MF_S_PL (MaxFlow::Graphs::ResidualGraph& _graph, MaxFlow::Graphs::ResidualVertex& _source, MaxFlow::Graphs::ResidualVertex& _sink, const MaxFlow::CapacityMatrix& _capacityMatrix)
 
 namespace MaxFlow
 {
 
 #pragma region Declaration
+
+	// Classes
+
+	struct CapacityMatrix
+	{
+
+		virtual Graphs::flow_t capacity (size_t _from, size_t _to) const = 0;
+
+	};
+
+
+	MF_GG_TT_F class GenericCapacityMatrix : public CapacityMatrix
+	{
+
+	private:
+
+		const Graphs::FlowGraph<TVertexData, TEdgeData>& m_graph;
+
+	public:
+
+
+		GenericCapacityMatrix (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph);
+
+		Graphs::flow_t capacity (size_t _from, size_t _to) const override;
+
+	};
 
 	// Enums
 
@@ -27,9 +53,7 @@ namespace MaxFlow
 
 	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData>& solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const  Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
 
-	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, Graphs::flow_t _maxCapacity, ESolver _solver = defaultSolver);
-
-	MF_GG_TT_F Graphs::flow_t maxCapacity (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph);
+	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver = defaultSolver);
 
 #pragma endregion
 
@@ -39,9 +63,10 @@ namespace MaxFlow
 	{
 		Graphs::Base::Graph::ensureSameGraph (_source.graph (), _graph);
 		Graphs::Base::Graph::ensureSameGraph (_sink.graph (), _graph);
+		_graph.setMatrix (true);
 		Graphs::ResidualGraph residualGraph{ Graphs::createResidualGraph (_graph) };
 		residualGraph.setMatrix (true);
-		solve (residualGraph, residualGraph[_source.index ()], residualGraph[_sink.index ()], maxCapacity(_graph), _solver);
+		solve (residualGraph, residualGraph[_source.index ()], residualGraph[_sink.index ()], GenericCapacityMatrix{ _graph }, _solver);
 		Graphs::updateFlowsFromResidualGraph (residualGraph, _graph);
 	}
 
@@ -54,20 +79,14 @@ namespace MaxFlow
 		return copyGraph;
 	}
 
-	MF_GG_TT Graphs::flow_t maxCapacity (const Graphs::FlowGraph<TVD, TED>& _graph)
+	MF_GG_TT GenericCapacityMatrix<TVD, TED>::GenericCapacityMatrix (const Graphs::FlowGraph<TVD, TED>& _graph) : m_graph{ _graph }
+	{}
+
+	MF_GG_TT Graphs::flow_t GenericCapacityMatrix<TVD, TED>::capacity (size_t _from, size_t _to) const
 	{
-		Graphs::flow_t capacity{};
-		for (const Graphs::FlowGraphVertex<TVD, TED>& vertex : _graph)
-		{
-			for (const Graphs::FlowGraphEdge<TVD, TED>& edge : vertex)
-			{
-				if (edge->capacity () > capacity)
-				{
-					capacity = edge->capacity ();
-				}
-			}
-		}
-		return capacity;
+		const Graphs::FlowGraphVertex<TVD, TED>& vertex{ m_graph[_from] };
+		const Graphs::FlowGraphEdge<TVD, TED>* pEdge{ vertex.outEdgeIfExists (_to) };
+		return pEdge ? pEdge->data ().capacity () : 0;
 	}
 
 #pragma endregion

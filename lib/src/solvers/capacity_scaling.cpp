@@ -48,11 +48,22 @@ namespace MaxFlow::Solvers
 			deltaGraphStorage.setMatrix (true);
 			deltaGraphStorage.addVertices (_graph.verticesCount ());
 		}
+		Graphs::flow_t maxCapacity{};
+		for (const ResidualVertex& vertex : _graph)
+		{
+			for (const ResidualEdge& edge : vertex)
+			{
+				if (_capacityMatrix.capacity (edge.from ().index (), edge.to ().index ()) > maxCapacity)
+				{
+					maxCapacity = _capacityMatrix.capacity (edge.from ().index (), edge.to ().index ());
+				}
+			}
+		}
 		ResidualGraph& deltaGraph{ removeDeltaEdges ? deltaGraphStorage : _graph };
 		deltaGraph.setMatrix (true);
 		DeltaEdgeSelector edgeSelector;
 		Labeler labeler{ deltaGraph, deltaGraph[_source.index ()], deltaGraph[_sink.index ()] };
-		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (_maxCapacity))));
+		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (maxCapacity))));
 		while (edgeSelector.delta >= 1)
 		{
 			if (removeDeltaEdges)

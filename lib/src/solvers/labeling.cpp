@@ -4,6 +4,7 @@
 #include <max-flow/graphs/algorithms/pathfinder.hpp>
 #include <limits>
 #include <cmath>
+#include <stdexcept>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -118,19 +119,15 @@ namespace MaxFlow::Solvers
 		m_removeDeltaEdges = _enabled;
 	}
 
-	const LabelingSolver& CapacityScalingSolver::solver () const
+	CapacityScalingSolver::ESubSolver CapacityScalingSolver::subSolver () const
 	{
-		return *m_pSolver;
+		return m_subSolver;
 	}
 
-	LabelingSolver& CapacityScalingSolver::solver ()
-	{
-		return *m_pSolver;
-	}
 
-	void CapacityScalingSolver::setSolver (LabelingSolver& _solver)
+	void CapacityScalingSolver::setSubSolver (ESubSolver _subSolver)
 	{
-		m_pSolver = &_solver;
+		m_subSolver = _subSolver;
 	}
 
 	void CapacityScalingSolver::solveImpl ()
@@ -154,6 +151,19 @@ namespace MaxFlow::Solvers
 		}
 		ResidualGraph& deltaGraph{ areDeltaEdgesRemoved () ? deltaGraphStorage : graph () };
 		deltaGraph.setMatrix (true);
+		LabelingSolver* pSubSolver;
+		switch (subSolver())
+		{
+			case ESubSolver::FordFulkerson:
+				pSubSolver = new FordFulkersonSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities() };
+				break;
+			case ESubSolver::ShortestPath:
+				pSubSolver = new ShortestPathSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities() };
+				break;
+			default:
+				throw std::invalid_argument{ "unknown sub solver" };
+		}
+		pSubSolver->setRemoveZeroEdges (areZeroEdgesRemoved ());
 		DeltaEdgeSelector edgeSelector;
 		Pathfinder pathfinder{ deltaGraph, deltaGraph[source().index ()], deltaGraph[sink().index ()] };
 		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (maxCapacity))));
@@ -174,7 +184,7 @@ namespace MaxFlow::Solvers
 					}
 				}
 			}
-			solver ().solveWithEdgeSelector (edgeSelector);
+			pSubSolver->solveWithEdgeSelector (edgeSelector);
 			if (areDeltaEdgesRemoved ())
 			{
 				for (ResidualVertex& deltaVertex : deltaGraph)
@@ -188,6 +198,7 @@ namespace MaxFlow::Solvers
 			}
 			edgeSelector.delta /= 2;
 		}
+		delete pSubSolver;
 	}
 
 	bool CapacityScalingSolver::DeltaEdgeSelector::operator() (const ResidualEdge& _edge)

@@ -15,53 +15,38 @@ namespace MaxFlow
 	{
 		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 		Solver* pSolver;
-		std::vector<Solver*> allocatedSolvers;
 		switch (_solver)
 		{
 			case MaxFlow::ESolver::FordFulkerson:
 			{
-				auto pFFSolver{ new Solvers::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix } };
-				allocatedSolvers.push_back (pFFSolver);
-				pSolver = pFFSolver;
+				pSolver = new Solvers::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			case MaxFlow::ESolver::CapacityScalingFordFulkerson:
 			{
 				auto pCSSolver{ new Solvers::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
-				auto pCSSubSolver = new Solvers::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix };
-				pCSSubSolver->setRemoveZeroEdges (_removeZeroEdges);
-				allocatedSolvers.push_back (pCSSolver);
-				allocatedSolvers.push_back (pCSSubSolver);
-				pCSSolver->setSolver (*pCSSubSolver);
+				pCSSolver->setSubSolver (Solvers::CapacityScalingSolver::ESubSolver::FordFulkerson);
 				pSolver = pCSSolver;
 				break;
 			}
 			case MaxFlow::ESolver::CapacityScalingShortestPath:
 			{
 				auto pCSSolver{ new Solvers::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
-				auto pSPSubSolver = new Solvers::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix };
-				pSPSubSolver->setRemoveZeroEdges (_removeZeroEdges);
-				allocatedSolvers.push_back (pCSSolver);
-				allocatedSolvers.push_back (pSPSubSolver);
-				pCSSolver->setSolver (*pSPSubSolver);
+				pCSSolver->setSubSolver (Solvers::CapacityScalingSolver::ESubSolver::ShortestPath);
 				pSolver = pCSSolver;
 				break;
 			}
 			case MaxFlow::ESolver::ShortestPath:
 			{
-				auto pSPSolver{ new Solvers::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix } };
-				allocatedSolvers.push_back (pSPSolver);
-				pSolver = pSPSolver;
+				pSolver = new Solvers::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			default:
 				throw std::invalid_argument{ "unknown solver" };
 		}
 		pSolver->setRemoveZeroEdges (_removeZeroEdges);
-		for (Solver* pAllocatedSolver : allocatedSolvers)
-		{
-			delete pAllocatedSolver;
-		}
+		pSolver->solve ();
+		delete pSolver;
 	}
 
 	Solver::Solver (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix)

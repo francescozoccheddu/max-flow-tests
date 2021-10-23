@@ -18,7 +18,6 @@ namespace MaxFlow::Graphs::Algorithms
 		std::fill (m_distances.begin (), m_distances.end (), 0);
 	}
 
-
 	void DistanceLabeler::calculate (EdgeSelector& _edgeSelector)
 	{
 		reset (0);

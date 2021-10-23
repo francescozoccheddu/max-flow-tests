@@ -64,6 +64,13 @@ namespace MaxFlow::Solvers
 	class CapacityScalingSolver final : public Solver
 	{
 
+	public:
+
+		enum class ESubSolver
+		{
+			FordFulkerson, ShortestPath
+		};
+
 	private:
 
 
@@ -76,7 +83,7 @@ namespace MaxFlow::Solvers
 
 		};
 
-		LabelingSolver* m_pSolver;
+		ESubSolver m_subSolver;
 		bool m_removeDeltaEdges{};
 
 		void solveImpl () override;
@@ -86,9 +93,8 @@ namespace MaxFlow::Solvers
 		bool areDeltaEdgesRemoved () const;
 		void setRemoveDeltaEdges (bool _enabled);
 
-		const LabelingSolver& solver () const;
-		LabelingSolver& solver ();
-		void setSolver(LabelingSolver& _solver);
+		ESubSolver subSolver () const;
+		void setSubSolver(ESubSolver _subSolver);
 
 		using Solver::Solver;
 

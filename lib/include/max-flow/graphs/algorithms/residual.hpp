@@ -9,17 +9,17 @@ namespace MaxFlow::Graphs::Algorithms
 
 	constexpr bool defaultRemoveZeroEdgeOnAugment = true;
 
-	void augment (Graphs::ResidualEdge& _edge, Graphs::flow_t _amount, bool _removeZeroEdge= defaultRemoveZeroEdgeOnAugment);
+	void augment (ResidualEdge& _edge, flow_t _amount, bool _removeZeroEdge= defaultRemoveZeroEdgeOnAugment);
 
-	Graphs::flow_t antiparallelCapacity (const Graphs::ResidualEdge& _edge);
+	flow_t antiparallelCapacity (const ResidualEdge& _edge);
 
-	Graphs::ResidualEdge& antiparallelEdgeOrCreate (Graphs::ResidualEdge& _edge);
+	ResidualEdge& antiparallelEdgeOrCreate (ResidualEdge& _edge);
 
-	Graphs::ResidualEdge& edgeOrCreate (Graphs::ResidualVertex& _from , Graphs::ResidualVertex& _to);
+	ResidualEdge& edgeOrCreate (ResidualVertex& _from , ResidualVertex& _to);
 
-	void removeZeroEdges (Graphs::ResidualGraph& _graph);
+	void removeZeroEdges (ResidualGraph& _graph);
 
-	void removeBiZeroEdges (Graphs::ResidualGraph& _graph);
+	void removeBiZeroEdges (ResidualGraph& _graph);
 
 	void addZeroEdges (Graphs::ResidualGraph& _graph);
 

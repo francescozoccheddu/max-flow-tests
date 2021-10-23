@@ -128,7 +128,7 @@ namespace MaxFlow::Graphs::Algorithms
 	template<bool c>
 	inline Labeler::Iterator<c>::pointer Labeler::Iterator<c>::operator->() const
 	{
-		return &(operator->());
+		return &m_labeler[*m_p][*m_p];
 	}
 
 	template<bool c>

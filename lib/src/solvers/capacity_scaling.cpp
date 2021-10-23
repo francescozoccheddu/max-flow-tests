@@ -20,7 +20,7 @@ namespace MaxFlow::Solvers
 	struct DeltaEdgeSelector : public Labeler::EdgeSelector
 	{
 
-		flow_t delta;
+		flow_t delta{};
 
 		inline bool shouldVisit (const ResidualEdge& _edge) const override
 		{
@@ -33,6 +33,7 @@ namespace MaxFlow::Solvers
 	{
 		ResidualGraph::ensureSameGraph (_graph, _source.graph ());
 		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
+		_graph.setMatrix (true);
 		if (removeZeroEdgesOnAugment)
 		{
 			removeZeroEdges (_graph);
@@ -44,13 +45,14 @@ namespace MaxFlow::Solvers
 		ResidualGraph deltaGraphStorage;
 		if (removeDeltaEdges)
 		{
+			deltaGraphStorage.setMatrix (true);
 			deltaGraphStorage.addVertices (_graph.verticesCount ());
 		}
 		ResidualGraph& deltaGraph{ removeDeltaEdges ? deltaGraphStorage : _graph };
 		deltaGraph.setMatrix (true);
 		DeltaEdgeSelector edgeSelector;
 		Labeler labeler{ deltaGraph, deltaGraph[_source.index ()], deltaGraph[_sink.index ()] };
-		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::log2 (_maxCapacity)));
+		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (_maxCapacity))));
 		while (edgeSelector.delta >= 1)
 		{
 			if (removeDeltaEdges)
@@ -58,9 +60,10 @@ namespace MaxFlow::Solvers
 				for (ResidualVertex& vertex : _graph)
 				{
 					ResidualVertex& deltaVertex{ deltaGraph[vertex.index ()] };
+					deltaVertex.destroyAllOutEdges ();
 					for (ResidualEdge& edge : vertex)
 					{
-						if (*edge >= edgeSelector.delta && !deltaVertex.hasOutEdge (edge.to ().index ()))
+						if (*edge >= edgeSelector.delta)
 						{
 							deltaVertex.addOutEdge (edge.to ().index (), *edge);
 						}
@@ -71,11 +74,18 @@ namespace MaxFlow::Solvers
 			while (labeler.isSinkLabeled ())
 			{
 				augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
+				if (removeDeltaEdges)
+				{
+					for (ResidualEdge& edge : labeler)
+					{
+						ResidualEdge& originalEdge{ _graph[edge.from ().index ()][edge.to ().index ()] };
+						*originalEdge = *edge;
+					}
+				}
 				labeler.label ();
 			}
 			edgeSelector.delta /= 2;
 		}
-		_graph = std::move (deltaGraph);
 	}
 
 }

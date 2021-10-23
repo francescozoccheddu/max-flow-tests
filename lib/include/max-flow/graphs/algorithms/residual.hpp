@@ -2,7 +2,7 @@
 #define INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_RESIDUAL
 
 #include <max-flow/graphs/residual.hpp>
-#include <max-flow/graphs/algorithms/labeler.hpp>
+#include <max-flow/graphs/algorithms/pathfinder.hpp>
 
 namespace MaxFlow::Graphs::Algorithms
 {
@@ -23,7 +23,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void addZeroEdges (Graphs::ResidualGraph& _graph);
 
-	void augmentMax (Labeler::IteratorM _start, Labeler::IteratorM _end, bool _removeZeroEdge = defaultRemoveZeroEdgeOnAugment);
+	void augmentMax (Pathfinder::IteratorM _start, Pathfinder::IteratorM _end, bool _removeZeroEdge = defaultRemoveZeroEdgeOnAugment);
 
 }
 

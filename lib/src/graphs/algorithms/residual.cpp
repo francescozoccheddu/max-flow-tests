@@ -99,10 +99,10 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
-	void augmentMax (const Labeler::IteratorM _start, const Labeler::IteratorM _end, bool _removeZeroEdge)
+	void augmentMax (const Pathfinder::IteratorM _start, const Pathfinder::IteratorM _end, bool _removeZeroEdge)
 	{
 		Graphs::flow_t minR{ std::numeric_limits<Graphs::flow_t>::max () };
-		for (Labeler::IteratorM it{_start}; it != _end; ++it)
+		for (Pathfinder::IteratorM it{_start}; it != _end; ++it)
 		{
 			ResidualEdge& edge{ *it };
 			if (*edge < minR)
@@ -110,7 +110,7 @@ namespace MaxFlow::Graphs::Algorithms
 				minR = *edge;
 			}
 		}
-		for (Labeler::IteratorM it{ _start }; it != _end; ++it)
+		for (Pathfinder::IteratorM it{ _start }; it != _end; ++it)
 		{
 			ResidualEdge& edge{ *it };
 			augment (edge, minR, _removeZeroEdge);

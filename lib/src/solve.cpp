@@ -30,8 +30,7 @@ namespace MaxFlow
 
 	void solve (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver)
 	{
-		Base::Graph::ensureSameGraph (_graph, _source.graph ());
-		Base::Graph::ensureSameGraph (_graph, _sink.graph ());
+		Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
 		solverFunc (_solver)(_graph, _source, _sink, _capacityMatrix);
 	}
 

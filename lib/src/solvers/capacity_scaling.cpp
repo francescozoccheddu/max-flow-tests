@@ -1,7 +1,7 @@
 #include <max-flow/solvers/capacity_scaling.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/graphs/algorithms/labeler.hpp>
+#include <max-flow/graphs/algorithms/pathfinder.hpp>
 #include <cmath>
 #include <vector>
 
@@ -17,7 +17,7 @@ namespace MaxFlow::Solvers
 	constexpr bool removeZeroEdgesOnAugment = false;
 	constexpr bool removeDeltaEdges = false;
 
-	struct DeltaEdgeSelector : public Labeler::EdgeSelector
+	struct DeltaEdgeSelector : public Pathfinder::EdgeSelector
 	{
 
 		flow_t delta{};
@@ -31,8 +31,7 @@ namespace MaxFlow::Solvers
 
 	void capacityScaling MF_S_PL
 	{
-		ResidualGraph::ensureSameGraph (_graph, _source.graph ());
-		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
+		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
 		_graph.setMatrix (true);
 		if (removeZeroEdgesOnAugment)
 		{
@@ -62,7 +61,7 @@ namespace MaxFlow::Solvers
 		ResidualGraph& deltaGraph{ removeDeltaEdges ? deltaGraphStorage : _graph };
 		deltaGraph.setMatrix (true);
 		DeltaEdgeSelector edgeSelector;
-		Labeler labeler{ deltaGraph, deltaGraph[_source.index ()], deltaGraph[_sink.index ()] };
+		Pathfinder pathfinder{ deltaGraph, deltaGraph[_source.index ()], deltaGraph[_sink.index ()] };
 		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (maxCapacity))));
 		while (edgeSelector.delta >= 1)
 		{
@@ -81,19 +80,19 @@ namespace MaxFlow::Solvers
 					}
 				}
 			}
-			labeler.label (edgeSelector);
-			while (labeler.isSinkLabeled ())
+			pathfinder.calculate (edgeSelector);
+			while (pathfinder.isSinkLabeled ())
 			{
-				augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
+				augmentMax (pathfinder.begin (), pathfinder.end (), removeZeroEdgesOnAugment);
 				if (removeDeltaEdges)
 				{
-					for (ResidualEdge& edge : labeler)
+					for (ResidualEdge& edge : pathfinder)
 					{
 						ResidualEdge& originalEdge{ _graph[edge.from ().index ()][edge.to ().index ()] };
 						*originalEdge = *edge;
 					}
 				}
-				labeler.label ();
+				pathfinder.calculate (edgeSelector);
 			}
 			edgeSelector.delta /= 2;
 		}

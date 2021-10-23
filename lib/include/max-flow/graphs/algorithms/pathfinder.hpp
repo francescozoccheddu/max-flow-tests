@@ -1,11 +1,10 @@
-#ifndef INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_LABELER
-#define INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_LABELER
+#ifndef INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_PATHFINDER
+#define INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_PATHFINDER
 
 #include <max-flow/graphs/residual.hpp>
 #include <max-flow/utils/reference_equatable.hpp>
 #include <vector>
-#include <queue>
-#include <functional>
+#include <iterator>
 #include <type_traits>
 
 namespace MaxFlow::Graphs::Algorithms
@@ -13,7 +12,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 #pragma region Declaration
 
-	class Labeler final : public Utils::ReferenceEquatable
+	class Pathfinder final : public Utils::ReferenceEquatable
 	{
 
 	private:
@@ -21,7 +20,6 @@ namespace MaxFlow::Graphs::Algorithms
 		ResidualGraph& m_graph;
 		ResidualVertex& m_source, & m_sink;
 		std::vector<ResidualVertex*> m_predecessors;
-		mutable std::queue<ResidualVertex*> m_queue;
 
 	public:
 
@@ -36,17 +34,17 @@ namespace MaxFlow::Graphs::Algorithms
 			using value_type = std::conditional_t<constant, const ResidualEdge, ResidualEdge>;
 			using reference = value_type&;
 			using pointer = value_type*;
-			using labeler = std::conditional_t<constant, const Labeler, Labeler>;
+			using pathfinder = std::conditional_t<constant, const Pathfinder, Pathfinder>;
 			using vertex = std::conditional_t<constant, const ResidualVertex, ResidualVertex>;
 
 		private:
 
-			friend class Labeler;
+			friend class Pathfinder;
 
 			vertex* m_p;
-			labeler& m_labeler;
+			pathfinder& m_pathfinder;
 
-			Iterator (labeler& _labeler, vertex& _current);
+			Iterator (pathfinder& _pathfinder, vertex& _current);
 
 		public:
 
@@ -71,7 +69,7 @@ namespace MaxFlow::Graphs::Algorithms
 		class EdgeSelector
 		{
 
-			friend class Labeler;
+			friend class Pathfinder;
 
 		protected:
 
@@ -82,17 +80,15 @@ namespace MaxFlow::Graphs::Algorithms
 		using IteratorC = Iterator<true>;
 		using IteratorM = Iterator<false>;
 
-		Labeler (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink);
+		Pathfinder (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink);
 
-		void unlabel ();
+		void reset ();
 
-		void distances (std::vector<size_t>& _distances) const;
-		std::vector<size_t> distances () const;
-
-		void label (const EdgeSelector& _edgeSelector = {});
+		void calculate (const EdgeSelector& _edgeSelector = {});
 
 		void setPredecessor (ResidualVertex& _vertex, ResidualVertex& _predecessor);
 		void setPredecessor (ResidualEdge& _edge);
+		void resetPredecessor (ResidualVertex& _vertex);
 
 		const ResidualVertex& operator[](const ResidualVertex& _vertex) const;
 		ResidualVertex& operator[](ResidualVertex& _vertex);
@@ -116,30 +112,30 @@ namespace MaxFlow::Graphs::Algorithms
 #pragma region Implementation
 
 	template<bool c>
-	inline Labeler::Iterator<c>::Iterator (labeler& _labeler, vertex& _current) : m_labeler{ _labeler }, m_p{ &_current }
+	inline Pathfinder::Iterator<c>::Iterator (pathfinder& _pathfinder, vertex& _current) : m_pathfinder{ _pathfinder }, m_p{ &_current }
 	{}
 
 	template<bool c>
-	inline Labeler::Iterator<c>::reference Labeler::Iterator<c>::operator*() const
+	inline Pathfinder::Iterator<c>::reference Pathfinder::Iterator<c>::operator*() const
 	{
-		return m_labeler[*m_p][*m_p];
+		return m_pathfinder[*m_p][*m_p];
 	}
 
 	template<bool c>
-	inline Labeler::Iterator<c>::pointer Labeler::Iterator<c>::operator->() const
+	inline Pathfinder::Iterator<c>::pointer Pathfinder::Iterator<c>::operator->() const
 	{
-		return &m_labeler[*m_p][*m_p];
+		return &m_pathfinder[*m_p][*m_p];
 	}
 
 	template<bool c>
-	inline Labeler::Iterator<c>& Labeler::Iterator<c>::operator++()
+	inline Pathfinder::Iterator<c>& Pathfinder::Iterator<c>::operator++()
 	{
-		m_p = &m_labeler[*m_p];
+		m_p = &m_pathfinder[*m_p];
 		return *this;
 	}
 
 	template<bool c>
-	inline Labeler::Iterator<c> Labeler::Iterator<c>::operator++(int)
+	inline Pathfinder::Iterator<c> Pathfinder::Iterator<c>::operator++(int)
 	{
 		Iterator last{ *this };
 		++* this;
@@ -148,9 +144,9 @@ namespace MaxFlow::Graphs::Algorithms
 
 	template<bool c>
 	template<bool co>
-	inline bool Labeler::Iterator<c>::operator==(const Labeler::Iterator<co>& _other) const
+	inline bool Pathfinder::Iterator<c>::operator==(const Pathfinder::Iterator<co>& _other) const
 	{
-		return _other.m_labeler == m_labeler && _other.m_p == m_p;
+		return _other.m_pathfinder == m_pathfinder && _other.m_p == m_p;
 	}
 
 #pragma endregion

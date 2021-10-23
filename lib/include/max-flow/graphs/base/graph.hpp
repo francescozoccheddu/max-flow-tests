@@ -2,7 +2,9 @@
 #define INCLUDED_MAX_FLOW_GRAPH_BASE_GRAPH
 
 #include <vector>
+#include <type_traits>
 #include <cstddef>
+#include <stdexcept>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graphs/base/vertex.hpp>
 #include <max-flow/utils/iteration/contiguous_indirect.hpp>
@@ -68,15 +70,16 @@ namespace MaxFlow::Graphs::Base
 
 		// Utils
 
-		static void ensureSameGraph (const Graph& _a, const Graph& _b);
-		static void ensureValidCount (size_t _count) ;
+		template<typename A0, typename ...Args> static void ensureSameGraph (A0 const& _graph, Args const&... _graphs);
+
+		static void ensureValidCount (size_t _count);
 		void ensureValidVertexIndex (size_t _index) const;
 		void ensureValidOrLastVertexIndex (size_t _index) const;
 
 		// Construction
 
 		Graph () = default;
-		
+
 		// Assignment
 
 		Graph& operator=(const Graph& _moved);
@@ -137,6 +140,14 @@ namespace MaxFlow::Graphs::Base
 		VertexIterator<true, true> crend () const;
 
 	};
+
+	template<typename A0, typename ...Args> inline void Graph::ensureSameGraph (A0 const& _graph, Args const& ..._graphs)
+	{
+		if (!((_graphs == _graph) && ... && true))
+		{
+			throw std::logic_error{ "not the same graph" };
+		}
+	}
 
 }
 

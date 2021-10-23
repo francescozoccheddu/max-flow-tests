@@ -1,7 +1,7 @@
 #include <max-flow/solvers/preflow_push.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/graphs/algorithms/labeler.hpp>
+#include <max-flow/graphs/algorithms/pathfinder.hpp>
 #include <max-flow/graphs/algorithms/graphviz.hpp>
 #include <vector>
 #include <queue>
@@ -19,8 +19,7 @@ namespace MaxFlow::Solvers
 
 	void preflowPush MF_S_PL
 	{
-		ResidualGraph::ensureSameGraph (_graph, _source.graph ());
-		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
+		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
 		_graph.setMatrix (true);
 		if (removeZeroEdgesOnAugment)
 		{
@@ -29,6 +28,11 @@ namespace MaxFlow::Solvers
 		else
 		{
 			removeBiZeroEdges (_graph);
+		}
+		Pathfinder pathfinder{ _graph, _source, _sink };
+		for (ResidualEdge& edge : _source)
+		{
+			augment (edge, *edge, removeZeroEdgesOnAugment);
 		}
 
 	}

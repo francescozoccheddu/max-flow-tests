@@ -61,8 +61,7 @@ namespace MaxFlow
 
 	MF_GG_TT void solve (Graphs::FlowGraph<TVD, TED>& _graph, Graphs::FlowGraphVertex<TVD, TED>& _source, Graphs::FlowGraphVertex<TVD, TED>& _sink, ESolver _solver)
 	{
-		Graphs::Base::Graph::ensureSameGraph (_source.graph (), _graph);
-		Graphs::Base::Graph::ensureSameGraph (_sink.graph (), _graph);
+		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
 		_graph.setMatrix (true);
 		Graphs::ResidualGraph residualGraph{ Graphs::createResidualGraph (_graph) };
 		residualGraph.setMatrix (true);
@@ -72,8 +71,7 @@ namespace MaxFlow
 
 	MF_GG_TT Graphs::FlowGraph<TVD, TED> solve (const Graphs::FlowGraph<TVD, TED>& _graph, const Graphs::FlowGraphVertex<TVD, TED>& _source, const Graphs::FlowGraphVertex<TVD, TED>& _sink, ESolver _solver)
 	{
-		Graphs::Base::Graph::ensureSameGraph (_source.graph (), _graph);
-		Graphs::Base::Graph::ensureSameGraph (_sink.graph (), _graph);
+		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
 		Graphs::FlowGraph<TVD, TED> copyGraph{ _graph };
 		solve (copyGraph, copyGraph[_source.index ()], copyGraph[_sink.index ()]);
 		return copyGraph;

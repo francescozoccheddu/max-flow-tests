@@ -1,7 +1,8 @@
 #include <max-flow/solvers/shortest_augmenting_path.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/graphs/algorithms/labeler.hpp>
+#include <max-flow/graphs/algorithms/pathfinder.hpp>
+#include <max-flow/graphs/algorithms/distance_labeler.hpp>
 #include <max-flow/graphs/algorithms/graphviz.hpp>
 #include <vector>
 #include <queue>
@@ -20,8 +21,7 @@ namespace MaxFlow::Solvers
 
 	void shortestAugmentingPath MF_S_PL
 	{
-		ResidualGraph::ensureSameGraph (_graph, _source.graph ());
-		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
+		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 		_graph.setMatrix (true);
 		if (removeZeroEdgesOnAugment)
 		{
@@ -31,31 +31,31 @@ namespace MaxFlow::Solvers
 		{
 			removeBiZeroEdges (_graph);
 		}
-		Labeler labeler{ _graph, _source, _sink };
-		std::vector<size_t> distances{ labeler.distances () };
+		Pathfinder pathfinder{ _graph, _source, _sink };
+		DistanceLabeler distanceLabeler{ _graph, _source, _sink };
 		std::vector<size_t> distanceCounts (detectMinCut ? _graph.verticesCount () : 0, 0);
 		if (detectMinCut)
 		{
-			for (size_t distance : distances)
+			for (const ResidualVertex& vertex : _graph)
 			{
-				distanceCounts[distance]++;
+				distanceCounts[distanceLabeler[vertex]]++;
 			}
 		}
-		labeler.setPredecessor (_source, _source);
+		pathfinder.setPredecessor (_source, _source);
 		ResidualVertex* pCurrent{ &_source };
-		while (distances[_source.index ()] < _graph.verticesCount ())
+		while (distanceLabeler[_source] < _graph.verticesCount ())
 		{
-			const size_t distance{ distances[pCurrent->index ()] };
+			const size_t distance{ distanceLabeler[*pCurrent] };
 			bool foundAdmissibleEdge{ false };
 			for (ResidualEdge& edge : *pCurrent)
 			{
-				if (*edge && distances[edge.to ().index ()] == distance - 1)
+				if (distanceLabeler.isAdmissible (edge))
 				{
-					labeler.setPredecessor (edge);
+					pathfinder.setPredecessor (edge);
 					pCurrent = &edge.to ();
 					if (pCurrent == &_sink)
 					{
-						augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
+						augmentMax (pathfinder.begin (), pathfinder.end (), removeZeroEdgesOnAugment);
 						pCurrent = &_source;
 					}
 					foundAdmissibleEdge = true;
@@ -68,18 +68,18 @@ namespace MaxFlow::Solvers
 				bool hasOutEdges{};
 				for (ResidualEdge& edge : *pCurrent)
 				{
-					if (*edge && distances[edge.to ().index ()] < minDistance)
+					if (*edge && distanceLabeler[edge.to ()] < minDistance)
 					{
 						hasOutEdges = true;
-						minDistance = distances[edge.to ().index ()];
+						minDistance = distanceLabeler[edge.to ()];
 					}
 				}
 				if (!hasOutEdges)
 				{
 					break;
 				}
-				distances[pCurrent->index ()] = minDistance + 1;
-				pCurrent = &labeler[*pCurrent];
+				distanceLabeler.setDistance (*pCurrent, minDistance + 1);
+				pCurrent = &pathfinder[*pCurrent];
 				if (detectMinCut)
 				{
 					distanceCounts[distance]--;

@@ -1,7 +1,7 @@
 #include <max-flow/solvers/labeling.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/graphs/algorithms/labeler.hpp>
+#include <max-flow/graphs/algorithms/pathfinder.hpp>
 #include <limits>
 
 using MaxFlow::Graphs::ResidualGraph;
@@ -16,8 +16,7 @@ namespace MaxFlow::Solvers
 
 	void labeling MF_S_PL
 	{
-		ResidualGraph::ensureSameGraph (_graph, _source.graph ());
-		ResidualGraph::ensureSameGraph (_graph, _sink.graph ());
+		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
 		_graph.setMatrix (true);
 		if (removeZeroEdgesOnAugment)
 		{
@@ -27,16 +26,16 @@ namespace MaxFlow::Solvers
 		{
 			removeBiZeroEdges (_graph);
 		}
-		Labeler labeler{ _graph, _source, _sink };
+		Pathfinder pathfinder{ _graph, _source, _sink };
 		do
 		{
-			labeler.label ();
-			if (labeler.isSinkLabeled ())
+			pathfinder.calculate ();
+			if (pathfinder.isSinkLabeled ())
 			{
-				augmentMax (labeler.begin (), labeler.end (), removeZeroEdgesOnAugment);
+				augmentMax (pathfinder.begin (), pathfinder.end (), removeZeroEdgesOnAugment);
 			}
 		}
-		while (labeler.isSinkLabeled ());
+		while (pathfinder.isSinkLabeled ());
 	}
 
 }

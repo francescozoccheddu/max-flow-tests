@@ -9,14 +9,6 @@ namespace MaxFlow::Graphs::Base
 
 #pragma region Utils
 
-	void Graph::ensureSameGraph (const Graph& _a, const Graph& _b)
-	{
-		if (&_a != &_b)
-		{
-			throw std::logic_error{ "not the same graph" };
-		}
-	}
-
 	void Graph::ensureValidCount (size_t _count)
 	{
 		if (_count < 0)
@@ -59,7 +51,7 @@ namespace MaxFlow::Graphs::Base
 
 	void Graph::destroyVertex (Vertex& _vertex)
 	{
-		ensureSameGraph (_vertex.graph (), *this);
+		ensureSameGraph (*this, _vertex.graph ());
 		_vertex.destroyAllOutEdges ();
 		m_vertices.erase (m_vertices.begin () + _vertex.index ());
 		updateIndices (_vertex.index ());
@@ -150,7 +142,7 @@ namespace MaxFlow::Graphs::Base
 
 	Vertex& Graph::addVertexBefore (Vertex& _next)
 	{
-		ensureSameGraph (_next.graph (), *this);
+		ensureSameGraph (*this, _next.graph ());
 		return addVertexAt (_next.index ());
 	}
 
@@ -177,8 +169,7 @@ namespace MaxFlow::Graphs::Base
 
 	void Graph::swapVertices (Vertex& _a, Vertex& _b)
 	{
-		ensureSameGraph (_a.graph (), *this);
-		ensureSameGraph (_b.graph (), *this);
+		ensureSameGraph (*this, _a.graph (), _b.graph());
 		{
 			const size_t aIndex{ _a.index () };
 			_a.setIndex (_b.index ());

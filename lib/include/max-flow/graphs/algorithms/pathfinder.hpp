@@ -2,6 +2,7 @@
 #define INCLUDED_MAX_FLOW_GRAPH_ALGORITHMS_PATHFINDER
 
 #include <max-flow/graphs/residual.hpp>
+#include <max-flow/graphs/algorithms/edge_selector.hpp>
 #include <max-flow/utils/reference_equatable.hpp>
 #include <vector>
 #include <iterator>
@@ -66,17 +67,6 @@ namespace MaxFlow::Graphs::Algorithms
 
 		};
 
-		class EdgeSelector
-		{
-
-			friend class Pathfinder;
-
-		protected:
-
-			virtual bool shouldVisit (const ResidualEdge& _edge) const;
-
-		};
-
 		using IteratorC = Iterator<true>;
 		using IteratorM = Iterator<false>;
 
@@ -84,7 +74,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 		void reset ();
 
-		void calculate (const EdgeSelector& _edgeSelector = {});
+		void calculate (EdgeSelector& _edgeSelector = EdgeSelector::all);
 
 		void setPredecessor (ResidualVertex& _vertex, ResidualVertex& _predecessor);
 		void setPredecessor (ResidualEdge& _edge);

@@ -15,26 +15,6 @@ using namespace MaxFlow::Graphs::Algorithms;
 namespace MaxFlow::Solvers
 {
 
-	constexpr bool removeZeroEdgesOnAugment = false;
-
-	void preflowPush MF_S_PL
-	{
-		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
-		_graph.setMatrix (true);
-		if (removeZeroEdgesOnAugment)
-		{
-			removeZeroEdges (_graph);
-		}
-		else
-		{
-			removeBiZeroEdges (_graph);
-		}
-		Pathfinder pathfinder{ _graph, _source, _sink };
-		for (ResidualEdge& edge : _source)
-		{
-			augment (edge, *edge, removeZeroEdgesOnAugment);
-		}
-
-	}
+	
 
 }

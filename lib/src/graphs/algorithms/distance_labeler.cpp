@@ -7,7 +7,7 @@ namespace MaxFlow::Graphs::Algorithms
 {
 
 	DistanceLabeler::DistanceLabeler (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink)
-		: m_graph{ _graph }, m_source{ _source }, m_sink{ _sink }, m_distances (_graph.verticesCount (), 0)
+		: m_graph{ _graph }, m_source{ _source }, m_sink{ _sink }, m_distances{}
 	{
 		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 	}
@@ -19,7 +19,7 @@ namespace MaxFlow::Graphs::Algorithms
 	}
 
 
-	void DistanceLabeler::calculate (const EdgeSelector& _edgeSelector)
+	void DistanceLabeler::calculate (EdgeSelector& _edgeSelector)
 	{
 		reset (0);
 		std::queue<ResidualVertex*> m_queue{};
@@ -32,7 +32,7 @@ namespace MaxFlow::Graphs::Algorithms
 			m_queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
-				if (!m_distances[edge.to ().index ()] && edge.to () != m_sink)
+				if (!m_distances[edge.to ().index ()] && edge.to () != m_sink && _edgeSelector(edge))
 				{
 					m_distances[edge.to ().index ()] = distance;
 					m_queue.push (&edge.to ());
@@ -59,9 +59,5 @@ namespace MaxFlow::Graphs::Algorithms
 		return *_edge && (*this)[_edge.from ()] == (*this)[_edge.to ()] + 1;
 	}
 
-	bool DistanceLabeler::EdgeSelector::shouldVisit (const ResidualEdge& _edge) const
-	{
-		return true;
-	}
 
 }

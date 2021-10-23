@@ -5,8 +5,6 @@
 #include <max-flow/graphs/flow.hpp>
 #include <max-flow/graphs/residual.hpp>
 
-#define MF_S_PL (MaxFlow::Graphs::ResidualGraph& _graph, MaxFlow::Graphs::ResidualVertex& _source, MaxFlow::Graphs::ResidualVertex& _sink, const MaxFlow::CapacityMatrix& _capacityMatrix)
-
 namespace MaxFlow
 {
 
@@ -38,14 +36,50 @@ namespace MaxFlow
 
 	};
 
+	class Solver
+	{
+
+	private:
+
+		Graphs::ResidualGraph& m_graph;
+		Graphs::ResidualVertex& m_source, & m_sink;
+		const CapacityMatrix& m_capacities;
+		bool m_areZeroEdgesRemoved;
+
+	protected:
+
+		virtual void solveImpl () = 0;
+
+	public:
+
+		Solver (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix);
+
+		const Graphs::ResidualGraph& graph () const;
+		Graphs::ResidualGraph& graph ();
+
+		const Graphs::ResidualVertex& source () const;
+		Graphs::ResidualVertex& source ();
+
+		const Graphs::ResidualVertex& sink () const;
+		Graphs::ResidualVertex& sink ();
+
+		const CapacityMatrix& capacities () const;
+
+		void setRemoveZeroEdges (bool _removeZeroEdge);
+		bool areZeroEdgesRemoved () const;
+
+		void solve ();
+
+	};
+
 	// Enums
 
 	enum class ESolver
 	{
-		Labeling, CapacityScaling, ShortestAugmentingPath, PreflowPush
+		FordFulkerson, CapacityScalingFordFulkerson, CapacityScalingShortestPath, ShortestPath, NaifPreflowPush, FifoPreflowPush
 	};
 
-	constexpr ESolver defaultSolver{ ESolver::Labeling };
+	constexpr ESolver defaultSolver{ ESolver::FordFulkerson };
 
 	// Functions
 
@@ -53,7 +87,7 @@ namespace MaxFlow
 
 	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData>& solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const  Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver);
 
-	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver = defaultSolver);
+	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver = defaultSolver, bool _removeZeroEdges=false);
 
 #pragma endregion
 
@@ -61,7 +95,7 @@ namespace MaxFlow
 
 	MF_GG_TT void solve (Graphs::FlowGraph<TVD, TED>& _graph, Graphs::FlowGraphVertex<TVD, TED>& _source, Graphs::FlowGraphVertex<TVD, TED>& _sink, ESolver _solver)
 	{
-		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
+		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 		_graph.setMatrix (true);
 		Graphs::ResidualGraph residualGraph{ Graphs::createResidualGraph (_graph) };
 		residualGraph.setMatrix (true);
@@ -71,7 +105,7 @@ namespace MaxFlow
 
 	MF_GG_TT Graphs::FlowGraph<TVD, TED> solve (const Graphs::FlowGraph<TVD, TED>& _graph, const Graphs::FlowGraphVertex<TVD, TED>& _source, const Graphs::FlowGraphVertex<TVD, TED>& _sink, ESolver _solver)
 	{
-		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph());
+		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 		Graphs::FlowGraph<TVD, TED> copyGraph{ _graph };
 		solve (copyGraph, copyGraph[_source.index ()], copyGraph[_sink.index ()]);
 		return copyGraph;

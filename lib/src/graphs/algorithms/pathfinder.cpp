@@ -7,7 +7,7 @@ namespace MaxFlow::Graphs::Algorithms
 {
 
 	Pathfinder::Pathfinder (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink)
-		: m_graph{ _graph }, m_source{ _source }, m_sink{ _sink }, m_predecessors (_graph.verticesCount (), nullptr)
+		: m_graph{ _graph }, m_source{ _source }, m_sink{ _sink }, m_predecessors{}
 	{
 		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 	}
@@ -18,7 +18,7 @@ namespace MaxFlow::Graphs::Algorithms
 		std::fill (m_predecessors.begin (), m_predecessors.end (), nullptr);
 	}
 
-	void Pathfinder::calculate (const EdgeSelector& _edgeSelector)
+	void Pathfinder::calculate (EdgeSelector& _edgeSelector)
 	{
 		reset ();
 		setPredecessor (m_source, m_source);
@@ -30,7 +30,7 @@ namespace MaxFlow::Graphs::Algorithms
 			queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
-				if (*edge && !isLabeled (edge.to ()) && _edgeSelector.shouldVisit (edge))
+				if (*edge && !isLabeled (edge.to ()) && _edgeSelector (edge))
 				{
 					setPredecessor (edge.to (), vertex);
 					queue.push (&edge.to ());
@@ -114,11 +114,6 @@ namespace MaxFlow::Graphs::Algorithms
 	Pathfinder::IteratorM Pathfinder::end ()
 	{
 		return IteratorM{ *this, m_source };
-	}
-
-	bool Pathfinder::EdgeSelector::shouldVisit (const ResidualEdge& _edge) const
-	{
-		return true;
 	}
 
 }

@@ -3,6 +3,7 @@
 
 #include <max-flow/graphs/residual.hpp>
 #include <max-flow/utils/reference_equatable.hpp>
+#include <max-flow/graphs/algorithms/edge_selector.hpp>
 #include <vector>
 
 namespace MaxFlow::Graphs::Algorithms
@@ -20,22 +21,11 @@ namespace MaxFlow::Graphs::Algorithms
 
 	public:
 
-		class EdgeSelector
-		{
-
-			friend class Pathfinder;
-
-		protected:
-
-			virtual bool shouldVisit (const ResidualEdge& _edge) const;
-
-		};
-
 		DistanceLabeler (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink);
 
 		void reset (size_t _distance=0);
 
-		void calculate (const EdgeSelector& _edgeSelector = {});
+		void calculate (EdgeSelector& _edgeSelector = EdgeSelector::all);
 
 		void setDistance (ResidualVertex& _vertex, size_t _distance);
 

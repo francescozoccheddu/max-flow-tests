@@ -6,7 +6,6 @@
 namespace MaxFlow::Solvers
 {
 
-	void preflowPush MF_S_PL;
 
 }
 

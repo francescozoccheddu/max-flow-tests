@@ -67,11 +67,17 @@ namespace MaxFlow::Solvers::Labeling
 		switch (subSolver ())
 		{
 			case ESubSolver::FordFulkerson:
+			{
 				pSubSolver = new FordFulkersonSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities () };
 				break;
+			}
 			case ESubSolver::ShortestPath:
-				pSubSolver = new ShortestPathSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities () };
-				break;
+			{
+				ShortestPathSolver* pSPSubSolver = new ShortestPathSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities () };
+				pSPSubSolver->setMinCutDetection (isMinCutDetectionEnabled ());
+				pSubSolver = pSPSubSolver;
+			}
+			break;
 			default:
 				throw std::invalid_argument{ "unknown sub solver" };
 		}
@@ -118,6 +124,16 @@ namespace MaxFlow::Solvers::Labeling
 			ResidualEdge& edge{ m_graph[it->from ().index ()][it->to ().index ()] };
 			augment (edge, minCapacity, _solver.areZeroEdgesRemoved ());
 		}
+	}
+
+	bool CapacityScalingSolver::isMinCutDetectionEnabled () const
+	{
+		return m_detectMinCut;
+	}
+
+	void CapacityScalingSolver::setMinCutDetection (bool _enabled)
+	{
+		m_detectMinCut = _enabled;
 	}
 
 	CapacityScalingSolver::PropagateCallback::PropagateCallback (Graphs::ResidualGraph& _graph) : m_graph{ _graph }

@@ -37,7 +37,7 @@ int main ()
 
 	std::vector<App::SolverParameters> solvers{
 		{ESolver::FordFulkerson},
-		//{ESolver::ShortestPath, ESolverFlags::CapacityScalingRemoveDeltaEdges},
+		//{ESolver::ShortestPath},
 		//{ESolver::CapacityScalingFordFulkerson, ESolverFlags::CapacityScalingRemoveDeltaEdges},
 		//{ESolver::CapacityScalingShortestPath, ESolverFlags::RemoveZeroEdgeLabels},
 		{ESolver::NaifPreflowPush},

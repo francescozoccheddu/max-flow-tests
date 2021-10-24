@@ -58,6 +58,7 @@ namespace MaxFlow
 						break;
 				}
 				pCSSolver->setRemoveDeltaEdges (_flags & ESolverFlags::CapacityScalingRemoveDeltaEdges);
+				pCSSolver->setMinCutDetection (_flags & ESolverFlags::ShortestPathDetectMinCut);
 				pSolver = pCSSolver;
 				break;
 			}

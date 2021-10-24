@@ -43,6 +43,7 @@ namespace MaxFlow::Solvers::Labeling
 		};
 
 		ESubSolver m_subSolver{ ESubSolver::FordFulkerson};
+		bool m_detectMinCut{ true };
 		bool m_removeDeltaEdges{};
 
 		void solveImpl () override;
@@ -51,6 +52,9 @@ namespace MaxFlow::Solvers::Labeling
 
 		bool areDeltaEdgesRemoved () const;
 		void setRemoveDeltaEdges (bool _enabled);
+
+		bool isMinCutDetectionEnabled () const;
+		void setMinCutDetection (bool _enabled);
 
 		ESubSolver subSolver () const;
 		void setSubSolver (ESubSolver _subSolver);

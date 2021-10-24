@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <queue>
+#include <max-flow/utils/performance.hpp>
+
 
 namespace MaxFlow::Graphs::Algorithms
 {
@@ -16,6 +18,7 @@ namespace MaxFlow::Graphs::Algorithms
 	{
 		m_distances.resize (m_graph.verticesCount ());
 		std::fill (m_distances.begin (), m_distances.end (), 0);
+		Utils::Performance::tick (m_distances.size ());
 	}
 
 	void DistanceLabeler::calculate (EdgeSelector& _edgeSelector)
@@ -26,12 +29,14 @@ namespace MaxFlow::Graphs::Algorithms
 		size_t distance{};
 		while (!queue.empty ())
 		{
+			Utils::Performance::tick ();
 			distance++;
 			ResidualVertex& vertex{ *queue.front () };
 			queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
-				if (!m_distances[edge.to ().index ()] && edge.to () != m_sink && _edgeSelector(edge))
+				Utils::Performance::tick ();
+				if (!m_distances[edge.to ().index ()] && edge.to () != m_sink && _edgeSelector (edge))
 				{
 					m_distances[edge.to ().index ()] = distance;
 					queue.push (&edge.to ());

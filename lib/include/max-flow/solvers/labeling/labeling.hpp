@@ -42,7 +42,7 @@ namespace MaxFlow::Solvers::Labeling
 
 		const Graphs::Algorithms::Pathfinder& pathfinder () const;
 
-		const Graphs::Algorithms::EdgeSelector& const edgeSelector () const;
+		const Graphs::Algorithms::EdgeSelector& edgeSelector () const;
 		Graphs::Algorithms::EdgeSelector& edgeSelector ();
 		void setEdgeSelector (Graphs::Algorithms::EdgeSelector& _edgeSelector);
 

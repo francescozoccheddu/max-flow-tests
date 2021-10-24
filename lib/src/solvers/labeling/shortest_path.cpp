@@ -1,5 +1,6 @@
 #include <max-flow/solvers/labeling/shortest_path.hpp>
 
+#include <max-flow/utils/performance.hpp>
 #include <limits>
 
 using MaxFlow::Graphs::ResidualGraph;
@@ -26,6 +27,7 @@ namespace MaxFlow::Solvers::Labeling
 		{
 			m_distanceCounts.clear ();
 			m_distanceCounts.resize (graph ().verticesCount (), 0);
+			Utils::Performance::tick (graph ().verticesCount ());
 			for (const ResidualVertex& vertex : graph ())
 			{
 				m_distanceCounts[m_distanceLabeler[vertex]]++;
@@ -36,10 +38,12 @@ namespace MaxFlow::Solvers::Labeling
 		ResidualVertex* pCurrent{ &source () };
 		while (m_distanceLabeler[source ()] < graph ().verticesCount ())
 		{
+			Utils::Performance::tick ();
 			const size_t distance{ m_distanceLabeler[*pCurrent] };
 			bool foundAdmissibleEdge{ false };
 			for (ResidualEdge& edge : *pCurrent)
 			{
+				Utils::Performance::tick ();
 				if (m_distanceLabeler.isAdmissible (edge) && edgeSelector ()(edge))
 				{
 					pathfinder ().setPredecessor (edge);
@@ -59,6 +63,7 @@ namespace MaxFlow::Solvers::Labeling
 				bool hasOutEdges{};
 				for (ResidualEdge& edge : *pCurrent)
 				{
+					Utils::Performance::tick ();
 					if (*edge && m_distanceLabeler[edge.to ()] < minDistance && edgeSelector () (edge))
 					{
 						hasOutEdges = true;

@@ -39,7 +39,7 @@ int main ()
 	MaxFlow::solve (r.graph(), r.source(), r.sink(), MaxFlow::ESolver::HighestLabelPreflowPush);
 	Algorithms::GraphVizSource::from (r.graph()).exportToFile ("c:/users/franc/desktop/random_solution.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 
-	std::cout << MaxFlow::Utils::Performance::end ().time ();
+	std::cout << MaxFlow::Utils::Performance::end ().ticks ();
 
 	return 0;
 }

@@ -2,6 +2,7 @@
 #define INCLUDED_MAX_FLOW_ALGORITHMS_RESIDUAL
 
 #include <max-flow/graphs/generic/graph.hpp>
+#include <max-flow/utils/performance.hpp>
 #include <max-flow/graphs/flow.hpp>
 #include <utility>
 #include <stdexcept>
@@ -32,9 +33,11 @@ namespace MaxFlow::Graphs
 		graph.addVertices (_flowGraph.verticesCount ());
 		for (const FlowGraph<TVD, TED>::Vertex& originalVertex : _flowGraph)
 		{
+			Utils::Performance::tick ();
 			ResidualVertex& vertex{ graph[originalVertex.index ()] };
 			for (const FlowGraph<TVD, TED>::Edge& originalEdge : originalVertex)
 			{
+				Utils::Performance::tick ();
 				ResidualEdge* pExistingEdge{ vertex.outEdgeIfExists (originalEdge.to ().index ()) };
 				ResidualEdge& edge{ pExistingEdge ? *pExistingEdge : vertex.addOutEdge (originalEdge.to ().index ()) };
 				ResidualEdge& reverseEdge{ pExistingEdge ? edge.antiParallel () : graph[originalEdge.to ().index ()].addOutEdge (vertex.index ()) };
@@ -53,9 +56,11 @@ namespace MaxFlow::Graphs
 		}
 		for (FlowGraphVertex<TVD, TED>& originalVertex : _flowGraph)
 		{
+			Utils::Performance::tick ();
 			const ResidualVertex& residualVertex{ _residualGraph[originalVertex.index ()] };
 			for (FlowGraphEdge<TVD, TED>& originalEdge : originalVertex)
 			{
+				Utils::Performance::tick ();
 				const ResidualEdge* pResidualEdge{ residualVertex.outEdgeIfExists (originalEdge.to ().index ()) };
 				const flow_t r{ pResidualEdge ? **pResidualEdge : 0 };
 				if (originalEdge->capacity () > r

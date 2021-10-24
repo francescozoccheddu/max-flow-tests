@@ -1,5 +1,7 @@
 #include <max-flow/solvers/labeling/ford_fulkerson.hpp>
 
+#include <max-flow/utils/performance.hpp>
+
 namespace MaxFlow::Solvers::Labeling
 {
 
@@ -7,6 +9,7 @@ namespace MaxFlow::Solvers::Labeling
 	{
 		do
 		{
+			Utils::Performance::tick ();
 			calculatePaths ();
 			if (pathfinder ().isSinkLabeled ())
 			{

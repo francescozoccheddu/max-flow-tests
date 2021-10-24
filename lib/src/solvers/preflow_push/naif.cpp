@@ -1,9 +1,12 @@
 #include <max-flow/solvers/preflow_push/naif.hpp>
 
+#include <max-flow/utils/performance.hpp>
+
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;
 using MaxFlow::Graphs::flow_t;
+
 
 namespace MaxFlow::Solvers::PreflowPush
 {
@@ -12,6 +15,7 @@ namespace MaxFlow::Solvers::PreflowPush
 	{
 		m_excesses.clear ();
 		m_excesses.resize (graph ().verticesCount (), 0);
+		Utils::Performance::tick (graph ().verticesCount ());
 	}
 
 	void NaifPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
@@ -30,6 +34,7 @@ namespace MaxFlow::Solvers::PreflowPush
 	{
 		for (size_t i{ 0 }; i < graph ().verticesCount (); i++)
 		{
+			Utils::Performance::tick ();
 			if (m_excesses[i])
 			{
 				return { .pVertex{&graph ()[i]}, .amount{m_excesses[i]} };

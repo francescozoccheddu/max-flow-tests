@@ -15,7 +15,24 @@ using namespace MaxFlow::Graphs;
 namespace MaxFlow
 {
 
-	void solve (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver, bool _removeZeroEdges)
+	ESolverFlags operator+(ESolverFlags _a, ESolverFlags _b)
+	{
+		return static_cast<ESolverFlags>(
+			static_cast<std::underlying_type<ESolverFlags>::type>(_a) |
+			static_cast<std::underlying_type<ESolverFlags>::type>(_b)
+			);
+	}
+
+	bool operator&(ESolverFlags _a, ESolverFlags _b)
+	{
+		return
+			static_cast<std::underlying_type<ESolverFlags>::type>(_a) &
+			static_cast<std::underlying_type<ESolverFlags>::type>(_b)
+			;
+	}
+
+
+	void solve (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver, ESolverFlags _flags)
 	{
 		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 		Solver* pSolver;
@@ -27,22 +44,27 @@ namespace MaxFlow
 				break;
 			}
 			case MaxFlow::ESolver::CapacityScalingFordFulkerson:
-			{
-				auto pCSSolver{ new Solvers::Labeling::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
-				pCSSolver->setSubSolver (Solvers::Labeling::CapacityScalingSolver::ESubSolver::FordFulkerson);
-				pSolver = pCSSolver;
-				break;
-			}
 			case MaxFlow::ESolver::CapacityScalingShortestPath:
 			{
 				auto pCSSolver{ new Solvers::Labeling::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
-				pCSSolver->setSubSolver (Solvers::Labeling::CapacityScalingSolver::ESubSolver::ShortestPath);
+				switch (_solver)
+				{
+					case MaxFlow::ESolver::CapacityScalingFordFulkerson:
+						pCSSolver->setSubSolver (Solvers::Labeling::CapacityScalingSolver::ESubSolver::FordFulkerson);
+						break;
+					case MaxFlow::ESolver::CapacityScalingShortestPath:
+						pCSSolver->setSubSolver (Solvers::Labeling::CapacityScalingSolver::ESubSolver::ShortestPath);
+						break;
+				}
+				pCSSolver->setRemoveDeltaEdges (_flags & ESolverFlags::CapacityScalingRemoveDeltaEdges);
 				pSolver = pCSSolver;
 				break;
 			}
 			case MaxFlow::ESolver::ShortestPath:
 			{
-				pSolver = new Solvers::Labeling::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix };
+				auto pSPSolver = new Solvers::Labeling::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix };
+				pSPSolver->setMinCutDetection (_flags & ESolverFlags::ShortestPathDetectMinCut);
+				pSolver = pSPSolver;
 				break;
 			}
 			case MaxFlow::ESolver::NaifPreflowPush:
@@ -63,7 +85,7 @@ namespace MaxFlow
 			default:
 				throw std::invalid_argument{ "unknown solver" };
 		}
-		pSolver->setRemoveZeroEdges (_removeZeroEdges);
+		pSolver->setRemoveZeroEdges (_flags & ESolverFlags::RemoveZeroEdgeLabels);
 		pSolver->solve ();
 		delete pSolver;
 	}

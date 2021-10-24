@@ -42,7 +42,7 @@ namespace MaxFlow::Solvers::Labeling
 
 		};
 
-		ESubSolver m_subSolver;
+		ESubSolver m_subSolver{ ESubSolver::FordFulkerson};
 		bool m_removeDeltaEdges{};
 
 		void solveImpl () override;

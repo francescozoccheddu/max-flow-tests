@@ -36,7 +36,7 @@ namespace MaxFlow::Solvers::PreflowPush
 			{
 				if (m_distanceLabeler.isAdmissible (edge))
 				{
-					const flow_t amount{ std::min (*edge, excess.amount) };
+					const flow_t amount{ std::min (*edge, std::min (excess.amount, maximumPushAmount (edge, excess))) };
 					Graphs::Algorithms::augment (edge, amount, areZeroEdgesRemoved ());
 					addExcess (edge, amount);
 					foundAdmissibleEdge = true;
@@ -72,7 +72,12 @@ namespace MaxFlow::Solvers::PreflowPush
 		return m_distanceLabeler[_vertex];
 	}
 
-	void PreflowPushSolver::onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldLabel)
+	void PreflowPushSolver::onRelabel (ResidualVertex& _vertex, size_t _oldLabel)
 	{}
+
+	flow_t PreflowPushSolver::maximumPushAmount (const ResidualEdge& _edge, Excess _fromExcess) const
+	{
+		return std::numeric_limits<flow_t>::max ();
+	}
 
 }

@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstddef>
 #include <utility>
-#include <max-flow/utils/macros/non_void.hpp>
+#include <max-flow/utils/non_void.hpp>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/graphs/generic/vertex.hpp>
 #include <max-flow/utils/iteration/contiguous_indirect.hpp>

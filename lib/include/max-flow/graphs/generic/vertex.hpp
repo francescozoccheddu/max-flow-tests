@@ -6,7 +6,7 @@
 #include <utility>
 #include <stdexcept>
 #include <type_traits>
-#include <max-flow/utils/macros/non_void.hpp>
+#include <max-flow/utils/non_void.hpp>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/utils/user_data.hpp>
 #include <max-flow/graphs/generic/graph.hpp>

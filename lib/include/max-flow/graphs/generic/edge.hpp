@@ -5,7 +5,7 @@
 #include <utility>
 #include <max-flow/utils/reference_type.hpp>
 #include <max-flow/utils/user_data.hpp>
-#include <max-flow/utils/macros/non_void.hpp>
+#include <max-flow/utils/non_void.hpp>
 #include <max-flow/graphs/generic/vertex.hpp>
 #include <max-flow/graphs/base/edge.hpp>
 #include <max-flow/graphs/generic/macros.hpp>

@@ -76,7 +76,7 @@ namespace MaxFlow
 
 	enum class ESolver
 	{
-		FordFulkerson, CapacityScalingFordFulkerson, CapacityScalingShortestPath, ShortestPath, NaifPreflowPush, FifoPreflowPush
+		FordFulkerson, CapacityScalingFordFulkerson, CapacityScalingShortestPath, ShortestPath, NaifPreflowPush, FifoPreflowPush, HighestLabelPreflowPush
 	};
 
 	constexpr ESolver defaultSolver{ ESolver::FordFulkerson };

@@ -15,7 +15,7 @@ namespace MaxFlow::Solvers::Labeling
 
 		Graphs::Algorithms::DistanceLabeler m_distanceLabeler{ graph (), source (), sink () };
 		std::vector<size_t> m_distanceCounts{};
-		bool m_detectMinCut{};
+		bool m_detectMinCut{ true };
 
 		void solveImpl () override;
 

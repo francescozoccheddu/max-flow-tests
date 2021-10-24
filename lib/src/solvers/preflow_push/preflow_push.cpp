@@ -59,10 +59,20 @@ namespace MaxFlow::Solvers::PreflowPush
 				{
 					break;
 				}
+				const size_t oldDistance{ m_distanceLabeler[*excess.pVertex] };
 				m_distanceLabeler.setDistance (*excess.pVertex, minDistance + 1);
+				onRelabel (*excess.pVertex, oldDistance);
 			}
 			excess = getExcess ();
 		}
 	}
+
+	size_t Solvers::PreflowPush::PreflowPushSolver::distance (const ResidualVertex& _vertex) const
+	{
+		return m_distanceLabeler[_vertex];
+	}
+
+	void PreflowPushSolver::onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldLabel)
+	{}
 
 }

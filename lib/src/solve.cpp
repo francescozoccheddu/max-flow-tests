@@ -6,6 +6,7 @@
 #include <max-flow/solvers/labeling/shortest_path.hpp>
 #include <max-flow/solvers/preflow_push/naif.hpp>
 #include <max-flow/solvers/preflow_push/fifo.hpp>
+#include <max-flow/solvers/preflow_push/highest_label.hpp>
 #include <stdexcept>
 #include <vector>
 
@@ -52,6 +53,11 @@ namespace MaxFlow
 			case MaxFlow::ESolver::FifoPreflowPush:
 			{
 				pSolver = new Solvers::PreflowPush::FifoPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
+				break;
+			}
+			case MaxFlow::ESolver::HighestLabelPreflowPush:
+			{
+				pSolver = new Solvers::PreflowPush::HighestLabelPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			default:

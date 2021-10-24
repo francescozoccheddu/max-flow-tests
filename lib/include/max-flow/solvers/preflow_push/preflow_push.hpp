@@ -31,6 +31,8 @@ namespace MaxFlow::Solvers::PreflowPush
 		virtual void initialize () = 0;
 		virtual void addExcess (Graphs::ResidualEdge& _edge, Graphs::flow_t _amount) = 0;
 		virtual Excess getExcess () = 0;
+		virtual void onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldLabel);
+		size_t distance (const Graphs::ResidualVertex& _vertex) const;
 
 	public:
 

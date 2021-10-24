@@ -35,7 +35,7 @@ namespace MaxFlow::App
 		}
 	}
 
-	RandomFlowGraph::RandomFlowGraph (const RandomParameters& _parameters, unsigned int _seed) : m_graph{}
+	RandomProblem::RandomProblem (const RandomParameters& _parameters, unsigned int _seed) : m_graph{}
 	{
 		_parameters.validate ();
 		m_graph.addVertices (_parameters.verticesCount);
@@ -58,7 +58,7 @@ namespace MaxFlow::App
 		}
 	}
 
-	void RandomFlowGraph::clean ()
+	void RandomProblem::clean ()
 	{
 		std::vector<bool> reached (graph ().verticesCount (), false);
 		reached[sink ().index ()] = true;
@@ -86,32 +86,32 @@ namespace MaxFlow::App
 		}
 	}
 
-	const FlowGraph& RandomFlowGraph::graph () const
+	const FlowGraph& RandomProblem::graph () const
 	{
 		return m_graph;
 	}
 
-	FlowGraph& RandomFlowGraph::graph ()
+	FlowGraph& RandomProblem::graph ()
 	{
 		return m_graph;
 	}
 
-	const FlowVertex& RandomFlowGraph::source () const
+	const FlowVertex& RandomProblem::source () const
 	{
 		return m_graph[0];
 	}
 
-	FlowVertex& RandomFlowGraph::source ()
+	FlowVertex& RandomProblem::source ()
 	{
 		return m_graph[0];
 	}
 
-	const FlowVertex& RandomFlowGraph::sink () const
+	const FlowVertex& RandomProblem::sink () const
 	{
 		return m_graph[m_graph.verticesCount () - 1];
 	}
 
-	FlowVertex& RandomFlowGraph::sink ()
+	FlowVertex& RandomProblem::sink ()
 	{
 		return m_graph[m_graph.verticesCount () - 1];
 	}

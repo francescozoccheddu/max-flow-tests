@@ -11,7 +11,7 @@ namespace MaxFlow::Utils
 
 	private:
 
-		Performance () = default;
+		Performance (size_t _ticks, double _time);
 
 		static inline size_t s_ticks;
 		static std::chrono::high_resolution_clock::time_point s_startTime;
@@ -20,6 +20,8 @@ namespace MaxFlow::Utils
 		double m_time{};
 
 	public:
+
+		Performance () = default;
 
 		size_t ticks () const;
 		double time () const;
@@ -37,6 +39,11 @@ namespace MaxFlow::Utils
 		}
 
 		static Performance end ();
+
+		Performance operator+(const Performance& _other) const;
+		Performance operator/(size_t _count) const;
+		Performance& operator+=(const Performance& _other);
+		Performance& operator/=(size_t _count);
 
 	};
 

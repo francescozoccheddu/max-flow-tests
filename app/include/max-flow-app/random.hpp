@@ -23,7 +23,7 @@ namespace MaxFlow::App
 
 	};
 
-	class RandomFlowGraph final
+	class RandomProblem final
 	{
 
 	private:
@@ -32,7 +32,7 @@ namespace MaxFlow::App
 
 	public:
 
-		RandomFlowGraph (const RandomParameters& _parameters = {}, unsigned int _seed = 0);
+		RandomProblem (const RandomParameters& _parameters = {}, unsigned int _seed = 0);
 
 		const FlowGraph& graph () const;
 		FlowGraph& graph ();

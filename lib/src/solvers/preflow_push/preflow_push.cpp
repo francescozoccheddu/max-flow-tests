@@ -1,13 +1,21 @@
 #include <max-flow/solvers/preflow_push/preflow_push.hpp>
 
+#include <max-flow/graphs/algorithms/residual.hpp>
 #include <limits>
+#include <algorithm>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;
+using MaxFlow::Graphs::flow_t;
 
 namespace MaxFlow::Solvers::PreflowPush
 {
+
+	bool PreflowPushSolver::Excess::isExcess () const
+	{
+		return pVertex && amount;
+	}
 
 	void PreflowPushSolver::solveImpl ()
 	{
@@ -16,18 +24,21 @@ namespace MaxFlow::Solvers::PreflowPush
 		initialize ();
 		for (ResidualEdge& edge : source ())
 		{
-			augment (edge);
+			const flow_t amount{ *edge };
+			Graphs::Algorithms::augment (edge, amount, areZeroEdgesRemoved ());
+			addExcess (edge, amount);
 		}
-		ResidualVertex* pActiveVertex{ popActiveVertexIfExists () };
-		while (pActiveVertex)
+		Excess excess{ getExcess () };
+		while (excess.isExcess ())
 		{
-			ResidualVertex& vertex{ *pActiveVertex };
 			bool foundAdmissibleEdge{};
-			for (ResidualEdge& edge : vertex)
+			for (ResidualEdge& edge : *excess.pVertex)
 			{
 				if (m_distanceLabeler.isAdmissible (edge))
 				{
-					augment (edge);
+					const flow_t amount{ std::min (*edge, excess.amount) };
+					Graphs::Algorithms::augment (edge, amount, areZeroEdgesRemoved ());
+					addExcess (edge, amount);
 					foundAdmissibleEdge = true;
 					break;
 				}
@@ -36,7 +47,7 @@ namespace MaxFlow::Solvers::PreflowPush
 			{
 				size_t minDistance{ std::numeric_limits<size_t>::max () };
 				bool hasOutEdges{};
-				for (ResidualEdge& edge : vertex)
+				for (ResidualEdge& edge : *excess.pVertex)
 				{
 					if (*edge && m_distanceLabeler[edge.to ()] < minDistance)
 					{
@@ -48,9 +59,9 @@ namespace MaxFlow::Solvers::PreflowPush
 				{
 					break;
 				}
-				m_distanceLabeler.setDistance (vertex, minDistance + 1);
+				m_distanceLabeler.setDistance (*excess.pVertex, minDistance + 1);
 			}
-			pActiveVertex = popActiveVertexIfExists ();
+			excess = getExcess ();
 		}
 	}
 

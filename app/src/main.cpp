@@ -21,7 +21,7 @@ int main ()
 
 	FlowGraph<> s{ o };
 
-	MaxFlow::solve (s, s[0], s[3], MaxFlow::ESolver::NaifPreflowPush);
+	MaxFlow::solve (s, s[0], s[3], MaxFlow::ESolver::FifoPreflowPush);
 
 	Algorithms::GraphVizSource::from (o).exportToFile ("c:/users/franc/desktop/original.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 	Algorithms::GraphVizSource::from (s).exportToFile ("c:/users/franc/desktop/solution.pdf", Algorithms::GraphVizSource::EFormat::PDF);

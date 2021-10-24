@@ -1,4 +1,4 @@
-#include <max-flow/solvers/preflow_push/naif.hpp>
+#include <max-flow/solvers/preflow_push/fifo.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
 #include <algorithm>
@@ -11,16 +11,21 @@ using MaxFlow::Graphs::flow_t;
 namespace MaxFlow::Solvers::PreflowPush
 {
 
-	void NaifPreflowPushSolver::initialize ()
+	void FifoPreflowPushSolver::initialize ()
 	{
 		m_excesses.clear ();
 		m_excesses.resize (graph ().verticesCount (), 0);
+		m_activeVertices = {};
 	}
 
-	void NaifPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
+	void FifoPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
 	{
 		if (_edge.to () != source () && _edge.to () != sink ())
 		{
+			if (!m_excesses[_edge.to ().index ()])
+			{
+				m_activeVertices.push (&_edge.to ());
+			}
 			m_excesses[_edge.to ().index ()] += _amount;
 		}
 		if (_edge.from () != source () && _edge.from () != sink ())
@@ -29,14 +34,16 @@ namespace MaxFlow::Solvers::PreflowPush
 		}
 	}
 
-	PreflowPushSolver::Excess NaifPreflowPushSolver::getExcess ()
+	PreflowPushSolver::Excess FifoPreflowPushSolver::getExcess ()
 	{
-		for (size_t i{ 0 }; i < graph ().verticesCount (); i++)
+		while (!m_activeVertices.empty ())
 		{
-			if (m_excesses[i])
+			ResidualVertex& vertex{ *m_activeVertices.front () };
+			if (m_excesses[vertex.index ()])
 			{
-				return { .pVertex{&graph ()[i]}, .amount{m_excesses[i]} };
+				return { .pVertex{&vertex}, .amount{m_excesses[vertex.index ()]} };
 			}
+			m_activeVertices.pop ();
 		}
 		return {};
 	}

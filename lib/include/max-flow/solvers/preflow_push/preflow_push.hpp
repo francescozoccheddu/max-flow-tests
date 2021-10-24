@@ -18,9 +18,19 @@ namespace MaxFlow::Solvers::PreflowPush
 
 	protected:
 
+		struct Excess
+		{
+
+			Graphs::ResidualVertex* pVertex{};
+			Graphs::flow_t amount{};
+
+			bool isExcess () const;
+
+		};
+
 		virtual void initialize () = 0;
-		virtual void augment (Graphs::ResidualEdge& _edge) = 0;
-		virtual Graphs::ResidualVertex* popActiveVertexIfExists () = 0;
+		virtual void addExcess (Graphs::ResidualEdge& _edge, Graphs::flow_t _amount) = 0;
+		virtual Excess getExcess () = 0;
 
 	public:
 

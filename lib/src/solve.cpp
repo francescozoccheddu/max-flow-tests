@@ -5,6 +5,7 @@
 #include <max-flow/solvers/labeling/ford_fulkerson.hpp>
 #include <max-flow/solvers/labeling/shortest_path.hpp>
 #include <max-flow/solvers/preflow_push/naif.hpp>
+#include <max-flow/solvers/preflow_push/fifo.hpp>
 #include <stdexcept>
 #include <vector>
 
@@ -46,6 +47,11 @@ namespace MaxFlow
 			case MaxFlow::ESolver::NaifPreflowPush:
 			{
 				pSolver = new Solvers::PreflowPush::NaifPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
+				break;
+			}
+			case MaxFlow::ESolver::FifoPreflowPush:
+			{
+				pSolver = new Solvers::PreflowPush::FifoPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			default:

@@ -1,8 +1,8 @@
-#include <max-flow/solvers/capacity_scaling.hpp>
+#include <max-flow/solvers/labeling/capacity_scaling.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/graphs/algorithms/pathfinder.hpp>
-#include <limits>
+#include <max-flow/solvers/labeling/ford_fulkerson.hpp>
+#include <max-flow/solvers/labeling/shortest_path.hpp>
 #include <cmath>
 #include <stdexcept>
 
@@ -12,7 +12,7 @@ using MaxFlow::Graphs::ResidualEdge;
 using namespace MaxFlow::Graphs::Algorithms;
 using namespace MaxFlow::Graphs;
 
-namespace MaxFlow::Solvers
+namespace MaxFlow::Solvers::Labeling
 {
 
 	bool CapacityScalingSolver::areDeltaEdgesRemoved () const

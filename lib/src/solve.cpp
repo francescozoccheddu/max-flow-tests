@@ -1,9 +1,10 @@
 #include <max-flow/solve.hpp>
 
 #include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/solvers/labeling.hpp>
-#include <max-flow/solvers/capacity_scaling.hpp>
-#include <max-flow/solvers/preflow_push.hpp>
+#include <max-flow/solvers/labeling/capacity_scaling.hpp>
+#include <max-flow/solvers/labeling/ford_fulkerson.hpp>
+#include <max-flow/solvers/labeling/shortest_path.hpp>
+#include <max-flow/solvers/preflow_push/naif.hpp>
 #include <stdexcept>
 #include <vector>
 
@@ -20,26 +21,31 @@ namespace MaxFlow
 		{
 			case MaxFlow::ESolver::FordFulkerson:
 			{
-				pSolver = new Solvers::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix };
+				pSolver = new Solvers::Labeling::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			case MaxFlow::ESolver::CapacityScalingFordFulkerson:
 			{
-				auto pCSSolver{ new Solvers::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
-				pCSSolver->setSubSolver (Solvers::CapacityScalingSolver::ESubSolver::FordFulkerson);
+				auto pCSSolver{ new Solvers::Labeling::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
+				pCSSolver->setSubSolver (Solvers::Labeling::CapacityScalingSolver::ESubSolver::FordFulkerson);
 				pSolver = pCSSolver;
 				break;
 			}
 			case MaxFlow::ESolver::CapacityScalingShortestPath:
 			{
-				auto pCSSolver{ new Solvers::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
-				pCSSolver->setSubSolver (Solvers::CapacityScalingSolver::ESubSolver::ShortestPath);
+				auto pCSSolver{ new Solvers::Labeling::CapacityScalingSolver{ _graph, _source, _sink, _capacityMatrix } };
+				pCSSolver->setSubSolver (Solvers::Labeling::CapacityScalingSolver::ESubSolver::ShortestPath);
 				pSolver = pCSSolver;
 				break;
 			}
 			case MaxFlow::ESolver::ShortestPath:
 			{
-				pSolver = new Solvers::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix };
+				pSolver = new Solvers::Labeling::ShortestPathSolver{ _graph, _source, _sink, _capacityMatrix };
+				break;
+			}
+			case MaxFlow::ESolver::NaifPreflowPush:
+			{
+				pSolver = new Solvers::PreflowPush::NaifPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			default:

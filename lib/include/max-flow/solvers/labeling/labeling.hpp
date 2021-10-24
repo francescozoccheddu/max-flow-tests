@@ -1,13 +1,11 @@
-#ifndef INCLUDED_MAX_FLOW_SOLVERS_LABELING
-#define INCLUDED_MAX_FLOW_SOLVERS_LABELING
+#ifndef INCLUDED_MAX_FLOW_SOLVERS_LABELING_LABELING
+#define INCLUDED_MAX_FLOW_SOLVERS_LABELING_LABELING
 
 #include <max-flow/solve.hpp>
 #include <max-flow/graphs/algorithms/pathfinder.hpp>
-#include <max-flow/graphs/algorithms/distance_labeler.hpp>
 #include <max-flow/graphs/algorithms/edge_selector.hpp>
-#include <vector>
 
-namespace MaxFlow::Solvers
+namespace MaxFlow::Solvers::Labeling
 {
 
 	class LabelingSolver : public Solver
@@ -53,39 +51,6 @@ namespace MaxFlow::Solvers
 		void setCallback (Callback& _callback);
 
 		using Solver::Solver;
-
-	};
-
-	class FordFulkersonSolver final : public LabelingSolver
-	{
-
-	private:
-
-		void solveImpl () override;
-
-	public:
-
-		using LabelingSolver::LabelingSolver;
-
-	};
-
-	class ShortestPathSolver final : public LabelingSolver
-	{
-
-	private:
-
-		Graphs::Algorithms::DistanceLabeler m_distanceLabeler{ graph (), source (), sink () };
-		std::vector<size_t> m_distanceCounts{};
-		bool m_detectMinCut{};
-
-		void solveImpl () override;
-
-	public:
-
-		bool isMinCutDetectionEnabled () const;
-		void setMinCutDetection (bool _enabled);
-
-		using LabelingSolver::LabelingSolver;
 
 	};
 

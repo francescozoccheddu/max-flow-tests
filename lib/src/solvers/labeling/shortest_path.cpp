@@ -1,88 +1,13 @@
-#include <max-flow/solvers/labeling.hpp>
+#include <max-flow/solvers/labeling/shortest_path.hpp>
 
-#include <max-flow/graphs/algorithms/residual.hpp>
-#include <max-flow/graphs/algorithms/pathfinder.hpp>
 #include <limits>
-#include <cmath>
-#include <stdexcept>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;
-using namespace MaxFlow::Graphs::Algorithms;
-using namespace MaxFlow::Graphs;
 
-namespace MaxFlow::Solvers
+namespace MaxFlow::Solvers::Labeling
 {
-
-	const Pathfinder& LabelingSolver::pathfinder () const
-	{
-		return m_pathfinder;
-	}
-
-	Pathfinder& LabelingSolver::pathfinder ()
-	{
-		return m_pathfinder;
-	}
-
-	void LabelingSolver::calculatePaths ()
-	{
-		m_pathfinder.calculate (edgeSelector ());
-	}
-
-	void LabelingSolver::augmentMax ()
-	{
-		Algorithms::augmentMax (m_pathfinder.begin (), m_pathfinder.end (), areZeroEdgesRemoved ());
-		callback ().onAugmentMax (*this);
-	}
-
-	const EdgeSelector& LabelingSolver::edgeSelector () const
-	{
-		return *m_pEdgeSelector;
-	}
-
-	EdgeSelector& LabelingSolver::edgeSelector ()
-	{
-		return *m_pEdgeSelector;
-	}
-
-	void LabelingSolver::setEdgeSelector (EdgeSelector& _edgeSelector)
-	{
-		m_pEdgeSelector = &_edgeSelector;
-	}
-
-	const LabelingSolver::Callback& LabelingSolver::callback () const
-	{
-		return *m_pCallback;
-	}
-
-	LabelingSolver::Callback& LabelingSolver::callback ()
-	{
-		return *m_pCallback;
-	}
-
-	void LabelingSolver::setCallback (Callback& _callback)
-	{
-		m_pCallback = &_callback;
-	}
-
-	void LabelingSolver::Callback::onAugmentMax (const LabelingSolver& _solver)
-	{}
-
-	LabelingSolver::Callback LabelingSolver::Callback::none{};
-
-	void FordFulkersonSolver::solveImpl ()
-	{
-		do
-		{
-			calculatePaths ();
-			if (pathfinder ().isSinkLabeled ())
-			{
-				augmentMax ();
-			}
-		}
-		while (pathfinder ().isSinkLabeled ());
-	}
 
 	bool ShortestPathSolver::isMinCutDetectionEnabled () const
 	{

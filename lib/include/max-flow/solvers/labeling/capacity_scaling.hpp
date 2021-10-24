@@ -1,14 +1,11 @@
-#ifndef INCLUDED_MAX_FLOW_SOLVERS_CAPACITY_SCALING
-#define INCLUDED_MAX_FLOW_SOLVERS_CAPACITY_SCALING
+#ifndef INCLUDED_MAX_FLOW_SOLVERS_LABELING_CAPACITY_SCALING
+#define INCLUDED_MAX_FLOW_SOLVERS_LABELING_CAPACITY_SCALING
 
 #include <max-flow/solve.hpp>
-#include <max-flow/solvers/labeling.hpp>
-#include <max-flow/graphs/algorithms/pathfinder.hpp>
-#include <max-flow/graphs/algorithms/distance_labeler.hpp>
+#include <max-flow/solvers/labeling/labeling.hpp>
 #include <max-flow/graphs/algorithms/edge_selector.hpp>
-#include <vector>
 
-namespace MaxFlow::Solvers
+namespace MaxFlow::Solvers::Labeling
 {
 
 	class CapacityScalingSolver final : public Solver

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <array>
+#include <iostream>
 
 using MaxFlow::Utils::Performance;
 
@@ -25,14 +26,33 @@ namespace MaxFlow::App
 		{
 			throw std::out_of_range{ "zero tests" };
 		}
-		for (size_t p{ 0 }; p < _problems.size (); p++)
+		run ();
+	}
+
+	void Test::run ()
+	{
+		size_t count{};
+		for (size_t p{ 0 }; p < m_problems.size (); p++)
 		{
-			RandomProblem problem{ _problems[p], _seed };
-			for (size_t s{ 0 }; s < _solvers.size (); s++)
+			RandomProblem problem{ m_problems[p], m_seed };
+			for (size_t s{ 0 }; s < m_solvers.size (); s++)
 			{
-				const SolverParameters& solverParameters{ _solvers[s] };
-				for (size_t r{ 0 }; r < _repetitions; r++)
+				const SolverParameters& solverParameters{ m_solvers[s] };
+				for (size_t r{ 0 }; r < m_repetitions; r++)
 				{
+					if (m_problems.size () > 1)
+					{
+						std::cout << "Problem " << p << '/' << m_problems.size () << ' ';
+					}
+					if (m_solvers.size () > 1)
+					{
+						std::cout << "Solver " << s << '/' << m_solvers.size () << ' ';
+					}
+					if (m_problems.size () > 1)
+					{
+						std::cout << "Repetition " << r << '/' << m_repetitions << ' ';
+					}
+					std::cout << '(' << ++count << '/' << m_data.size () << ')' << std::endl;
 					Performance::start ();
 					FlowGraph solution{ solve (const_cast<const FlowGraph&>(problem.graph ()), problem.source (), problem.sink (), solverParameters.solver, solverParameters.flags) };
 					m_data[index (p, s, r)] = Performance::end ();
@@ -160,7 +180,7 @@ namespace MaxFlow::App
 		return ss.str ();
 	}
 
-	std::string Test::toCsv (bool _aggregate) const
+	std::string Test::toCsv () const
 	{
 		std::stringstream ss{};
 		ss << std::fixed;
@@ -171,10 +191,7 @@ namespace MaxFlow::App
 		ss << "capacityDeviance,";
 		ss << "solver,";
 		ss << "solverFlags,";
-		if (m_repetitions > 1 && !_aggregate)
-		{
-			ss << "repetition,";
-		}
+		ss << "repetition,";
 		ss << "ticks,";
 		ss << "time";
 		ss << std::endl;
@@ -184,9 +201,9 @@ namespace MaxFlow::App
 			for (size_t s{ 0 }; s < m_solvers.size (); s++)
 			{
 				const SolverParameters& solver{ m_solvers[s] };
-				if (_aggregate)
+				for (size_t r{ 0 }; r < m_repetitions; r++)
 				{
-					const Performance& performance{ testAverage (p,s) };
+					const Performance& performance{ test (p,s,r) };
 					ss << problem.maxCapacity << ',';
 					ss << problem.verticesCount << ',';
 					ss << problem.edgeDensity << ',';
@@ -194,41 +211,21 @@ namespace MaxFlow::App
 					ss << problem.capacityDeviance << ',';
 					ss << solverName (solver.solver) << ',';
 					ss << solverFlagsName (solver.flags) << ',';
+					ss << r + 1 << ',';
 					ss << performance.ticks () << ',';
 					ss << performance.time ();
 					ss << std::endl;
-				}
-				else
-				{
-					for (size_t r{ 0 }; r < m_repetitions; r++)
-					{
-						const Performance& performance{ test (p,s,r) };
-						ss << problem.maxCapacity << ',';
-						ss << problem.verticesCount << ',';
-						ss << problem.edgeDensity << ',';
-						ss << problem.backwardsEdgeDensityFactor << ',';
-						ss << problem.capacityDeviance << ',';
-						ss << solverName (solver.solver) << ',';
-						ss << solverFlagsName (solver.flags) << ',';
-						if (m_repetitions > 1 && !_aggregate)
-						{
-							ss << r + 1 << ',';
-						}
-						ss << performance.ticks () << ',';
-						ss << performance.time ();
-						ss << std::endl;
-					}
 				}
 			}
 		}
 		return ss.str ();
 	}
 
-	void Test::toCsvFile (const std::string& _file, bool _aggregate) const
+	void Test::toCsvFile (const std::string& _file) const
 	{
 		std::ofstream file{};
 		file.open (_file);
-		file << toCsv (_aggregate);
+		file << toCsv ();
 		file.close ();
 	}
 

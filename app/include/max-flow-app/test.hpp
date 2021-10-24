@@ -42,6 +42,8 @@ namespace MaxFlow::App
 		unsigned int repetitions () const;
 		unsigned int seed () const;
 
+		void run ();
+
 		const Utils::Performance& test (size_t _problem, size_t _solver, size_t _repetition) const;
 		Utils::Performance testSum (size_t _problem, size_t _solver) const;
 		Utils::Performance testAverage (size_t _problem, size_t _solver) const;
@@ -50,8 +52,8 @@ namespace MaxFlow::App
 		Utils::Performance solverSum (size_t _solver) const;
 		Utils::Performance solverAverage (size_t _solver) const;
 
-		std::string toCsv (bool _aggregate = false) const;
-		void toCsvFile (const std::string& _file, bool _aggregate = false) const;
+		std::string toCsv () const;
+		void toCsvFile (const std::string& _file) const;
 
 	};
 

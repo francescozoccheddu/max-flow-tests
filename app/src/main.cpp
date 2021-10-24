@@ -35,7 +35,23 @@ void simple ()
 int main ()
 {
 
-	App::Test{ {{}}, { {} } }.toCsvFile ("c:/users/franc/desktop/tests.csv", true);
+	std::vector<App::SolverParameters> solvers{
+		{ESolver::FordFulkerson},
+		//{ESolver::ShortestPath, ESolverFlags::CapacityScalingRemoveDeltaEdges},
+		//{ESolver::CapacityScalingFordFulkerson, ESolverFlags::CapacityScalingRemoveDeltaEdges},
+		//{ESolver::CapacityScalingShortestPath, ESolverFlags::RemoveZeroEdgeLabels},
+		{ESolver::NaifPreflowPush},
+		{ESolver::FifoPreflowPush},
+		{ESolver::HighestLabelPreflowPush},
+		{ESolver::ExcessScalingPreflowPush}
+	};
+	std::vector<App::RandomParameters> problems{
+		{.verticesCount{10}},
+		{.verticesCount{50}},
+		{.verticesCount{100}},
+		{.verticesCount{200}},
+	};
+	App::Test{ problems, solvers }.toCsvFile ("c:/users/franc/desktop/tests.csv");
 
 	return 0;
 }

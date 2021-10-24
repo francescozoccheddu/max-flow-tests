@@ -1,4 +1,4 @@
-#include <max-flow/solvers/preflow_push/highest_label.hpp>
+#include <max-flow/solvers/preflow_push/excess_scaling.hpp>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -8,7 +8,7 @@ using MaxFlow::Graphs::flow_t;
 namespace MaxFlow::Solvers::PreflowPush
 {
 
-	void HighestLabelPreflowPushSolver::initialize ()
+	void ExcessScalingPreflowPushSolver::initialize ()
 	{
 		m_maxDistance = graph ().verticesCount () - 1;
 		m_excesses.clear ();
@@ -17,7 +17,7 @@ namespace MaxFlow::Solvers::PreflowPush
 		m_activeVerticesPerDistance.resize (2 * graph ().verticesCount () - 1, {});
 	}
 
-	void HighestLabelPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
+	void ExcessScalingPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
 	{
 		if (_edge.to () != source () && _edge.to () != sink ())
 		{
@@ -33,7 +33,7 @@ namespace MaxFlow::Solvers::PreflowPush
 		}
 	}
 
-	PreflowPushSolver::Excess HighestLabelPreflowPushSolver::getExcess ()
+	PreflowPushSolver::Excess ExcessScalingPreflowPushSolver::getExcess ()
 	{
 		while (m_maxDistance > 0)
 		{
@@ -51,12 +51,12 @@ namespace MaxFlow::Solvers::PreflowPush
 		return {};
 	}
 
-	void HighestLabelPreflowPushSolver::onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldDistance)
+	void ExcessScalingPreflowPushSolver::onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldDistance)
 	{
 		push (_vertex);
 	}
 
-	void HighestLabelPreflowPushSolver::push (Graphs::ResidualVertex& _vertex)
+	void ExcessScalingPreflowPushSolver::push (Graphs::ResidualVertex& _vertex)
 	{
 		const size_t newDistance{ distance (_vertex) };
 		if (newDistance > m_maxDistance)

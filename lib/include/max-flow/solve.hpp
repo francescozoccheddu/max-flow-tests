@@ -89,7 +89,14 @@ namespace MaxFlow
 
 	enum class ESolver
 	{
-		FordFulkerson, CapacityScalingFordFulkerson, CapacityScalingShortestPath, ShortestPath, NaifPreflowPush, FifoPreflowPush, HighestLabelPreflowPush
+		FordFulkerson, 
+		CapacityScalingFordFulkerson, 
+		CapacityScalingShortestPath, 
+		ShortestPath, 
+		NaifPreflowPush, 
+		FifoPreflowPush, 
+		HighestLabelPreflowPush,
+		ExcessScalingPreflowPush
 	};
 
 	constexpr ESolver defaultSolver{ ESolver::FordFulkerson };
@@ -98,7 +105,7 @@ namespace MaxFlow
 
 	MF_GG_TT_F void solve (Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
 
-	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData>& solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const  Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
+	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData> solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const  Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
 
 	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
 
@@ -120,7 +127,7 @@ namespace MaxFlow
 	{
 		Graphs::Base::Graph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
 		Graphs::FlowGraph<TVD, TED> copyGraph{ _graph };
-		solve (copyGraph, copyGraph[_source.index ()], copyGraph[_sink.index ()], _flags);
+		solve (copyGraph, copyGraph[_source.index ()], copyGraph[_sink.index ()], _solver, _flags);
 		return copyGraph;
 	}
 

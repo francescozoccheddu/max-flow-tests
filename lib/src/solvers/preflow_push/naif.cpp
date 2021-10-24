@@ -1,8 +1,5 @@
 #include <max-flow/solvers/preflow_push/naif.hpp>
 
-#include <max-flow/graphs/algorithms/residual.hpp>
-#include <algorithm>
-
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;

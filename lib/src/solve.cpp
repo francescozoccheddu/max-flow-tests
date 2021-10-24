@@ -7,6 +7,7 @@
 #include <max-flow/solvers/preflow_push/naif.hpp>
 #include <max-flow/solvers/preflow_push/fifo.hpp>
 #include <max-flow/solvers/preflow_push/highest_label.hpp>
+#include <max-flow/solvers/preflow_push/excess_scaling.hpp>
 #include <stdexcept>
 #include <vector>
 
@@ -80,6 +81,11 @@ namespace MaxFlow
 			case MaxFlow::ESolver::HighestLabelPreflowPush:
 			{
 				pSolver = new Solvers::PreflowPush::HighestLabelPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
+				break;
+			}
+			case MaxFlow::ESolver::ExcessScalingPreflowPush:
+			{
+				pSolver = new Solvers::PreflowPush::ExcessScalingPreflowPushSolver{ _graph, _source, _sink, _capacityMatrix };
 				break;
 			}
 			default:

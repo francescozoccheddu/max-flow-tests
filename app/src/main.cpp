@@ -3,6 +3,7 @@
 #include <max-flow/solve.hpp>
 #include <max-flow/graphs/algorithms/graphviz.hpp>
 #include <max-flow-app/random.hpp>
+#include <max-flow-app/verify.hpp>
 
 #include <iostream>
 

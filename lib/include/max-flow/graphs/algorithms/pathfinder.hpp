@@ -7,6 +7,7 @@
 #include <vector>
 #include <iterator>
 #include <type_traits>
+#include <concepts>
 
 namespace MaxFlow::Graphs::Algorithms
 {
@@ -49,6 +50,7 @@ namespace MaxFlow::Graphs::Algorithms
 
 		public:
 
+			operator Pathfinder::Iterator<true> () const;
 
 			// Getters
 
@@ -104,6 +106,12 @@ namespace MaxFlow::Graphs::Algorithms
 	template<bool c>
 	inline Pathfinder::Iterator<c>::Iterator (pathfinder& _pathfinder, vertex& _current) : m_pathfinder{ _pathfinder }, m_p{ &_current }
 	{}
+	
+	template<bool c>
+	inline Pathfinder::Iterator<c>::operator Pathfinder::IteratorC () const
+	{
+		return Pathfinder::IteratorC{ m_pathfinder, *m_p };
+	}
 
 	template<bool c>
 	inline Pathfinder::Iterator<c>::reference Pathfinder::Iterator<c>::operator*() const

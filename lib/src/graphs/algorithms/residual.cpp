@@ -99,17 +99,23 @@ namespace MaxFlow::Graphs::Algorithms
 		}
 	}
 
-	void augmentMax (const Pathfinder::IteratorM _start, const Pathfinder::IteratorM _end, bool _removeZeroEdge)
+	flow_t minCapacity (Pathfinder::IteratorC _start, Pathfinder::IteratorC _end)
 	{
-		Graphs::flow_t minR{ std::numeric_limits<Graphs::flow_t>::max () };
-		for (Pathfinder::IteratorM it{_start}; it != _end; ++it)
+		flow_t minR{ std::numeric_limits<Graphs::flow_t>::max () };
+		for (Pathfinder::IteratorC it{ _start }; it != _end; ++it)
 		{
-			ResidualEdge& edge{ *it };
+			const ResidualEdge& edge{ *it };
 			if (*edge < minR)
 			{
 				minR = *edge;
 			}
 		}
+		return minR;
+	}
+
+	void augmentMax (const Pathfinder::IteratorM _start, const Pathfinder::IteratorM _end, bool _removeZeroEdge)
+	{
+		flow_t minR{ minCapacity(_start, _end) };
 		for (Pathfinder::IteratorM it{ _start }; it != _end; ++it)
 		{
 			ResidualEdge& edge{ *it };

@@ -23,6 +23,8 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void addZeroEdges (Graphs::ResidualGraph& _graph);
 
+	flow_t minCapacity (Pathfinder::IteratorC _start, Pathfinder::IteratorC _end);
+
 	void augmentMax (Pathfinder::IteratorM _start, Pathfinder::IteratorM _end, bool _removeZeroEdge = defaultRemoveZeroEdgeOnAugment);
 
 }

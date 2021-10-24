@@ -5,6 +5,8 @@
 namespace MaxFlow::Graphs::Algorithms
 {
 
+	EdgeSelector EdgeSelector::all{};
+
 	bool EdgeSelector::operator() (const ResidualEdge& _edge)
 	{
 		return true;

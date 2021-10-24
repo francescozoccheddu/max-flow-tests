@@ -2,6 +2,7 @@
 
 #include <max-flow/graphs/algorithms/residual.hpp>
 #include <max-flow/solvers/labeling.hpp>
+#include <max-flow/solvers/capacity_scaling.hpp>
 #include <max-flow/solvers/preflow_push.hpp>
 #include <stdexcept>
 #include <vector>

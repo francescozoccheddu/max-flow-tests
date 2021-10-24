@@ -15,23 +15,73 @@ using namespace MaxFlow::Graphs;
 namespace MaxFlow::Solvers
 {
 
-	void LabelingSolver::solveImpl ()
+	const Pathfinder& LabelingSolver::pathfinder () const
 	{
-		EdgeSelector edgeSelector;
-		solveWithEdgeSelector (edgeSelector);
+		return m_pathfinder;
 	}
 
-	void FordFulkersonSolver::solveWithEdgeSelector (EdgeSelector& _edgeSelector)
+	Pathfinder& LabelingSolver::pathfinder ()
+	{
+		return m_pathfinder;
+	}
+
+	void LabelingSolver::calculatePaths ()
+	{
+		m_pathfinder.calculate (edgeSelector ());
+	}
+
+	void LabelingSolver::augmentMax ()
+	{
+		Algorithms::augmentMax (m_pathfinder.begin (), m_pathfinder.end (), areZeroEdgesRemoved ());
+		callback ().onAugmentMax (*this);
+	}
+
+	const EdgeSelector& LabelingSolver::edgeSelector () const
+	{
+		return *m_pEdgeSelector;
+	}
+
+	EdgeSelector& LabelingSolver::edgeSelector ()
+	{
+		return *m_pEdgeSelector;
+	}
+
+	void LabelingSolver::setEdgeSelector (EdgeSelector& _edgeSelector)
+	{
+		m_pEdgeSelector = &_edgeSelector;
+	}
+
+	const LabelingSolver::Callback& LabelingSolver::callback () const
+	{
+		return *m_pCallback;
+	}
+
+	LabelingSolver::Callback& LabelingSolver::callback ()
+	{
+		return *m_pCallback;
+	}
+
+	void LabelingSolver::setCallback (Callback& _callback)
+	{
+		m_pCallback = &_callback;
+	}
+
+	void LabelingSolver::Callback::onAugmentMax (const LabelingSolver& _solver)
+	{}
+
+	LabelingSolver::Callback LabelingSolver::Callback::none{};
+
+	void FordFulkersonSolver::solveImpl ()
 	{
 		do
 		{
-			m_pathfinder.calculate (_edgeSelector);
-			if (m_pathfinder.isSinkLabeled ())
+			calculatePaths ();
+			if (pathfinder ().isSinkLabeled ())
 			{
-				augmentMax (m_pathfinder.begin (), m_pathfinder.end (), areZeroEdgesRemoved ());
+				augmentMax ();
 			}
 		}
-		while (m_pathfinder.isSinkLabeled ());
+		while (pathfinder ().isSinkLabeled ());
 	}
 
 	bool ShortestPathSolver::isMinCutDetectionEnabled () const
@@ -44,20 +94,20 @@ namespace MaxFlow::Solvers
 		m_detectMinCut = _enabled;
 	}
 
-	void ShortestPathSolver::solveWithEdgeSelector (EdgeSelector& _edgeSelector)
+	void ShortestPathSolver::solveImpl ()
 	{
-		m_distanceLabeler.calculate (_edgeSelector);
-		if (isMinCutDetectionEnabled())
+		m_distanceLabeler.calculate (edgeSelector ());
+		if (isMinCutDetectionEnabled ())
 		{
 			m_distanceCounts.clear ();
 			m_distanceCounts.resize (graph ().verticesCount (), 0);
-			for (const ResidualVertex& vertex : graph())
+			for (const ResidualVertex& vertex : graph ())
 			{
 				m_distanceCounts[m_distanceLabeler[vertex]]++;
 			}
 		}
-		m_pathfinder.reset ();
-		m_pathfinder.setPredecessor (source(), source ());
+		pathfinder ().reset ();
+		pathfinder ().setPredecessor (source (), source ());
 		ResidualVertex* pCurrent{ &source () };
 		while (m_distanceLabeler[source ()] < graph ().verticesCount ())
 		{
@@ -65,13 +115,13 @@ namespace MaxFlow::Solvers
 			bool foundAdmissibleEdge{ false };
 			for (ResidualEdge& edge : *pCurrent)
 			{
-				if (m_distanceLabeler.isAdmissible (edge) && _edgeSelector(edge))
+				if (m_distanceLabeler.isAdmissible (edge) && edgeSelector ()(edge))
 				{
-					m_pathfinder.setPredecessor (edge);
+					pathfinder ().setPredecessor (edge);
 					pCurrent = &edge.to ();
-					if (pCurrent == &sink())
+					if (pCurrent == &sink ())
 					{
-						augmentMax (m_pathfinder.begin (), m_pathfinder.end (), areZeroEdgesRemoved());
+						augmentMax ();
 						pCurrent = &source ();
 					}
 					foundAdmissibleEdge = true;
@@ -84,7 +134,7 @@ namespace MaxFlow::Solvers
 				bool hasOutEdges{};
 				for (ResidualEdge& edge : *pCurrent)
 				{
-					if (*edge && m_distanceLabeler[edge.to ()] < minDistance && _edgeSelector (edge))
+					if (*edge && m_distanceLabeler[edge.to ()] < minDistance && edgeSelector () (edge))
 					{
 						hasOutEdges = true;
 						minDistance = m_distanceLabeler[edge.to ()];
@@ -95,8 +145,8 @@ namespace MaxFlow::Solvers
 					break;
 				}
 				m_distanceLabeler.setDistance (*pCurrent, minDistance + 1);
-				pCurrent = &m_pathfinder[*pCurrent];
-				if (isMinCutDetectionEnabled())
+				pCurrent = &pathfinder ()[*pCurrent];
+				if (isMinCutDetectionEnabled ())
 				{
 					m_distanceCounts[distance]--;
 					m_distanceCounts[minDistance + 1]++;
@@ -107,103 +157,6 @@ namespace MaxFlow::Solvers
 				}
 			}
 		}
-	}
-
-	bool CapacityScalingSolver::areDeltaEdgesRemoved () const
-	{
-		return m_removeDeltaEdges;
-	}
-
-	void CapacityScalingSolver::setRemoveDeltaEdges (bool _enabled)
-	{
-		m_removeDeltaEdges = _enabled;
-	}
-
-	CapacityScalingSolver::ESubSolver CapacityScalingSolver::subSolver () const
-	{
-		return m_subSolver;
-	}
-
-
-	void CapacityScalingSolver::setSubSolver (ESubSolver _subSolver)
-	{
-		m_subSolver = _subSolver;
-	}
-
-	void CapacityScalingSolver::solveImpl ()
-	{
-		ResidualGraph deltaGraphStorage;
-		if (areDeltaEdgesRemoved())
-		{
-			deltaGraphStorage.setMatrix (true);
-			deltaGraphStorage.addVertices (graph().verticesCount ());
-		}
-		flow_t maxCapacity{};
-		for (const ResidualVertex& vertex : graph ())
-		{
-			for (const ResidualEdge& edge : vertex)
-			{
-				if (capacities().capacity (edge.from ().index (), edge.to ().index ()) > maxCapacity)
-				{
-					maxCapacity = capacities ().capacity (edge.from ().index (), edge.to ().index ());
-				}
-			}
-		}
-		ResidualGraph& deltaGraph{ areDeltaEdgesRemoved () ? deltaGraphStorage : graph () };
-		deltaGraph.setMatrix (true);
-		LabelingSolver* pSubSolver;
-		switch (subSolver())
-		{
-			case ESubSolver::FordFulkerson:
-				pSubSolver = new FordFulkersonSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities() };
-				break;
-			case ESubSolver::ShortestPath:
-				pSubSolver = new ShortestPathSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities() };
-				break;
-			default:
-				throw std::invalid_argument{ "unknown sub solver" };
-		}
-		pSubSolver->setRemoveZeroEdges (areZeroEdgesRemoved ());
-		DeltaEdgeSelector edgeSelector;
-		Pathfinder pathfinder{ deltaGraph, deltaGraph[source().index ()], deltaGraph[sink().index ()] };
-		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (maxCapacity))));
-		while (edgeSelector.delta >= 1)
-		{
-			if (areDeltaEdgesRemoved ())
-			{
-				for (ResidualVertex& vertex : graph ())
-				{
-					ResidualVertex& deltaVertex{ deltaGraph[vertex.index ()] };
-					deltaVertex.destroyAllOutEdges ();
-					for (ResidualEdge& edge : vertex)
-					{
-						if (*edge >= edgeSelector.delta)
-						{
-							deltaVertex.addOutEdge (edge.to ().index (), *edge);
-						}
-					}
-				}
-			}
-			pSubSolver->solveWithEdgeSelector (edgeSelector);
-			if (areDeltaEdgesRemoved ())
-			{
-				for (ResidualVertex& deltaVertex : deltaGraph)
-				{
-					ResidualVertex& vertex{ graph()[deltaVertex.index ()] };
-					for (ResidualEdge& deltaEdge : deltaVertex)
-					{
-						*edgeOrCreate (vertex, graph ()[deltaEdge.to ().index ()]) = *deltaEdge;
-					}
-				}
-			}
-			edgeSelector.delta /= 2;
-		}
-		delete pSubSolver;
-	}
-
-	bool CapacityScalingSolver::DeltaEdgeSelector::operator() (const ResidualEdge& _edge)
-	{
-		return *_edge >= delta;
 	}
 
 }

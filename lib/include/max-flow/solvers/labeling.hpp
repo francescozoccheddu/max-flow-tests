@@ -13,15 +13,46 @@ namespace MaxFlow::Solvers
 	class LabelingSolver : public Solver
 	{
 
+	public:
+
+		class Callback
+		{
+
+			friend class LabelingSolver;
+
+			virtual void onAugmentMax (const LabelingSolver& _solver);
+
+		public:
+
+			static Callback none;
+
+		};
+
 	private:
 
-		void solveImpl () override;
+		Callback* m_pCallback{&Callback::none};
+		Graphs::Algorithms::Pathfinder m_pathfinder{ graph (), source (), sink () };
+		Graphs::Algorithms::EdgeSelector* m_pEdgeSelector{ &Graphs::Algorithms::EdgeSelector::all };
+
+	protected:
+
+		Graphs::Algorithms::Pathfinder& pathfinder ();
+		void calculatePaths ();
+		void augmentMax ();
 
 	public:
 
-		using Solver::Solver;
+		const Graphs::Algorithms::Pathfinder& pathfinder () const;
 
-		virtual void solveWithEdgeSelector (Graphs::Algorithms::EdgeSelector& _edgeSelector) = 0;
+		const Graphs::Algorithms::EdgeSelector& const edgeSelector () const;
+		Graphs::Algorithms::EdgeSelector& edgeSelector ();
+		void setEdgeSelector (Graphs::Algorithms::EdgeSelector& _edgeSelector);
+
+		const Callback& callback () const;
+		Callback& callback ();
+		void setCallback (Callback& _callback);
+
+		using Solver::Solver;
 
 	};
 
@@ -30,9 +61,7 @@ namespace MaxFlow::Solvers
 
 	private:
 
-		Graphs::Algorithms::Pathfinder m_pathfinder{ graph (), source (), sink () };
-
-		void solveWithEdgeSelector (Graphs::Algorithms::EdgeSelector& _edgeSelector) override;
+		void solveImpl () override;
 
 	public:
 
@@ -45,12 +74,11 @@ namespace MaxFlow::Solvers
 
 	private:
 
-		Graphs::Algorithms::Pathfinder m_pathfinder{ graph (), source (), sink () };
 		Graphs::Algorithms::DistanceLabeler m_distanceLabeler{ graph (), source (), sink () };
 		std::vector<size_t> m_distanceCounts{};
 		bool m_detectMinCut{};
 
-		void solveWithEdgeSelector (Graphs::Algorithms::EdgeSelector& _edgeSelector) override;
+		void solveImpl () override;
 
 	public:
 
@@ -58,45 +86,6 @@ namespace MaxFlow::Solvers
 		void setMinCutDetection (bool _enabled);
 
 		using LabelingSolver::LabelingSolver;
-
-	};
-
-	class CapacityScalingSolver final : public Solver
-	{
-
-	public:
-
-		enum class ESubSolver
-		{
-			FordFulkerson, ShortestPath
-		};
-
-	private:
-
-
-		struct DeltaEdgeSelector : public Graphs::Algorithms::EdgeSelector
-		{
-
-			Graphs::flow_t delta{};
-
-			bool operator() (const Graphs::ResidualEdge& _edge) override;
-
-		};
-
-		ESubSolver m_subSolver;
-		bool m_removeDeltaEdges{};
-
-		void solveImpl () override;
-
-	public:
-
-		bool areDeltaEdgesRemoved () const;
-		void setRemoveDeltaEdges (bool _enabled);
-
-		ESubSolver subSolver () const;
-		void setSubSolver(ESubSolver _subSolver);
-
-		using Solver::Solver;
 
 	};
 

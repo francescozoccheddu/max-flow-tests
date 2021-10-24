@@ -17,7 +17,7 @@ namespace MaxFlow::Solvers::PreflowPush
 		m_excesses.clear ();
 		m_excesses.resize (graph ().verticesCount (), 0);
 		m_activeVerticesPerDistance.clear ();
-		m_activeVerticesPerDistance.resize (graph ().verticesCount (), {});
+		m_activeVerticesPerDistance.resize (2 * graph ().verticesCount () - 1, {});
 	}
 
 	void HighestLabelPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)

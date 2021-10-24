@@ -21,20 +21,20 @@ namespace MaxFlow::Graphs::Algorithms
 	void DistanceLabeler::calculate (EdgeSelector& _edgeSelector)
 	{
 		reset (0);
-		std::queue<ResidualVertex*> m_queue{};
-		m_queue.push (&m_sink);
+		std::queue<ResidualVertex*> queue{};
+		queue.push (&m_sink);
 		size_t distance{};
-		while (!m_queue.empty ())
+		while (!queue.empty ())
 		{
 			distance++;
-			ResidualVertex& vertex{ *m_queue.front () };
-			m_queue.pop ();
+			ResidualVertex& vertex{ *queue.front () };
+			queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
 				if (!m_distances[edge.to ().index ()] && edge.to () != m_sink && _edgeSelector(edge))
 				{
 					m_distances[edge.to ().index ()] = distance;
-					m_queue.push (&edge.to ());
+					queue.push (&edge.to ());
 				}
 			}
 		}

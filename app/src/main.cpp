@@ -2,6 +2,7 @@
 #include <max-flow/graphs/residual.hpp>
 #include <max-flow/solve.hpp>
 #include <max-flow/graphs/algorithms/graphviz.hpp>
+#include <max-flow-app/random.hpp>
 
 #include <iostream>
 
@@ -21,10 +22,16 @@ int main ()
 
 	FlowGraph<> s{ o };
 
+	MaxFlow::App::RandomFlowGraph r{ };
+	r.clean ();
+
 	MaxFlow::solve (s, s[0], s[3], MaxFlow::ESolver::HighestLabelPreflowPush);
 
 	Algorithms::GraphVizSource::from (o).exportToFile ("c:/users/franc/desktop/original.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 	Algorithms::GraphVizSource::from (s).exportToFile ("c:/users/franc/desktop/solution.pdf", Algorithms::GraphVizSource::EFormat::PDF);
+	Algorithms::GraphVizSource::from (r.graph()).exportToFile ("c:/users/franc/desktop/random_original.pdf", Algorithms::GraphVizSource::EFormat::PDF);
+	MaxFlow::solve (r.graph(), r.source(), r.sink(), MaxFlow::ESolver::HighestLabelPreflowPush);
+	Algorithms::GraphVizSource::from (r.graph()).exportToFile ("c:/users/franc/desktop/random_solution.pdf", Algorithms::GraphVizSource::EFormat::PDF);
 
 	return 0;
 }

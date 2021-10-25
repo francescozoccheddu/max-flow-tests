@@ -162,7 +162,7 @@ namespace MaxFlow::Graphs::Base
 		for (size_t i{ _index }; i < _index + _count; i++)
 		{
 			Vertex& vertex{ allocateVertex (i) };
-			m_vertices[i] = &allocateVertex (i);
+			m_vertices[i] = &vertex;
 			vertex.setMatrix (hasMatrix ());
 		}
 	}

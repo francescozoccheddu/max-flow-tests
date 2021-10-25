@@ -5,6 +5,7 @@
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;
+using MaxFlow::Graphs::flow_t;
 using MaxFlow::Graphs::Algorithms::Pathfinder;
 using MaxFlow::Graphs::Algorithms::EdgeSelector;
 
@@ -28,8 +29,9 @@ namespace MaxFlow::Solvers::Labeling
 
 	void LabelingSolver::augmentMax ()
 	{
-		Graphs::Algorithms::augmentMax (m_pathfinder.begin (), m_pathfinder.end (), areZeroEdgesRemoved ());
-		callback ().onAugmentMax (*this);
+		const flow_t amount{ minCapacity (m_pathfinder.begin (), m_pathfinder.end ()) };
+		Graphs::Algorithms::augment (m_pathfinder.begin (), m_pathfinder.end (), amount, areZeroEdgesRemoved ());
+		callback ().onAugment (*this, amount);
 	}
 
 	const EdgeSelector& LabelingSolver::edgeSelector () const
@@ -62,7 +64,7 @@ namespace MaxFlow::Solvers::Labeling
 		m_pCallback = &_callback;
 	}
 
-	void LabelingSolver::Callback::onAugmentMax (const LabelingSolver& _solver)
+	void LabelingSolver::Callback::onAugment (const LabelingSolver& _solver, flow_t _amount)
 	{}
 
 	LabelingSolver::Callback LabelingSolver::Callback::none{};

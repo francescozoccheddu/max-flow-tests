@@ -25,6 +25,8 @@ namespace MaxFlow::Graphs::Algorithms
 
 	flow_t minCapacity (Pathfinder::IteratorC _start, Pathfinder::IteratorC _end);
 
+	void augment (Pathfinder::IteratorM _start, Pathfinder::IteratorM _end, flow_t _amount, bool _removeZeroEdge = defaultRemoveZeroEdgeOnAugment);
+
 	void augmentMax (Pathfinder::IteratorM _start, Pathfinder::IteratorM _end, bool _removeZeroEdge = defaultRemoveZeroEdgeOnAugment);
 
 }

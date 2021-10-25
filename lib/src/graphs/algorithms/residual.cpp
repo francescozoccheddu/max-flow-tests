@@ -124,12 +124,16 @@ namespace MaxFlow::Graphs::Algorithms
 
 	void augmentMax (const Pathfinder::IteratorM _start, const Pathfinder::IteratorM _end, bool _removeZeroEdge)
 	{
-		flow_t minR{ minCapacity (_start, _end) };
+		augment (_start, _end, minCapacity (_start, _end), _removeZeroEdge);
+	}
+
+	void augment (Pathfinder::IteratorM _start, Pathfinder::IteratorM _end, flow_t _amount, bool _removeZeroEdge)
+	{
 		for (Pathfinder::IteratorM it{ _start }; it != _end; ++it)
 		{
 			Utils::Performance::tick ();
 			ResidualEdge& edge{ *it };
-			augment (edge, minR, _removeZeroEdge);
+			augment (edge, _amount, _removeZeroEdge);
 		}
 	}
 

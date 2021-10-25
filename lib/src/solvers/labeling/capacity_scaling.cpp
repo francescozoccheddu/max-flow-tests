@@ -114,15 +114,14 @@ namespace MaxFlow::Solvers::Labeling
 		delete pSubSolver;
 	}
 
-	void CapacityScalingSolver::PropagateCallback::onAugmentMax (const LabelingSolver& _solver)
+	void CapacityScalingSolver::PropagateCallback::onAugment (const LabelingSolver& _solver, flow_t _amount)
 	{
 		const Pathfinder::IteratorC start{ _solver.pathfinder ().begin () }, end{ _solver.pathfinder ().end () };
-		flow_t minCapacity{ Algorithms::minCapacity (start, end) };
 		for (Pathfinder::IteratorC it{ start }; it != end; ++it)
 		{
 			Utils::Performance::tick ();
 			ResidualEdge& edge{ m_graph[it->from ().index ()][it->to ().index ()] };
-			augment (edge, minCapacity, _solver.areZeroEdgesRemoved ());
+			augment (edge, _amount, _solver.areZeroEdgesRemoved ());
 		}
 	}
 

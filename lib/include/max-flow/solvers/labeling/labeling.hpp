@@ -18,7 +18,7 @@ namespace MaxFlow::Solvers::Labeling
 
 			friend class LabelingSolver;
 
-			virtual void onAugmentMax (const LabelingSolver& _solver);
+			virtual void onAugment (const LabelingSolver& _solver, Graphs::flow_t _amount);
 
 		public:
 

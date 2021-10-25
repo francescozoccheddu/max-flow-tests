@@ -25,7 +25,7 @@ namespace MaxFlow::Solvers::Labeling
 
 			Graphs::ResidualGraph& m_graph;
 
-			void onAugmentMax (const LabelingSolver& _solver);
+			void onAugment (const LabelingSolver& _solver, Graphs::flow_t _amount);
 
 		public:
 

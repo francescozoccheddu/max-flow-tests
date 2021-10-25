@@ -73,7 +73,8 @@ namespace MaxFlow::Graphs::Algorithms
 		static GraphVizSource from (const ResidualGraph& _graph, bool _skipZeroEdges = true, const size_t* _plabels = nullptr);
 
 		void toDotFile (const std::string& _file) const;
-		void exportToFile (const std::string& _file, EFormat _format = EFormat::PNG) const;
+		void exportToFile (const std::string& _file) const;
+		void exportToFile (const std::string& _file, EFormat _format) const;
 		std::string toDot () const;
 
 	};

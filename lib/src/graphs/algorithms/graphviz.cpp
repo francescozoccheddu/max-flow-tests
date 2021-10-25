@@ -5,6 +5,7 @@
 #include <cctype>
 #include <format>
 #include <stdexcept>
+#include <algorithm>
 
 namespace MaxFlow::Graphs::Algorithms
 {
@@ -177,6 +178,35 @@ namespace MaxFlow::Graphs::Algorithms
 		f.open (_file);
 		f << toDot ();
 		f.close ();
+	}
+
+	void GraphVizSource::exportToFile (const std::string& _file) const
+	{
+		const size_t sepIndex{ _file.find_last_of ('.') };
+		if (sepIndex < 0)
+		{
+			throw std::logic_error{ "unknown extension" };
+		}
+		std::string extension{ _file.substr (sepIndex + 1) };
+		std::transform (extension.begin (), extension.end (), extension.begin (), [] (unsigned char _c) { return  std::tolower (_c); });
+		EFormat format;
+		if (extension == "png")
+		{
+			format = EFormat::PNG;
+		}
+		else if (extension == "pdf")
+		{
+			format = EFormat::PDF;
+		}
+		else if (extension == "svg")
+		{
+			format = EFormat::SVG;
+		}
+		else
+		{
+			throw std::logic_error{ "unknown extension" };
+		}
+		exportToFile (_file, format);
 	}
 
 	void GraphVizSource::exportToFile (const std::string& _file, EFormat _format) const

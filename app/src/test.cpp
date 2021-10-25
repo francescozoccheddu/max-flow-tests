@@ -16,7 +16,7 @@ namespace MaxFlow::App
 
 	size_t Test::index (size_t _problem, size_t _solver, size_t _repetition) const
 	{
-		return _problem * m_problems.size () * m_solvers.size () + _solver * m_problems.size () + _repetition;
+		return _repetition * m_problems.size () * m_solvers.size () + _solver * m_problems.size () + _problem;
 	}
 
 	Test::Test (const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions, unsigned int _seed)
@@ -42,15 +42,15 @@ namespace MaxFlow::App
 				{
 					if (m_problems.size () > 1)
 					{
-						std::cout << "Problem " << p << '/' << m_problems.size () << ' ';
+						std::cout << "Problem " << p + 1 << '/' << m_problems.size () << ' ';
 					}
 					if (m_solvers.size () > 1)
 					{
-						std::cout << "Solver " << s << '/' << m_solvers.size () << ' ';
+						std::cout << "Solver " << s + 1 << '/' << m_solvers.size () << ' ';
 					}
 					if (m_problems.size () > 1)
 					{
-						std::cout << "Repetition " << r << '/' << m_repetitions << ' ';
+						std::cout << "Repetition " << r + 1 << '/' << m_repetitions << ' ';
 					}
 					std::cout << '(' << ++count << '/' << m_data.size () << ')' << std::endl;
 					Performance::start ();

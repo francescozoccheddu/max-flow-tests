@@ -402,6 +402,10 @@ namespace MaxFlow::Graphs::Base
 		{
 			m_pLastOutEdge = _edge.previous ();
 		}
+		if (hasMatrix ())
+		{
+			(*m_pOutVertexEdges)[_edge.to ().index ()] = nullptr;
+		}
 		_edge.detachFromList ();
 		graph ().edgeRemoved ();
 		m_outEdgesCount--;

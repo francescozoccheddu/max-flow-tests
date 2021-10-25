@@ -72,6 +72,9 @@ namespace MaxFlow::Graphs::Base
 		for (Vertex& vertex : *this)
 		{
 			vertex.destroyAllOutEdges ();
+		}
+		for (Vertex& vertex : *this)
+		{
 			delete& vertex;
 		}
 		m_vertices.clear ();

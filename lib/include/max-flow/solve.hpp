@@ -20,10 +20,10 @@ namespace MaxFlow
 
 	enum class ESolverFlags
 	{
+		None = 0,
 		RemoveZeroEdgeLabels = 1 << 0,
 		CapacityScalingRemoveDeltaEdges = 1 << 1,
 		ShortestPathDetectMinCut = 1 << 2,
-		Default = ShortestPathDetectMinCut,
 	};
 
 	struct CapacityMatrix
@@ -103,11 +103,11 @@ namespace MaxFlow
 
 	// Functions
 
-	MF_GG_TT_F void solve (Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
+	MF_GG_TT_F void solve (Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::None);
 
-	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData> solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const  Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
+	MF_GG_TT_F Graphs::FlowGraph<TVertexData, TEdgeData> solve (const Graphs::FlowGraph<TVertexData, TEdgeData>& _graph, const  Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _source, const Graphs::FlowGraphVertex<TVertexData, TEdgeData>& _sink, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::None);
 
-	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::Default);
+	void solve (Graphs::ResidualGraph& _graph, Graphs::ResidualVertex& _source, Graphs::ResidualVertex& _sink, const CapacityMatrix& _capacityMatrix, ESolver _solver = defaultSolver, ESolverFlags _flags = ESolverFlags::None);
 
 #pragma endregion
 

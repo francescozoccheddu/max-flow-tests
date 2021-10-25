@@ -14,7 +14,7 @@ namespace MaxFlow::App
 	struct SolverParameters final
 	{
 		ESolver solver{ defaultSolver };
-		ESolverFlags flags{ ESolverFlags::Default };
+		ESolverFlags flags{ ESolverFlags::None };
 	};
 
 

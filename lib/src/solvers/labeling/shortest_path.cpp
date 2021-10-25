@@ -30,7 +30,11 @@ namespace MaxFlow::Solvers::Labeling
 			Utils::Performance::tick (graph ().verticesCount ());
 			for (const ResidualVertex& vertex : graph ())
 			{
-				m_distanceCounts[m_distanceLabeler[vertex]]++;
+				const size_t distance{ m_distanceLabeler[vertex] };
+				if (distance < m_distanceCounts.size ())
+				{
+					m_distanceCounts[distance]++;
+				}
 			}
 		}
 		pathfinder ().reset ();

@@ -404,6 +404,7 @@ namespace MaxFlow::Graphs::Base
 		}
 		_edge.detachFromList ();
 		graph ().edgeRemoved ();
+		m_outEdgesCount--;
 		delete& _edge;
 	}
 

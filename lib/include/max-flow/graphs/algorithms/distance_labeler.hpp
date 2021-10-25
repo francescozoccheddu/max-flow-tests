@@ -33,6 +33,8 @@ namespace MaxFlow::Graphs::Algorithms
 
 		bool isAdmissible (const ResidualEdge& _edge) const;
 
+		const std::vector<size_t>& distances () const;
+
 	};
 
 }

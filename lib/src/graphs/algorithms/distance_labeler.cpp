@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <queue>
+#include <limits>
 #include <max-flow/utils/performance.hpp>
 
 
@@ -25,22 +26,44 @@ namespace MaxFlow::Graphs::Algorithms
 	{
 		reset (0);
 		std::queue<ResidualVertex*> queue{};
-		queue.push (&m_sink);
-		size_t distance{};
+		ResidualGraph transposed;
+		transposed.setMatrix (false);
+		transposed.addVertices (m_graph.verticesCount ());
+		Utils::Performance::tick (m_graph.verticesCount ());
+		for (const ResidualVertex& vertex : m_graph)
+		{
+			Utils::Performance::tick ();
+			ResidualVertex& transposedVertex{ transposed[vertex.index ()] };
+			for (const ResidualEdge& edge : vertex)
+			{
+				Utils::Performance::tick ();
+				if (*edge)
+				{
+					transposed[edge.to ().index ()].addOutEdge (transposedVertex, *edge);
+				}
+			}
+		}
+		queue.push (&transposed[m_sink.index ()]);
 		while (!queue.empty ())
 		{
 			Utils::Performance::tick ();
-			distance++;
 			ResidualVertex& vertex{ *queue.front () };
 			queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
 				Utils::Performance::tick ();
-				if (!m_distances[edge.to ().index ()] && edge.to () != m_sink && _edgeSelector (edge))
+				if (!m_distances[edge.to ().index ()] && edge.to ().index () != m_sink.index () && _edgeSelector (edge))
 				{
-					m_distances[edge.to ().index ()] = distance;
+					m_distances[edge.to ().index ()] = m_distances[edge.from ().index ()] + 1;
 					queue.push (&edge.to ());
 				}
+			}
+		}
+		for (size_t i{ 0 }; i < m_graph.verticesCount (); i++)
+		{
+			if (!m_distances[i] && i != m_sink.index ())
+			{
+				m_distances[i] = std::numeric_limits<size_t>::max ();
 			}
 		}
 	}
@@ -61,6 +84,11 @@ namespace MaxFlow::Graphs::Algorithms
 	bool DistanceLabeler::isAdmissible (const ResidualEdge& _edge) const
 	{
 		return *_edge && (*this)[_edge.from ()] == (*this)[_edge.to ()] + 1;
+	}
+
+	const std::vector<size_t>& DistanceLabeler::distances () const
+	{
+		return m_distances;
 	}
 
 

@@ -39,9 +39,8 @@ namespace MaxFlow::App
 	{
 		_parameters.validate ();
 		m_graph.addVertices (_parameters.verticesCount);
-		std::mt19937 generator{ _seed };
-		const double exponent{ 1.0 + (1.0 - _parameters.capacityDeviance) * 2.0 };
-		std::uniform_real_distribution<double> normalDistribution{ 0.0, 1.0 };
+		std::mt19937 generator;
+		generator = std::mt19937{ _seed };
 		std::bernoulli_distribution forwardEdgeDistribution{ _parameters.edgeDensity };
 		std::bernoulli_distribution backwardEdgeDistribution{ _parameters.edgeDensity * _parameters.backwardsEdgeDensityFactor };
 		for (FlowVertex& vertex : m_graph)
@@ -51,8 +50,35 @@ namespace MaxFlow::App
 				if ((i < vertex.index () && backwardEdgeDistribution (generator)) ||
 					(i > vertex.index () && forwardEdgeDistribution (generator)))
 				{
-					const flow_t capacity{ static_cast<flow_t>(std::round ((1.0 - std::pow (normalDistribution (generator), exponent)) * _parameters.maxCapacity)) };
-					vertex.addOutEdge (i, { capacity });
+					vertex.addOutEdge (i);
+				}
+			}
+		}
+		generator = std::mt19937{ _seed };
+		const double exponent{ 1.0 + (1.0 - _parameters.capacityDeviance) * 2.0 };
+		std::uniform_real_distribution<double> normalDistribution{ 0.0, 1.0 };
+		double maxFactor{};
+		for (size_t i{ 0 }; i < m_graph.edgesCount (); i++)
+		{
+			const double factor{ 1.0 - std::pow (normalDistribution (generator), exponent) };
+			if (factor > maxFactor)
+			{
+				maxFactor = factor;
+			}
+		}
+		if (!maxFactor)
+		{
+			maxFactor = 1;
+		}
+		generator = std::mt19937{ _seed };
+		for (FlowVertex& vertex : m_graph)
+		{
+			for (FlowEdge& edge : vertex)
+			{
+				*edge = { static_cast<flow_t>(std::round ((1.0 - std::pow (normalDistribution (generator), exponent)) / maxFactor * _parameters.maxCapacity)) };
+				if (edge->capacity() > _parameters.maxCapacity)
+				{
+					*edge = { _parameters.maxCapacity };
 				}
 			}
 		}

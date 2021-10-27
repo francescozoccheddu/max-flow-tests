@@ -1,6 +1,7 @@
 #include <max-flow/solvers/preflow_push/excess_scaling.hpp>
 
 #include <cmath>
+#include <algorithm>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -96,9 +97,10 @@ namespace MaxFlow::Solvers::PreflowPush
 		{
 			m_activeVerticesPerDistance[i] = {};
 		}
+		const flow_t minExcess{ std::max<flow_t> (m_delta / 2, 1) };
 		for (ResidualVertex& vertex : graph ())
 		{
-			if (m_excesses[vertex.index ()] >= m_delta / 2)
+			if (m_excesses[vertex.index ()] >= minExcess)
 			{
 				m_activeVerticesPerDistance[distance (vertex)].push (&vertex);
 			}

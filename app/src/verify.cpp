@@ -28,9 +28,9 @@ namespace MaxFlow::App
 				return false;
 			}
 		}
-		if ((outFlows[_source.index ()] != inFlows[_sink.index ()]) ||
-			(outFlows[_source.index ()] < inFlows[_source.index ()]) ||
-			(outFlows[_sink.index ()] > inFlows[_sink.index ()]))
+		if ((outFlows[_source.index ()] < inFlows[_source.index ()]) ||
+			(outFlows[_sink.index ()] > inFlows[_sink.index ()]) ||
+			(outFlows[_source.index ()] - inFlows[_source.index ()] != inFlows[_sink.index ()] - outFlows[_sink.index ()]))
 		{
 			return false;
 		}

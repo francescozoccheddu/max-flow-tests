@@ -1,5 +1,7 @@
 #include <max-flow/solvers/preflow_push/excess_scaling.hpp>
 
+#include <cmath>
+
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;
@@ -15,6 +17,18 @@ namespace MaxFlow::Solvers::PreflowPush
 		m_excesses.resize (graph ().verticesCount (), 0);
 		m_activeVerticesPerDistance.clear ();
 		m_activeVerticesPerDistance.resize (2 * graph ().verticesCount () - 1, {});
+		flow_t maxCapacity{ 0 };
+		for (const ResidualVertex& vertex : graph ())
+		{
+			for (const ResidualEdge& edge : vertex)
+			{
+				if (capacities ()[edge] > maxCapacity)
+				{
+					maxCapacity = capacities ()[edge];
+				}
+			}
+		}
+		m_delta = static_cast<flow_t>(std::pow (2, std::ceil (std::log2 (maxCapacity))));
 	}
 
 	void ExcessScalingPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
@@ -35,18 +49,23 @@ namespace MaxFlow::Solvers::PreflowPush
 
 	PreflowPushSolver::Excess ExcessScalingPreflowPushSolver::getExcess ()
 	{
-		while (m_maxDistance > 0)
+		while (m_delta >= 1)
 		{
-			while (!m_activeVerticesPerDistance[m_maxDistance].empty ())
+			while (m_maxDistance > 0)
 			{
-				ResidualVertex& vertex{ *m_activeVerticesPerDistance[m_maxDistance].front () };
-				if (m_excesses[vertex.index ()] && distance (vertex) == m_maxDistance)
+				while (!m_activeVerticesPerDistance[m_maxDistance].empty ())
 				{
-					return { .pVertex{&vertex}, .amount{m_excesses[vertex.index ()]} };
+					ResidualVertex& vertex{ *m_activeVerticesPerDistance[m_maxDistance].front () };
+					if (m_excesses[vertex.index ()] && distance (vertex) == m_maxDistance)
+					{
+						return { .pVertex{&vertex}, .amount{m_excesses[vertex.index ()]} };
+					}
+					m_activeVerticesPerDistance[m_maxDistance].pop ();
 				}
-				m_activeVerticesPerDistance[m_maxDistance].pop ();
+				m_maxDistance--;
 			}
-			m_maxDistance--;
+			m_delta /= 2;
+			updateActiveNodes ();
 		}
 		return {};
 	}
@@ -64,6 +83,26 @@ namespace MaxFlow::Solvers::PreflowPush
 			m_maxDistance = newDistance;
 		}
 		m_activeVerticesPerDistance[newDistance].push (&_vertex);
+	}
+
+	flow_t ExcessScalingPreflowPushSolver::maximumPushAmount (const Graphs::ResidualEdge& _edge, Excess _fromExcess) const
+	{
+		return m_delta - m_excesses[_edge.to ().index ()];
+	}
+
+	void ExcessScalingPreflowPushSolver::updateActiveNodes ()
+	{
+		for (size_t i{ 0 }; i < m_activeVerticesPerDistance.size (); i++)
+		{
+			m_activeVerticesPerDistance[i] = {};
+		}
+		for (ResidualVertex& vertex : graph ())
+		{
+			if (m_excesses[vertex.index ()] >= m_delta / 2)
+			{
+				m_activeVerticesPerDistance[distance (vertex)].push (&vertex);
+			}
+		}
 	}
 
 }

@@ -31,6 +31,8 @@ namespace MaxFlow
 
 		virtual Graphs::flow_t capacity (size_t _from, size_t _to) const = 0;
 
+		Graphs::flow_t operator[](const Graphs::Base::Edge& _edge) const;
+
 	};
 
 	MF_GG_TT_F class GenericCapacityMatrix : public CapacityMatrix

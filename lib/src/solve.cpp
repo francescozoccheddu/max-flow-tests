@@ -166,4 +166,9 @@ namespace MaxFlow
 		solveImpl ();
 	}
 
+	flow_t CapacityMatrix::operator[](const Base::Edge& _edge) const
+	{
+		return capacity (_edge.from ().index (), _edge.to ().index ());
+	}
+
 }

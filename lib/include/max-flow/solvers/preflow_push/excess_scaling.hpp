@@ -16,12 +16,15 @@ namespace MaxFlow::Solvers::PreflowPush
 		std::vector<Graphs::flow_t> m_excesses{};
 		std::vector<std::queue<Graphs::ResidualVertex*>> m_activeVerticesPerDistance{};
 		size_t m_maxDistance{};
+		Graphs::flow_t m_delta;
 
 		void initialize () override;
 		void addExcess (Graphs::ResidualEdge& _edge, Graphs::flow_t _amount) override;
 		Excess getExcess () override;
-		void onRelabel(Graphs::ResidualVertex& _vertex, size_t _oldDistance) override;
+		void onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldDistance) override;
 		void push (Graphs::ResidualVertex& _vertex);
+		Graphs::flow_t maximumPushAmount (const Graphs::ResidualEdge& _edge, Excess _fromExcess) const override;
+		void updateActiveNodes ();
 
 	public:
 

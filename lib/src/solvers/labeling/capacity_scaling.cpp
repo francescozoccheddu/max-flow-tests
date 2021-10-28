@@ -3,7 +3,6 @@
 #include <max-flow/graphs/algorithms/residual.hpp>
 #include <max-flow/solvers/labeling/ford_fulkerson.hpp>
 #include <max-flow/solvers/labeling/shortest_path.hpp>
-#include <max-flow/utils/performance.hpp>
 #include <cmath>
 #include <stdexcept>
 
@@ -44,15 +43,12 @@ namespace MaxFlow::Solvers::Labeling
 		{
 			deltaGraphStorage.setMatrix (true);
 			deltaGraphStorage.addVertices (graph ().verticesCount ());
-			Utils::Performance::tick (graph ().verticesCount () * graph ().verticesCount ());
 		}
 		flow_t minCapacity{};
 		for (const ResidualVertex& vertex : graph ())
 		{
-			Utils::Performance::tick ();
 			for (const ResidualEdge& edge : vertex)
 			{
-				Utils::Performance::tick ();
 				if (capacities ().capacity (edge.from ().index (), edge.to ().index ()) > minCapacity)
 				{
 					minCapacity = capacities ().capacity (edge.from ().index (), edge.to ().index ());
@@ -60,7 +56,6 @@ namespace MaxFlow::Solvers::Labeling
 			}
 		}
 		ResidualGraph& deltaGraph{ areDeltaEdgesRemoved () ? deltaGraphStorage : graph () };
-		Utils::Performance::tick (deltaGraph.edgesCount () + deltaGraph.verticesCount ());
 		PropagateCallback callback{ graph () };
 		deltaGraph.setMatrix (true);
 		LabelingSolver* pSubSolver;
@@ -90,17 +85,14 @@ namespace MaxFlow::Solvers::Labeling
 		edgeSelector.delta = static_cast<flow_t>(std::pow (2, std::floor (std::log2 (minCapacity))));
 		while (edgeSelector.delta >= 1)
 		{
-			Utils::Performance::tick ();
 			if (areDeltaEdgesRemoved ())
 			{
 				for (ResidualVertex& vertex : graph ())
 				{
 					ResidualVertex& deltaVertex{ deltaGraph[vertex.index ()] };
-					Utils::Performance::tick (deltaVertex.outEdgesCount ());
 					deltaVertex.destroyAllOutEdges ();
 					for (ResidualEdge& edge : vertex)
 					{
-						Utils::Performance::tick ();
 						if (*edge >= edgeSelector.delta)
 						{
 							deltaVertex.addOutEdge (edge.to ().index (), *edge);
@@ -119,7 +111,6 @@ namespace MaxFlow::Solvers::Labeling
 		const Pathfinder::IteratorC start{ _solver.pathfinder ().begin () }, end{ _solver.pathfinder ().end () };
 		for (Pathfinder::IteratorC it{ start }; it != end; ++it)
 		{
-			Utils::Performance::tick ();
 			ResidualEdge& edge{ m_graph[it->from ().index ()][it->to ().index ()] };
 			augment (edge, _amount, _solver.areZeroEdgesRemoved ());
 		}

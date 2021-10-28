@@ -1,6 +1,5 @@
 #include <max-flow/graphs/algorithms/residual.hpp>
 
-#include <max-flow/utils/performance.hpp>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -49,11 +48,9 @@ namespace MaxFlow::Graphs::Algorithms
 	{
 		for (ResidualVertex& vertex : _graph)
 		{
-			Utils::Performance::tick ();
 			ResidualGraph::EdgeIteratorFM it{ vertex.begin () };
 			while (it != vertex.end ())
 			{
-				Utils::Performance::tick ();
 				ResidualEdge& edge{ *it };
 				++it;
 				if (!*edge)
@@ -69,11 +66,9 @@ namespace MaxFlow::Graphs::Algorithms
 		_graph.setMatrix (true);
 		for (ResidualVertex& vertex : _graph)
 		{
-			Utils::Performance::tick ();
 			ResidualGraph::EdgeIteratorFM it{ vertex.begin () };
 			while (it != vertex.end ())
 			{
-				Utils::Performance::tick ();
 				ResidualEdge& edge{ *it };
 				ResidualEdge* pAntiparallel{ edge.antiParallelIfExists () };
 				++it;
@@ -98,10 +93,8 @@ namespace MaxFlow::Graphs::Algorithms
 		_graph.setMatrix (true);
 		for (ResidualVertex& vertex : _graph)
 		{
-			Utils::Performance::tick ();
 			for (ResidualEdge& edge : vertex)
 			{
-				Utils::Performance::tick ();
 				antiparallelEdgeOrCreate (edge);
 			}
 		}
@@ -112,7 +105,6 @@ namespace MaxFlow::Graphs::Algorithms
 		flow_t minR{ std::numeric_limits<Graphs::flow_t>::max () };
 		for (Pathfinder::IteratorC it{ _start }; it != _end; ++it)
 		{
-			Utils::Performance::tick ();
 			const ResidualEdge& edge{ *it };
 			if (*edge < minR)
 			{
@@ -131,7 +123,6 @@ namespace MaxFlow::Graphs::Algorithms
 	{
 		for (Pathfinder::IteratorM it{ _start }; it != _end; ++it)
 		{
-			Utils::Performance::tick ();
 			ResidualEdge& edge{ *it };
 			augment (edge, _amount, _removeZeroEdge);
 		}

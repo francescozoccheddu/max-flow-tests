@@ -1,6 +1,7 @@
 #include <max-flow-app/test.hpp>
 
 #include <max-flow-app/verify.hpp>
+#include <max-flow-app/performance.hpp>
 #include <max-flow/solve.hpp>
 #include <stdexcept>
 #include <format>
@@ -62,7 +63,7 @@ namespace MaxFlow::App
 		}
 	}
 
-	void Test::set (size_t _problem, size_t _solver, size_t _repetition, const Performance& _performance)
+	void Test::set (size_t _problem, size_t _solver, size_t _repetition, double _performance)
 	{
 		m_data[index (_problem, _solver, _repetition)] = _performance;
 	}
@@ -87,14 +88,14 @@ namespace MaxFlow::App
 		return m_seed;
 	}
 
-	const Performance& Test::test (size_t _problem, size_t _solver, size_t _repetition) const
+	double Test::test (size_t _problem, size_t _solver, size_t _repetition) const
 	{
 		return m_data[index (_problem, _solver, _repetition)];
 	}
 
-	Performance Test::testSum (size_t _problem, size_t _solver) const
+	double Test::testSum (size_t _problem, size_t _solver) const
 	{
-		Performance sum{};
+		double sum{};
 		for (size_t r{ 0 }; r < m_repetitions; r++)
 		{
 			sum += test (_problem, _solver, r);
@@ -102,14 +103,14 @@ namespace MaxFlow::App
 		return sum;
 	}
 
-	Performance Test::testAverage (size_t _problem, size_t _solver) const
+	double Test::testAverage (size_t _problem, size_t _solver) const
 	{
 		return testSum (_problem, _solver) / m_repetitions;
 	}
 
-	Performance Test::problemSum (size_t _problem) const
+	double Test::problemSum (size_t _problem) const
 	{
-		Performance sum{};
+		double sum{};
 		for (size_t s{ 0 }; s < m_solvers.size (); s++)
 		{
 			sum += testSum (_problem, s);
@@ -117,14 +118,14 @@ namespace MaxFlow::App
 		return sum;
 	}
 
-	Performance Test::problemAverage (size_t _problem) const
+	double Test::problemAverage (size_t _problem) const
 	{
 		return problemSum (_problem) / m_repetitions / m_solvers.size ();
 	}
 
-	Performance Test::solverSum (size_t _solver) const
+	double Test::solverSum (size_t _solver) const
 	{
-		Performance sum{};
+		double sum{};
 		for (size_t p{ 0 }; p < m_solvers.size (); p++)
 		{
 			sum += testSum (p, _solver);
@@ -132,7 +133,7 @@ namespace MaxFlow::App
 		return sum;
 	}
 
-	Performance Test::solverAverage (size_t _solver) const
+	double Test::solverAverage (size_t _solver) const
 	{
 		return solverSum (_solver) / m_repetitions / m_problems.size ();
 	}
@@ -192,7 +193,6 @@ namespace MaxFlow::App
 		ss << "solver,";
 		ss << "solverFlags,";
 		ss << "repetition,";
-		ss << "ticks,";
 		ss << "time";
 		ss << std::endl;
 		for (size_t p{ 0 }; p < m_problems.size (); p++)
@@ -203,7 +203,6 @@ namespace MaxFlow::App
 				const SolverParameters& solver{ m_solvers[s] };
 				for (size_t r{ 0 }; r < m_repetitions; r++)
 				{
-					const Performance& performance{ test (p,s,r) };
 					ss << problem.maxCapacity << ',';
 					ss << problem.verticesCount << ',';
 					ss << problem.edgeDensity << ',';
@@ -212,8 +211,7 @@ namespace MaxFlow::App
 					ss << solverName (solver.solver) << ',';
 					ss << solverFlagsName (solver.flags) << ',';
 					ss << r + 1 << ',';
-					ss << performance.ticks () << ',';
-					ss << performance.time ();
+					ss << test (p, s, r);
 					ss << std::endl;
 				}
 			}

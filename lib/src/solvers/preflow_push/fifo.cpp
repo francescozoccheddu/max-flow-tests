@@ -1,6 +1,5 @@
 #include <max-flow/solvers/preflow_push/fifo.hpp>
 
-#include <max-flow/utils/performance.hpp>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -15,7 +14,6 @@ namespace MaxFlow::Solvers::PreflowPush
 		m_excesses.clear ();
 		m_excesses.resize (graph ().verticesCount (), 0);
 		m_activeVertices = {};
-		Utils::Performance::tick (graph ().verticesCount ());
 	}
 
 	void FifoPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
@@ -38,7 +36,6 @@ namespace MaxFlow::Solvers::PreflowPush
 	{
 		while (!m_activeVertices.empty ())
 		{
-			Utils::Performance::tick ();
 			ResidualVertex& vertex{ *m_activeVertices.front () };
 			if (m_excesses[vertex.index ()])
 			{

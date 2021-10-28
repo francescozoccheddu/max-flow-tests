@@ -2,7 +2,6 @@
 
 #include <max-flow/graphs/algorithms/residual.hpp>
 #include <limits>
-#include <max-flow/utils/performance.hpp>
 #include <algorithm>
 
 using MaxFlow::Graphs::ResidualGraph;
@@ -25,7 +24,6 @@ namespace MaxFlow::Solvers::PreflowPush
 		initialize ();
 		for (ResidualEdge& edge : source ())
 		{
-			Utils::Performance::tick ();
 			const flow_t amount{ *edge };
 			Graphs::Algorithms::augment (edge, amount, areZeroEdgesRemoved ());
 			addExcess (edge, amount);
@@ -33,11 +31,9 @@ namespace MaxFlow::Solvers::PreflowPush
 		Excess excess{ getExcess () };
 		while (excess.isExcess ())
 		{
-			Utils::Performance::tick ();
 			bool foundAdmissibleEdge{};
 			for (ResidualEdge& edge : *excess.pVertex)
 			{
-				Utils::Performance::tick ();
 				if (m_distanceLabeler.isAdmissible (edge))
 				{
 					const flow_t amount{ std::min (*edge, std::min (excess.amount, maximumPushAmount (edge, excess))) };
@@ -53,7 +49,6 @@ namespace MaxFlow::Solvers::PreflowPush
 				bool hasOutEdges{};
 				for (ResidualEdge& edge : *excess.pVertex)
 				{
-					Utils::Performance::tick ();
 					if (*edge && m_distanceLabeler[edge.to ()] < minDistance)
 					{
 						hasOutEdges = true;

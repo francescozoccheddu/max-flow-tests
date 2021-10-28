@@ -1,6 +1,5 @@
 #include <max-flow/solvers/preflow_push/highest_label.hpp>
 
-#include <max-flow/utils/performance.hpp>
 
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
@@ -17,7 +16,6 @@ namespace MaxFlow::Solvers::PreflowPush
 		m_excesses.resize (graph ().verticesCount (), 0);
 		m_activeVerticesPerDistance.clear ();
 		m_activeVerticesPerDistance.resize (2 * graph ().verticesCount () - 1, {});
-		Utils::Performance::tick (3 * graph ().verticesCount ());
 	}
 
 	void HighestLabelPreflowPushSolver::addExcess (ResidualEdge& _edge, flow_t _amount)
@@ -40,10 +38,8 @@ namespace MaxFlow::Solvers::PreflowPush
 	{
 		while (m_maxDistance > 0)
 		{
-			Utils::Performance::tick ();
 			while (!m_activeVerticesPerDistance[m_maxDistance].empty ())
 			{
-				Utils::Performance::tick ();
 				ResidualVertex& vertex{ *m_activeVerticesPerDistance[m_maxDistance].front () };
 				if (m_excesses[vertex.index ()] && distance (vertex) == m_maxDistance)
 				{

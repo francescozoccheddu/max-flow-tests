@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <queue>
 #include <limits>
-#include <max-flow/utils/performance.hpp>
 
 
 namespace MaxFlow::Graphs::Algorithms
@@ -19,7 +18,6 @@ namespace MaxFlow::Graphs::Algorithms
 	{
 		m_distances.resize (m_graph.verticesCount ());
 		std::fill (m_distances.begin (), m_distances.end (), 0);
-		Utils::Performance::tick (m_distances.size ());
 	}
 
 	void DistanceLabeler::calculate (EdgeSelector& _edgeSelector)
@@ -29,14 +27,11 @@ namespace MaxFlow::Graphs::Algorithms
 		ResidualGraph transposed;
 		transposed.setMatrix (false);
 		transposed.addVertices (m_graph.verticesCount ());
-		Utils::Performance::tick (m_graph.verticesCount ());
 		for (const ResidualVertex& vertex : m_graph)
 		{
-			Utils::Performance::tick ();
 			ResidualVertex& transposedVertex{ transposed[vertex.index ()] };
 			for (const ResidualEdge& edge : vertex)
 			{
-				Utils::Performance::tick ();
 				if (*edge)
 				{
 					transposed[edge.to ().index ()].addOutEdge (transposedVertex, *edge);
@@ -46,12 +41,10 @@ namespace MaxFlow::Graphs::Algorithms
 		queue.push (&transposed[m_sink.index ()]);
 		while (!queue.empty ())
 		{
-			Utils::Performance::tick ();
 			ResidualVertex& vertex{ *queue.front () };
 			queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
-				Utils::Performance::tick ();
 				if (!m_distances[edge.to ().index ()] && edge.to ().index () != m_sink.index () && _edgeSelector (edge))
 				{
 					m_distances[edge.to ().index ()] = m_distances[edge.from ().index ()] + 1;

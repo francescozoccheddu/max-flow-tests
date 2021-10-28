@@ -3,7 +3,6 @@
 
 #include <max-flow/solve.hpp>
 #include <max-flow-app/random.hpp>
-#include <max-flow/utils/performance.hpp>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -23,13 +22,13 @@ namespace MaxFlow::App
 
 	private:
 
-		std::vector<Utils::Performance> m_data;
+		std::vector<double> m_data;
 		const std::vector<RandomParameters> m_problems;
 		const std::vector<SolverParameters> m_solvers;
 		const unsigned int m_repetitions;
 		const unsigned int m_seed;
 
-		void set (size_t _problem, size_t _solver, size_t _repetition, const Utils::Performance& _performance);
+		void set (size_t _problem, size_t _solver, size_t _repetition, const double _performance);
 
 		size_t index (size_t _problem, size_t _solver, size_t _repetition) const;
 
@@ -44,13 +43,13 @@ namespace MaxFlow::App
 
 		void run ();
 
-		const Utils::Performance& test (size_t _problem, size_t _solver, size_t _repetition) const;
-		Utils::Performance testSum (size_t _problem, size_t _solver) const;
-		Utils::Performance testAverage (size_t _problem, size_t _solver) const;
-		Utils::Performance problemSum (size_t _problem) const;
-		Utils::Performance problemAverage (size_t _problem) const;
-		Utils::Performance solverSum (size_t _solver) const;
-		Utils::Performance solverAverage (size_t _solver) const;
+		double test (size_t _problem, size_t _solver, size_t _repetition) const;
+		double testSum (size_t _problem, size_t _solver) const;
+		double testAverage (size_t _problem, size_t _solver) const;
+		double problemSum (size_t _problem) const;
+		double problemAverage (size_t _problem) const;
+		double solverSum (size_t _solver) const;
+		double solverAverage (size_t _solver) const;
 
 		std::string toCsv () const;
 		void toCsvFile (const std::string& _file) const;

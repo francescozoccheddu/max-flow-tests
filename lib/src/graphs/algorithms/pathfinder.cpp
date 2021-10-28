@@ -1,6 +1,5 @@
 #include <max-flow\graphs\algorithms\pathfinder.hpp>
 
-#include <max-flow/utils/performance.hpp>
 #include <algorithm>
 #include <queue>
 
@@ -17,7 +16,6 @@ namespace MaxFlow::Graphs::Algorithms
 	{
 		m_predecessors.resize (m_graph.verticesCount ());
 		std::fill (m_predecessors.begin (), m_predecessors.end (), nullptr);
-		Utils::Performance::tick (m_predecessors.size ());
 	}
 
 	void Pathfinder::calculate (EdgeSelector& _edgeSelector)
@@ -28,12 +26,10 @@ namespace MaxFlow::Graphs::Algorithms
 		queue.push (&m_source);
 		while (!queue.empty () && !isSinkLabeled ())
 		{
-			Utils::Performance::tick ();
 			ResidualVertex& vertex{ *queue.front () };
 			queue.pop ();
 			for (ResidualEdge& edge : vertex)
 			{
-				Utils::Performance::tick ();
 				if (*edge && !isLabeled (edge.to ()) && _edgeSelector (edge))
 				{
 					setPredecessor (edge.to (), vertex);

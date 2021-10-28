@@ -2,7 +2,6 @@
 #include <max-flow/graphs/residual.hpp>
 #include <max-flow/solve.hpp>
 #include <max-flow/graphs/algorithms/graphviz.hpp>
-#include <max-flow/utils/performance.hpp>
 #include <max-flow-app/random.hpp>
 #include <max-flow-app/test.hpp>
 #include <max-flow-app/verify.hpp>
@@ -58,7 +57,7 @@ int main ()
 		{ESolver::NaifPreflowPush},
 		{ESolver::FifoPreflowPush},
 		{ESolver::HighestLabelPreflowPush},
-		//{ESolver::ExcessScalingPreflowPush}
+		{ESolver::ExcessScalingPreflowPush}
 	};
 	std::vector<App::RandomParameters> problems{
 		{.verticesCount{10}},

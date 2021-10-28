@@ -13,7 +13,7 @@ namespace MaxFlow::Solvers::PreflowPush
 
 	void ExcessScalingPreflowPushSolver::initialize ()
 	{
-		m_maxDistance = graph ().verticesCount () - 1;
+		m_minDistance = 1;
 		m_excesses.clear ();
 		m_excesses.resize (graph ().verticesCount (), 0);
 		m_activeVerticesPerDistance.clear ();
@@ -52,18 +52,18 @@ namespace MaxFlow::Solvers::PreflowPush
 	{
 		while (m_delta >= 1)
 		{
-			while (m_maxDistance > 0)
+			while (m_minDistance < m_activeVerticesPerDistance.size())
 			{
-				while (!m_activeVerticesPerDistance[m_maxDistance].empty ())
+				while (!m_activeVerticesPerDistance[m_minDistance].empty ())
 				{
-					ResidualVertex& vertex{ *m_activeVerticesPerDistance[m_maxDistance].front () };
-					if (m_excesses[vertex.index ()] && distance (vertex) == m_maxDistance)
+					ResidualVertex& vertex{ *m_activeVerticesPerDistance[m_minDistance].front () };
+					if (m_excesses[vertex.index ()] && distance (vertex) == m_minDistance)
 					{
 						return { .pVertex{&vertex}, .amount{m_excesses[vertex.index ()]} };
 					}
-					m_activeVerticesPerDistance[m_maxDistance].pop ();
+					m_activeVerticesPerDistance[m_minDistance].pop ();
 				}
-				m_maxDistance--;
+				m_minDistance++;
 			}
 			m_delta /= 2;
 			updateActiveNodes ();
@@ -79,9 +79,9 @@ namespace MaxFlow::Solvers::PreflowPush
 	void ExcessScalingPreflowPushSolver::push (Graphs::ResidualVertex& _vertex)
 	{
 		const size_t newDistance{ distance (_vertex) };
-		if (newDistance > m_maxDistance)
+		if (newDistance < m_minDistance)
 		{
-			m_maxDistance = newDistance;
+			m_minDistance = newDistance;
 		}
 		m_activeVerticesPerDistance[newDistance].push (&_vertex);
 	}
@@ -97,12 +97,11 @@ namespace MaxFlow::Solvers::PreflowPush
 		{
 			m_activeVerticesPerDistance[i] = {};
 		}
-		const flow_t minExcess{ std::max<flow_t> (m_delta / 2, 1) };
 		for (ResidualVertex& vertex : graph ())
 		{
-			if (m_excesses[vertex.index ()] >= minExcess)
+			if (m_excesses[vertex.index ()] > m_delta / 2)
 			{
-				m_activeVerticesPerDistance[distance (vertex)].push (&vertex);
+				push (vertex);
 			}
 		}
 	}

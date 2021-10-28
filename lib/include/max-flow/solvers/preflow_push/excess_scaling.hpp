@@ -15,7 +15,7 @@ namespace MaxFlow::Solvers::PreflowPush
 
 		std::vector<Graphs::flow_t> m_excesses{};
 		std::vector<std::queue<Graphs::ResidualVertex*>> m_activeVerticesPerDistance{};
-		size_t m_maxDistance{};
+		size_t m_minDistance{};
 		Graphs::flow_t m_delta;
 
 		void initialize () override;

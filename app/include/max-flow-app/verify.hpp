@@ -12,8 +12,12 @@ namespace MaxFlow::App
 
 	bool isFlow (const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink);
 	bool isMaxFlow (const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink);
+	bool isMaxFlow (const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink, Graphs::flow_t _maxFlow);
 	void ensureFlow (const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink);
 	void ensureMaxFlow (const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink);
+	void ensureMaxFlow (const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink, Graphs::flow_t _maxFlow);
+	Graphs::flow_t getMaxFlow(const FlowGraph& _graph, const FlowVertex& _source, const FlowVertex& _sink);
+	Graphs::flow_t getFlow(const FlowGraph& _graph, const FlowVertex& _source);
 
 }
 

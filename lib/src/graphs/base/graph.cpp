@@ -52,6 +52,7 @@ namespace MaxFlow::Graphs::Base
 	void Graph::destroyVertex (Vertex& _vertex)
 	{
 		ensureSameGraph (*this, _vertex.graph ());
+		_vertex.setMatrix(false);
 		_vertex.destroyAllOutEdges ();
 		m_vertices.erase (m_vertices.begin () + _vertex.index ());
 		updateIndices (_vertex.index ());
@@ -71,6 +72,7 @@ namespace MaxFlow::Graphs::Base
 	{
 		for (Vertex& vertex : *this)
 		{
+			vertex.setMatrix(false);
 			vertex.destroyAllOutEdges ();
 		}
 		for (Vertex& vertex : *this)

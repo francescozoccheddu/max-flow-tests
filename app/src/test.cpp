@@ -30,13 +30,28 @@ namespace MaxFlow::App
 		run();
 	}
 
+	double Test::run(const RandomProblem& _problem, const SolverParameters& _parameters, Graphs::flow_t _maxFlowReference)
+	{
+		FlowGraph workingGraph{ _problem.graph() };
+		workingGraph.setMatrix(true);
+		Graphs::ResidualGraph residualGraph{ Graphs::createResidualGraph(workingGraph) };
+		residualGraph.setMatrix(true);
+		const GenericCapacityMatrix capacityMatrix{ workingGraph };
+		Performance::start();
+		solve(residualGraph, residualGraph[_problem.source().index()], residualGraph[_problem.sink().index()], capacityMatrix, _parameters.solver, _parameters.flags);
+		const double time{ Performance::end() };
+		Graphs::updateFlowsFromResidualGraph(residualGraph, workingGraph);
+		ensureMaxFlow(workingGraph, workingGraph[_problem.source().index()], workingGraph[_problem.sink().index()], _maxFlowReference);
+		return time;
+	}
+
 	void Test::run()
 	{
 		size_t count{};
 		for (size_t p{ 0 }; p < m_problems.size(); p++)
 		{
 			const RandomProblem problem{ m_problems[p], m_seed };
-			const Graphs::flow_t maxFlow{ getMaxFlow(problem.graph(), problem.source(), problem.sink()) };
+			const Graphs::flow_t maxFlowReference{ getMaxFlow(problem.graph(), problem.source(), problem.sink()) };
 			for (size_t s{ 0 }; s < m_solvers.size(); s++)
 			{
 				const SolverParameters& solverParameters{ m_solvers[s] };
@@ -55,10 +70,7 @@ namespace MaxFlow::App
 						std::cout << "Repetition " << r + 1 << '/' << m_repetitions << ' ';
 					}
 					std::cout << '(' << ++count << '/' << m_data.size() << ')' << std::endl;
-					Performance::start();
-					const FlowGraph solution{ solve(problem.graph(), problem.source(), problem.sink(), solverParameters.solver, solverParameters.flags) };
-					m_data[index(p, s, r)] = Performance::end();
-					ensureMaxFlow(solution, solution[problem.source().index()], solution[problem.sink().index()], maxFlow);
+					set(p, s, r, run(problem, solverParameters, maxFlowReference));
 				}
 			}
 		}

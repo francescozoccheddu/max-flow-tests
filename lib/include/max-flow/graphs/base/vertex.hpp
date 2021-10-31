@@ -62,6 +62,7 @@ namespace MaxFlow::Graphs::Base
 		// Construction
 
 		Vertex (Graph& _graph, size_t _index);
+		virtual ~Vertex ();
 
 		// Edge insertion
 

@@ -32,6 +32,8 @@ namespace MaxFlow::App
 
 		size_t index (size_t _problem, size_t _solver, size_t _repetition) const;
 
+		static double run(const RandomProblem& _problem, const SolverParameters& _parameters, Graphs::flow_t _maxFlowReference);
+
 	public:
 
 		Test (const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions = 10, unsigned int _seed = 0);

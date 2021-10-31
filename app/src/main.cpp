@@ -14,24 +14,24 @@ using namespace MaxFlow::Graphs;
 using namespace MaxFlow;
 
 
-void ES ()
+void ES()
 {
 	FlowGraph<> o;
-	o.addVertices (4);
-	o[0].addOutEdge (1, EdgeFlow{ 4,0 });
-	o[0].addOutEdge (2, EdgeFlow{ 2,0 });
-	o[1].addOutEdge (3, EdgeFlow{ 5,0 });
-	o[2].addOutEdge (1, EdgeFlow{ 3,0 });
-	o[2].addOutEdge (3, EdgeFlow{ 1,0 });
+	o.addVertices(4);
+	o[0].addOutEdge(1, EdgeFlow{ 4,0 });
+	o[0].addOutEdge(2, EdgeFlow{ 2,0 });
+	o[1].addOutEdge(3, EdgeFlow{ 5,0 });
+	o[2].addOutEdge(1, EdgeFlow{ 3,0 });
+	o[2].addOutEdge(3, EdgeFlow{ 1,0 });
 
 	FlowGraph<> s{ o };
-	MaxFlow::solve (s, s[0], s[3], MaxFlow::ESolver::NaifPreflowPush);
+	MaxFlow::solve(s, s[0], s[3], MaxFlow::ESolver::NaifPreflowPush);
 
-	Algorithms::GraphVizSource::from (o).exportToFile ("c:/users/franc/desktop/original.pdf");
-	Algorithms::GraphVizSource::from (s).exportToFile ("c:/users/franc/desktop/solution.pdf");
+	Algorithms::GraphVizSource::from(o).exportToFile("c:/users/franc/desktop/original.pdf");
+	Algorithms::GraphVizSource::from(s).exportToFile("c:/users/franc/desktop/solution.pdf");
 }
 
-int main ()
+int main()
 {
 
 	std::vector<App::SolverParameters> solvers{
@@ -45,11 +45,11 @@ int main ()
 		{ESolver::ExcessScalingPreflowPush}
 	};
 	std::vector<App::RandomParameters> problems{
-		{.verticesCount{10}},
-		{.verticesCount{50}},
 		{.verticesCount{100}},
-		{.verticesCount{200}},
+		{.verticesCount{500}},
+		{.verticesCount{1000}},
+		{.verticesCount{2000}},
 	};
-	App::Test{ problems, solvers }.toCsvFile ("c:/users/franc/desktop/tests.csv");
+	App::Test{ problems, solvers }.toCsvFile("c:/users/franc/desktop/tests.csv");
 	return 0;
 }

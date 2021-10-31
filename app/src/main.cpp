@@ -31,23 +31,8 @@ void ES ()
 	Algorithms::GraphVizSource::from (s).exportToFile ("c:/users/franc/desktop/solution.pdf");
 }
 
-void FixPP ()
-{
-	std::vector<App::SolverParameters> solvers{
-		{ESolver::NaifPreflowPush},
-	};
-	std::vector<App::RandomParameters> problems{
-		{.verticesCount{4}},
-	};
-	App::Test{ problems, solvers, 1, 186 };
-	system ("pause");
-	exit (0);
-}
-
 int main ()
 {
-
-	//FixPP ();
 
 	std::vector<App::SolverParameters> solvers{
 		{ESolver::FordFulkerson},
@@ -66,7 +51,5 @@ int main ()
 		{.verticesCount{200}},
 	};
 	App::Test{ problems, solvers }.toCsvFile ("c:/users/franc/desktop/tests.csv");
-	system ("pause");
-
 	return 0;
 }

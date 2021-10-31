@@ -1,88 +1,139 @@
 #include <max-flow\graphs\algorithms\distance_labeler.hpp>
 
 #include <algorithm>
+#include <stdexcept>
 #include <queue>
-#include <limits>
 
 
 namespace MaxFlow::Graphs::Algorithms
 {
 
-	DistanceLabeler::DistanceLabeler (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink)
-		: m_graph{ _graph }, m_source{ _source }, m_sink{ _sink }, m_distances{}
+	bool DistanceLabeler::Label::operator==(const Label& _other) const
 	{
-		ResidualGraph::ensureSameGraph (_graph, _source.graph (), _sink.graph ());
+		return m_valid && _other.m_valid && m_distance == _other.m_distance;
 	}
 
-	void DistanceLabeler::reset (size_t _distance)
+	bool DistanceLabeler::Label::operator!=(const Label& _other) const
 	{
-		m_distances.resize (m_graph.verticesCount ());
-		std::fill (m_distances.begin (), m_distances.end (), 0);
+		return m_valid && _other.m_valid && m_distance != _other.m_distance;
 	}
 
-	void DistanceLabeler::calculate (EdgeSelector& _edgeSelector)
+	bool DistanceLabeler::Label::operator<(const Label& _other) const
 	{
-		reset (0);
+		return m_valid && _other.m_valid && m_distance < _other.m_distance;
+	}
+
+	bool DistanceLabeler::Label::operator<=(const Label& _other) const
+	{
+		return m_valid && _other.m_valid && m_distance <= _other.m_distance;
+	}
+
+	bool DistanceLabeler::Label::operator>(const Label& _other) const
+	{
+		return m_valid && _other.m_valid && m_distance > _other.m_distance;
+	}
+
+	bool DistanceLabeler::Label::operator>=(const Label& _other) const
+	{
+		return m_valid && _other.m_valid && m_distance >= _other.m_distance;
+	}
+
+	DistanceLabeler::Label::Label() : m_distance{}, m_valid{ false }
+	{}
+
+	DistanceLabeler::Label::Label(size_t _distance) : m_distance{ _distance }, m_valid{ true }
+	{}
+
+	size_t DistanceLabeler::Label::distance() const {
+		if (!m_valid)
+		{
+			throw std::logic_error{ "invalid label" };
+		}
+		return m_distance;
+	}
+
+	size_t DistanceLabeler::Label::operator*() const {
+		return distance();
+	}
+
+	bool DistanceLabeler::Label::valid() const {
+		return m_valid;
+	}
+
+	DistanceLabeler::DistanceLabeler(ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink)
+		: m_graph{ _graph }, m_source{ _source }, m_sink{ _sink }, m_labels{}
+	{
+		ResidualGraph::ensureSameGraph(_graph, _source.graph(), _sink.graph());
+	}
+
+	void DistanceLabeler::reset()
+	{
+		m_labels.resize(m_graph.verticesCount());
+		std::fill(m_labels.begin(), m_labels.end(), Label{});
+	}
+
+	void DistanceLabeler::calculate(EdgeSelector& _edgeSelector)
+	{
+		reset();
 		std::queue<ResidualVertex*> queue{};
 		ResidualGraph transposed;
-		transposed.setMatrix (false);
-		transposed.addVertices (m_graph.verticesCount ());
+		transposed.setMatrix(false);
+		transposed.addVertices(m_graph.verticesCount());
 		for (const ResidualVertex& vertex : m_graph)
 		{
-			ResidualVertex& transposedVertex{ transposed[vertex.index ()] };
+			ResidualVertex& transposedVertex{ transposed[vertex.index()] };
 			for (const ResidualEdge& edge : vertex)
 			{
 				if (*edge)
 				{
-					transposed[edge.to ().index ()].addOutEdge (transposedVertex, *edge);
+					transposed[edge.to().index()].addOutEdge(transposedVertex, *edge);
 				}
 			}
 		}
-		queue.push (&transposed[m_sink.index ()]);
-		while (!queue.empty ())
+		m_labels[m_sink.index()] = { 0 };
+		queue.push(&transposed[m_sink.index()]);
+		while (!queue.empty())
 		{
-			ResidualVertex& vertex{ *queue.front () };
-			queue.pop ();
+			ResidualVertex& vertex{ *queue.front() };
+			queue.pop();
 			for (ResidualEdge& edge : vertex)
 			{
-				if (!m_distances[edge.to ().index ()] && edge.to ().index () != m_sink.index () && _edgeSelector (edge))
+				if (!m_labels[edge.to().index()].valid() && _edgeSelector(edge))
 				{
-					m_distances[edge.to ().index ()] = m_distances[edge.from ().index ()] + 1;
-					queue.push (&edge.to ());
+					m_labels[edge.to().index()] = *m_labels[edge.from().index()] + 1;
+					queue.push(&edge.to());
 				}
 			}
 		}
-		for (size_t i{ 0 }; i < m_graph.verticesCount (); i++)
-		{
-			if (!m_distances[i] && i != m_sink.index ())
-			{
-				m_distances[i] = std::numeric_limits<size_t>::max ();
-			}
-		}
 	}
 
-	size_t DistanceLabeler::operator[](const ResidualVertex& _vertex) const
+	DistanceLabeler::Label DistanceLabeler::operator[](const ResidualVertex& _vertex) const
 	{
-		ResidualGraph::ensureSameGraph (_vertex.graph (), m_graph);
-		return m_distances[_vertex.index ()];
+		ResidualGraph::ensureSameGraph(_vertex.graph(), m_graph);
+		return m_labels[_vertex.index()];
 	}
 
-	void DistanceLabeler::setDistance (ResidualVertex& _vertex, size_t _distance)
+	void DistanceLabeler::setLabel(ResidualVertex& _vertex, Label _label)
 	{
-		ResidualGraph::ensureSameGraph (m_graph, _vertex.graph ());
-		m_distances.resize (m_graph.verticesCount ());
-		m_distances[_vertex.index ()] = _distance;
+		ResidualGraph::ensureSameGraph(m_graph, _vertex.graph());
+		m_labels[_vertex.index()] = _label;
 	}
 
-	bool DistanceLabeler::isAdmissible (const ResidualEdge& _edge) const
+	void DistanceLabeler::setDistance(ResidualVertex& _vertex, size_t _distance)
 	{
-		return *_edge && (*this)[_edge.from ()] == (*this)[_edge.to ()] + 1;
+		setLabel(_vertex, _distance);
 	}
 
-	const std::vector<size_t>& DistanceLabeler::distances () const
+	void DistanceLabeler::resetDistance(ResidualVertex& _vertex)
 	{
-		return m_distances;
+		setLabel(_vertex, {});
 	}
 
+	bool DistanceLabeler::isAdmissible(const ResidualEdge& _edge) const
+	{
+		const Label from{ (*this)[_edge.from()] };
+		const Label to{ (*this)[_edge.to()] };
+		return *_edge && from.valid() && to.valid() && *from == *to + 1;
+	}
 
 }

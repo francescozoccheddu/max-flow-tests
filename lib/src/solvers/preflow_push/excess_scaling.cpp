@@ -57,7 +57,7 @@ namespace MaxFlow::Solvers::PreflowPush
 				while (!m_activeVerticesPerDistance[m_minDistance].empty ())
 				{
 					ResidualVertex& vertex{ *m_activeVerticesPerDistance[m_minDistance].front () };
-					if (m_excesses[vertex.index ()] && distance (vertex) == m_minDistance)
+					if (m_excesses[vertex.index ()] && label (vertex) == m_minDistance)
 					{
 						return { .pVertex{&vertex}, .amount{m_excesses[vertex.index ()]} };
 					}
@@ -78,7 +78,7 @@ namespace MaxFlow::Solvers::PreflowPush
 
 	void ExcessScalingPreflowPushSolver::push (Graphs::ResidualVertex& _vertex)
 	{
-		const size_t newDistance{ distance (_vertex) };
+		const size_t newDistance{ *label (_vertex) };
 		if (newDistance < m_minDistance)
 		{
 			m_minDistance = newDistance;

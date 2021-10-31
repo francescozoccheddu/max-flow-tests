@@ -34,7 +34,7 @@ namespace MaxFlow::Solvers::PreflowPush
 		virtual void onRelabel (Graphs::ResidualVertex& _vertex, size_t _oldLabel);
 		virtual Graphs::flow_t maximumPushAmount (const Graphs::ResidualEdge& _edge, Excess _fromExcess) const;
 
-		size_t distance (const Graphs::ResidualVertex& _vertex) const;
+		Graphs::Algorithms::DistanceLabeler::Label label (const Graphs::ResidualVertex& _vertex) const;
 
 	public:
 

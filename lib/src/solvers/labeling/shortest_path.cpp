@@ -5,53 +5,54 @@
 using MaxFlow::Graphs::ResidualGraph;
 using MaxFlow::Graphs::ResidualVertex;
 using MaxFlow::Graphs::ResidualEdge;
+using Label = MaxFlow::Graphs::Algorithms::DistanceLabeler::Label;
 
 namespace MaxFlow::Solvers::Labeling
 {
 
-	bool ShortestPathSolver::isMinCutDetectionEnabled () const
+	bool ShortestPathSolver::isMinCutDetectionEnabled() const
 	{
 		return m_detectMinCut;
 	}
 
-	void ShortestPathSolver::setMinCutDetection (bool _enabled)
+	void ShortestPathSolver::setMinCutDetection(bool _enabled)
 	{
 		m_detectMinCut = _enabled;
 	}
 
-	void ShortestPathSolver::solveImpl ()
+	void ShortestPathSolver::solveImpl()
 	{
-		m_distanceLabeler.calculate (edgeSelector ());
-		if (isMinCutDetectionEnabled ())
+		m_distanceLabeler.calculate(edgeSelector());
+		if (isMinCutDetectionEnabled())
 		{
-			m_distanceCounts.clear ();
-			m_distanceCounts.resize (graph ().verticesCount (), 0);
-			for (const ResidualVertex& vertex : graph ())
+			m_distanceCounts.clear();
+			m_distanceCounts.resize(graph().verticesCount(), 0);
+			for (const ResidualVertex& vertex : graph())
 			{
-				const size_t distance{ m_distanceLabeler[vertex] };
-				if (distance < m_distanceCounts.size ())
+				const Label label{ m_distanceLabeler[vertex] };
+				if (label.valid())
 				{
-					m_distanceCounts[distance]++;
+					m_distanceCounts[*label]++;
 				}
 			}
 		}
-		pathfinder ().reset ();
-		pathfinder ().setPredecessor (source (), source ());
-		ResidualVertex* pCurrent{ &source () };
-		while (m_distanceLabeler[source ()] < graph ().verticesCount ())
+		pathfinder().reset();
+		pathfinder().setPredecessor(source(), source());
+		ResidualVertex* pCurrent{ &source() };
+		while (m_distanceLabeler[source()] < graph().verticesCount())
 		{
-			const size_t distance{ m_distanceLabeler[*pCurrent] };
+			const size_t distance{ *m_distanceLabeler[*pCurrent] };
 			bool foundAdmissibleEdge{ false };
 			for (ResidualEdge& edge : *pCurrent)
 			{
-				if (m_distanceLabeler.isAdmissible (edge) && edgeSelector ()(edge))
+				if (m_distanceLabeler.isAdmissible(edge) && edgeSelector()(edge))
 				{
-					pathfinder ().setPredecessor (edge);
-					pCurrent = &edge.to ();
-					if (pCurrent == &sink ())
+					pathfinder().setPredecessor(edge);
+					pCurrent = &edge.to();
+					if (pCurrent == &sink())
 					{
-						augmentMax ();
-						pCurrent = &source ();
+						augmentMax();
+						pCurrent = &source();
 					}
 					foundAdmissibleEdge = true;
 					break;
@@ -59,23 +60,23 @@ namespace MaxFlow::Solvers::Labeling
 			}
 			if (!foundAdmissibleEdge)
 			{
-				size_t minDistance{ std::numeric_limits<size_t>::max () };
+				size_t minDistance{ std::numeric_limits<size_t>::max() };
 				bool hasOutEdges{};
 				for (ResidualEdge& edge : *pCurrent)
 				{
-					if (*edge && m_distanceLabeler[edge.to ()] < minDistance && edgeSelector () (edge))
+					if (*edge && m_distanceLabeler[edge.to()] < minDistance && edgeSelector() (edge))
 					{
 						hasOutEdges = true;
-						minDistance = m_distanceLabeler[edge.to ()];
+						minDistance = *m_distanceLabeler[edge.to()];
 					}
 				}
 				if (!hasOutEdges)
 				{
 					break;
 				}
-				m_distanceLabeler.setDistance (*pCurrent, minDistance + 1);
-				pCurrent = &pathfinder ()[*pCurrent];
-				if (isMinCutDetectionEnabled ())
+				m_distanceLabeler.setDistance(*pCurrent, minDistance + 1);
+				pCurrent = &pathfinder()[*pCurrent];
+				if (isMinCutDetectionEnabled())
 				{
 					m_distanceCounts[distance]--;
 					m_distanceCounts[minDistance + 1]++;

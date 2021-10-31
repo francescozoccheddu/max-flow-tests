@@ -5,35 +5,65 @@
 #include <max-flow/utils/reference_equatable.hpp>
 #include <max-flow/graphs/algorithms/edge_selector.hpp>
 #include <vector>
+#include <compare>
 
 namespace MaxFlow::Graphs::Algorithms
 {
 
-
 	class DistanceLabeler final : public Utils::ReferenceEquatable
 	{
+
+	public:
+
+		class Label final {
+
+		private:
+
+			size_t m_distance{};
+			bool m_valid{ false };
+
+		public:
+
+			Label();
+			Label(size_t distance);
+
+			size_t distance() const;
+			bool valid() const;
+
+			size_t operator*() const;
+
+			bool operator ==(const Label& _other) const;
+			bool operator !=(const Label& _other) const;
+			bool operator <(const Label& _other) const;
+			bool operator <=(const Label& _other) const;
+			bool operator >(const Label& _other) const;
+			bool operator >=(const Label& _other) const;
+
+		};
 
 	private:
 
 		ResidualGraph& m_graph;
 		ResidualVertex& m_source, & m_sink;
-		std::vector<size_t> m_distances;
+		std::vector<Label> m_labels;
 
 	public:
 
-		DistanceLabeler (ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink);
+		DistanceLabeler(ResidualGraph& _graph, ResidualVertex& _source, ResidualVertex& _sink);
 
-		void reset (size_t _distance=0);
+		void reset();
 
-		void calculate (EdgeSelector& _edgeSelector = EdgeSelector::all);
+		void calculate(EdgeSelector& _edgeSelector = EdgeSelector::all);
 
-		void setDistance (ResidualVertex& _vertex, size_t _distance);
+		void setLabel(ResidualVertex& _vertex, Label _label);
 
-		size_t operator[](const ResidualVertex& _vertex) const;
+		void setDistance(ResidualVertex& _vertex, size_t _distance);
 
-		bool isAdmissible (const ResidualEdge& _edge) const;
+		void resetDistance(ResidualVertex& _vertex);
 
-		const std::vector<size_t>& distances () const;
+		Label operator[](const ResidualVertex& _vertex) const;
+
+		bool isAdmissible(const ResidualEdge& _edge) const;
 
 	};
 

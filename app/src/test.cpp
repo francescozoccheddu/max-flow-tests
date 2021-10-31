@@ -188,7 +188,7 @@ namespace MaxFlow::App
 		ss << std::fixed;
 		ss << "maxCapacity,";
 		ss << "verticesCount,";
-		ss << "edgeDensity,";
+		ss << "edgesCount,";
 		ss << "backwardsEdgeDensityFactor,";
 		ss << "capacityDeviance,";
 		ss << "solver,";
@@ -206,7 +206,7 @@ namespace MaxFlow::App
 				{
 					ss << problem.maxCapacity << ',';
 					ss << problem.verticesCount << ',';
-					ss << problem.edgeDensity << ',';
+					ss << problem.edgesCount << ',';
 					ss << problem.backwardsEdgeDensityFactor << ',';
 					ss << problem.capacityDeviance << ',';
 					ss << solverName(solver.solver) << ',';

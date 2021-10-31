@@ -15,7 +15,7 @@ namespace MaxFlow::App
 
 		Graphs::flow_t maxCapacity{ 100 };
 		size_t verticesCount{ 10 };
-		double edgeDensity{ 0.3 };
+		size_t edgesCount{ 30 };
 		double backwardsEdgeDensityFactor{ 0.5 };
 		double capacityDeviance{ 0.5 };
 

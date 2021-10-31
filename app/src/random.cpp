@@ -3,27 +3,30 @@
 #include <queue>
 #include <vector>
 #include <stdexcept>
+#include <algorithm>
 #include <random>
+#include <utility>
 #include <cmath>
+#include <tuple>
 
 using MaxFlow::Graphs::flow_t;
 
 namespace MaxFlow::App
 {
 
-	void RandomParameters::validate () const
+	void RandomParameters::validate() const
 	{
-		if (maxCapacity < 0)
+		if (maxCapacity <= 0)
 		{
-			throw std::logic_error{ "maxCapacity < 0" };
+			throw std::logic_error{ "maxCapacity <= 0" };
 		}
 		if (verticesCount < 2)
 		{
 			throw std::logic_error{ "verticesCount < 2" };
 		}
-		if (edgeDensity < 0 || edgeDensity > 1)
+		if (edgesCount < 0)
 		{
-			throw std::logic_error{ "edgeDensity not in [0,1]" };
+			throw std::logic_error{ "edgesCount < 0" };
 		}
 		if (backwardsEdgeDensityFactor < 0 || backwardsEdgeDensityFactor > 1)
 		{
@@ -35,111 +38,104 @@ namespace MaxFlow::App
 		}
 	}
 
-	RandomProblem::RandomProblem (const RandomParameters& _parameters, unsigned int _seed) : m_graph{}
+	RandomProblem::RandomProblem(const RandomParameters& _parameters, unsigned int _seed) : m_graph{}
 	{
-		_parameters.validate ();
-		m_graph.addVertices (_parameters.verticesCount);
-		std::mt19937 generator;
-		generator = std::mt19937{ _seed };
-		std::bernoulli_distribution forwardEdgeDistribution{ _parameters.edgeDensity };
-		std::bernoulli_distribution backwardEdgeDistribution{ _parameters.edgeDensity * _parameters.backwardsEdgeDensityFactor };
-		for (FlowVertex& vertex : m_graph)
+		_parameters.validate();
+		m_graph.addVertices(_parameters.verticesCount);
+		std::mt19937 generator{ _seed };
+		std::vector<double> capacityFactors(_parameters.edgesCount);
 		{
-			for (size_t i{ 0 }; i < m_graph.verticesCount (); i++)
-			{
-				if ((i < vertex.index () && backwardEdgeDistribution (generator)) ||
-					(i > vertex.index () && forwardEdgeDistribution (generator)))
+			const std::uniform_real_distribution<double> distribution{ 0,1 };
+			std::generate(capacityFactors.begin(), capacityFactors.end(), [&distribution, &generator]() { return distribution(generator); });
+		}
+		std::vector<std::tuple<size_t, size_t>> forwardEdgePool;
+		std::vector<std::tuple<size_t, size_t>> backwardEdgePool;
+		forwardEdgePool.reserve(_parameters.verticesCount * (_parameters.verticesCount - 1) / 2);
+		backwardEdgePool.reserve(_parameters.verticesCount * (_parameters.verticesCount - 1) / 2);
+		for (size_t a{}; a < _parameters.verticesCount; a++) {
+			for (size_t b{}; b < _parameters.verticesCount; b++) {
+				if (a == b) 
 				{
-					vertex.addOutEdge (i);
+					continue;
 				}
+				std::vector<std::tuple<size_t, size_t>>& pool{ b > a ? forwardEdgePool : backwardEdgePool };
+				pool.push_back({ a, b });
 			}
 		}
-		generator = std::mt19937{ _seed };
-		const double exponent{ 1.0 + (1.0 - _parameters.capacityDeviance) * 2.0 };
-		std::uniform_real_distribution<double> normalDistribution{ 0.0, 1.0 };
-		double maxFactor{};
-		for (size_t i{ 0 }; i < m_graph.edgesCount (); i++)
-		{
-			const double factor{ 1.0 - std::pow (normalDistribution (generator), exponent) };
-			if (factor > maxFactor)
-			{
-				maxFactor = factor;
-			}
+		std::bernoulli_distribution fbDistribution{ _parameters.backwardsEdgeDensityFactor };
+		double maxCapacityFactor{ *std::max_element(capacityFactors.begin(), capacityFactors.end()) };
+		if (!maxCapacityFactor) {
+			capacityFactors[0] = maxCapacityFactor = 1;
 		}
-		if (!maxFactor)
-		{
-			maxFactor = 1;
-		}
-		generator = std::mt19937{ _seed };
-		for (FlowVertex& vertex : m_graph)
-		{
-			for (FlowEdge& edge : vertex)
-			{
-				*edge = { static_cast<flow_t>(std::round ((1.0 - std::pow (normalDistribution (generator), exponent)) / maxFactor * _parameters.maxCapacity)) };
-				if (edge->capacity() > _parameters.maxCapacity)
-				{
-					*edge = { _parameters.maxCapacity };
-				}
-			}
+		while (m_graph.edgesCount() < _parameters.edgesCount) {
+			std::vector<std::tuple<size_t, size_t>>& pool{ fbDistribution(generator) ? backwardEdgePool : forwardEdgePool };
+			const std::uniform_int_distribution<size_t> poolDistribution{ 0, pool.size() - 1 };
+			std::swap(pool[pool.size() - 1], pool[poolDistribution(generator)]);
+			const std::tuple<size_t, size_t> edge{ pool[pool.size() - 1] };
+			pool.pop_back();
+			const double capacityFactor{ capacityFactors[m_graph.edgesCount()] / maxCapacityFactor };
+			const double realCapacity{ capacityFactor * (_parameters.maxCapacity - 1) + 1 };
+			Graphs::flow_t capacity{ std::clamp<Graphs::flow_t>(static_cast<Graphs::flow_t>(std::round(realCapacity)), 1, _parameters.maxCapacity) };
+			m_graph[std::get<0>(edge)].addOutEdge(std::get<1>(edge), { capacity });
 		}
 	}
 
-	void RandomProblem::clean ()
+	void RandomProblem::clean()
 	{
-		std::vector<bool> reached (graph ().verticesCount (), false);
-		reached[sink ().index ()] = true;
+		std::vector<bool> reached(graph().verticesCount(), false);
+		reached[sink().index()] = true;
 		std::queue<FlowVertex*> queue{};
-		queue.push (&sink ());
-		while (!queue.empty ())
+		queue.push(&sink());
+		while (!queue.empty())
 		{
-			FlowVertex& vertex{ *queue.front () };
-			queue.pop ();
+			FlowVertex& vertex{ *queue.front() };
+			queue.pop();
 			for (FlowEdge& edge : vertex)
 			{
-				if (!reached[edge.to ().index ()])
+				if (!reached[edge.to().index()])
 				{
-					reached[edge.to ().index ()] = true;
-					queue.push (&edge.to ());
+					reached[edge.to().index()] = true;
+					queue.push(&edge.to());
 				}
 			}
 		}
-		for (size_t i{ sink ().index () - 1 }; i > 0; i--)
+		for (size_t i{ sink().index() - 1 }; i > 0; i--)
 		{
 			if (!reached[i])
 			{
-				graph ().destroyVertex (i);
+				graph().destroyVertex(i);
 			}
 		}
 	}
 
-	const FlowGraph& RandomProblem::graph () const
+	const FlowGraph& RandomProblem::graph() const
 	{
 		return m_graph;
 	}
 
-	FlowGraph& RandomProblem::graph ()
+	FlowGraph& RandomProblem::graph()
 	{
 		return m_graph;
 	}
 
-	const FlowVertex& RandomProblem::source () const
+	const FlowVertex& RandomProblem::source() const
 	{
 		return m_graph[0];
 	}
 
-	FlowVertex& RandomProblem::source ()
+	FlowVertex& RandomProblem::source()
 	{
 		return m_graph[0];
 	}
 
-	const FlowVertex& RandomProblem::sink () const
+	const FlowVertex& RandomProblem::sink() const
 	{
-		return m_graph[m_graph.verticesCount () - 1];
+		return m_graph[m_graph.verticesCount() - 1];
 	}
 
-	FlowVertex& RandomProblem::sink ()
+	FlowVertex& RandomProblem::sink()
 	{
-		return m_graph[m_graph.verticesCount () - 1];
+		return m_graph[m_graph.verticesCount() - 1];
 	}
 
 }

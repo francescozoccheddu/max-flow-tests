@@ -13,43 +13,39 @@ using std::endl;
 using namespace MaxFlow::Graphs;
 using namespace MaxFlow;
 
-
-void ES()
+namespace Tests
 {
-	FlowGraph<> o;
-	o.addVertices(4);
-	o[0].addOutEdge(1, EdgeFlow{ 4,0 });
-	o[0].addOutEdge(2, EdgeFlow{ 2,0 });
-	o[1].addOutEdge(3, EdgeFlow{ 5,0 });
-	o[2].addOutEdge(1, EdgeFlow{ 3,0 });
-	o[2].addOutEdge(3, EdgeFlow{ 1,0 });
 
-	FlowGraph<> s{ o };
-	MaxFlow::solve(s, s[0], s[3], MaxFlow::ESolver::NaifPreflowPush);
+	namespace Internal
+	{
 
-	Algorithms::GraphVizSource::from(o).exportToFile("c:/users/franc/desktop/original.pdf");
-	Algorithms::GraphVizSource::from(s).exportToFile("c:/users/franc/desktop/solution.pdf");
+		void test(const std::vector<App::SolverParameters>& _solvers, const std::vector<App::RandomParameters>& _problems, const std::string& _name, unsigned int _repetitions = 10, unsigned int _seed = 0)
+		{
+			cout << "-------- " << _name << " --------" << endl;
+			App::Test{ _problems, _solvers, _repetitions, _seed }.toCsvFile("c:/users/franc/desktop/" + _name + ".csv");
+		}
+
+	}
+
+	void zeroEdgeRemovalTest()
+	{
+		Internal::test(
+			{
+				{ESolver::FordFulkerson},
+				{ESolver::FifoPreflowPush},
+				{ESolver::FordFulkerson, ESolverFlags::RemoveZeroEdgeLabels},
+				{ESolver::FifoPreflowPush, ESolverFlags::RemoveZeroEdgeLabels},
+			},
+			{
+				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{20000}},
+			},
+			"zeroEdgeRemovalTest", 30
+			);
+	}
+
 }
 
 int main()
 {
-
-	std::vector<App::SolverParameters> solvers{
-		{ESolver::FordFulkerson},
-		{ESolver::ShortestPath, ESolverFlags::ShortestPathDetectMinCut},
-		{ESolver::CapacityScalingFordFulkerson, ESolverFlags::CapacityScalingRemoveDeltaEdges},
-		{ESolver::CapacityScalingShortestPath},
-		{ESolver::NaifPreflowPush},
-		{ESolver::FifoPreflowPush},
-		{ESolver::HighestLabelPreflowPush},
-		{ESolver::ExcessScalingPreflowPush}
-	};
-	std::vector<App::RandomParameters> problems{
-		{.verticesCount{100}},
-		{.verticesCount{500}},
-		{.verticesCount{1000}},
-		{.verticesCount{2000}},
-	};
-	App::Test{ problems, solvers }.toCsvFile("c:/users/franc/desktop/tests.csv");
 	return 0;
 }

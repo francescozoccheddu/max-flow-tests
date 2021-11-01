@@ -160,14 +160,14 @@ namespace MaxFlow
 	void Solver::solve()
 	{
 		m_graph.setMatrix(true);
-		if (areZeroEdgesRemoved())
+		/*if (areZeroEdgesRemoved())
 		{
 			Algorithms::removeZeroEdges(m_graph);
 		}
 		else
 		{
 			Algorithms::removeBiZeroEdges(m_graph);
-		}
+		}*/
 		solveImpl();
 	}
 

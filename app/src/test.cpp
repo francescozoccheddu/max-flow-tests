@@ -15,15 +15,15 @@ using MaxFlow::App::Performance;
 namespace MaxFlow::App
 {
 
-	size_t Test::index(size_t _problem, size_t _solver, size_t _repetition) const
+	size_t Test::index(size_t _problem, size_t _solver, size_t _repetition, size_t _seedRepetition) const
 	{
-		return _repetition * m_problems.size() * m_solvers.size() + _solver * m_problems.size() + _problem;
+		return _repetition * m_problems.size() * m_solvers.size() * m_repetitions + _solver * m_problems.size() * m_solvers.size() + _problem * m_problems.size() + _seedRepetition;
 	}
 
-	Test::Test(const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions, unsigned int _seed)
-		: m_problems{ _problems }, m_solvers{ _solvers }, m_repetitions{ _repetitions }, m_seed{ _seed }, m_data(_problems.size()* _solvers.size()* _repetitions)
+	Test::Test(const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions, unsigned int _seed, unsigned int _seedRepetitions, bool _skipZeroFlows)
+		: m_problems{ _problems }, m_solvers{ _solvers }, m_repetitions{ _repetitions }, m_seed{ _seed }, m_seedRepetitions{ _seedRepetitions }, m_skipZeroFlows{ _skipZeroFlows }, m_data(_problems.size()* _solvers.size()* _repetitions* _seedRepetitions)
 	{
-		if (_problems.empty() || _solvers.empty() || !_repetitions)
+		if (_problems.empty() || _solvers.empty() || !_repetitions || !_seedRepetitions)
 		{
 			throw std::out_of_range{ "zero tests" };
 		}
@@ -40,6 +40,7 @@ namespace MaxFlow::App
 		Performance::start();
 		solve(residualGraph, residualGraph[_problem.source().index()], residualGraph[_problem.sink().index()], capacityMatrix, _parameters.solver, _parameters.flags);
 		const double time{ Performance::end() };
+		std::cout << ' ' << time << 's';
 		Graphs::updateFlowsFromResidualGraph(residualGraph, workingGraph);
 		ensureMaxFlow(workingGraph, workingGraph[_problem.source().index()], workingGraph[_problem.sink().index()], _maxFlowReference);
 		return time;
@@ -48,47 +49,85 @@ namespace MaxFlow::App
 	void Test::run()
 	{
 		size_t count{};
-		bool zeroFlows{};
+		bool anyZeroFlows{};
 		for (size_t p{ 0 }; p < m_problems.size(); p++)
 		{
-			const RandomProblem problem{ m_problems[p], m_seed };
-			const Graphs::flow_t maxFlowReference{ getMaxFlow(problem.graph(), problem.source(), problem.sink()) };
-			if (!maxFlowReference)
+			for (unsigned int sr{ 0 }; sr < m_seedRepetitions; sr++)
 			{
-				std::cout << "Warning: problem " << p << " has zero flow" << std::endl;
-				zeroFlows = true;
-			}
-			for (size_t s{ 0 }; s < m_solvers.size(); s++)
-			{
-				const SolverParameters& solverParameters{ m_solvers[s] };
-				for (size_t r{ 0 }; r < m_repetitions; r++)
+				if (m_problems.size() > 1)
 				{
-					if (m_problems.size() > 1)
+					std::cout << "Problem " << p + 1 << '/' << m_problems.size() << ' ';
+				}
+				if (m_seedRepetitions > 1)
+				{
+					std::cout << "Seed " << sr + 1 << '/' << m_seedRepetitions << ' ';
+				}
+				unsigned int zeroFlowTry{ 0 };
+				bool done{ false };
+				while (!done)
+				{
+					const RandomProblem problem{ m_problems[p], m_seed + sr + zeroFlowTry };
+					const Graphs::flow_t maxFlowReference{ getMaxFlow(problem.graph(), problem.source(), problem.sink()) };
+					if (!maxFlowReference)
 					{
-						std::cout << "Problem " << p + 1 << '/' << m_problems.size() << ' ';
+						if (m_skipZeroFlows)
+						{
+							if (!zeroFlowTry)
+							{
+								std::cout << '[';
+							}
+							std::cout << '0';
+							zeroFlowTry++;
+							continue;
+						}
+						anyZeroFlows |= !maxFlowReference;
 					}
-					if (m_solvers.size() > 1)
+					done = true;
+					if (zeroFlowTry)
 					{
-						std::cout << "Solver " << s + 1 << '/' << m_solvers.size() << ' ';
+						std::cout << ']' << ' ';
 					}
-					if (m_problems.size() > 1)
+					for (size_t s{ 0 }; s < m_solvers.size(); s++)
 					{
-						std::cout << "Repetition " << r + 1 << '/' << m_repetitions << ' ';
+						const SolverParameters& solverParameters{ m_solvers[s] };
+						for (size_t r{ 0 }; r < m_repetitions; r++)
+						{
+							if ((r || s))
+							{
+								if (m_problems.size() > 1)
+								{
+									std::cout << "Problem " << p + 1 << '/' << m_problems.size() << ' ';
+								}
+								if (m_seedRepetitions > 1)
+								{
+									std::cout << "Seed " << sr + 1 << '/' << m_seedRepetitions << ' ';
+								}
+							}
+							if (!maxFlowReference)
+							{
+								std::cout << "(zero flow) ";
+							}
+							if (m_solvers.size() > 1)
+							{
+								std::cout << "Solver " << s + 1 << '/' << m_solvers.size() << ' ';
+							}
+							if (m_problems.size() > 1)
+							{
+								std::cout << "Repetition " << r + 1 << '/' << m_repetitions << ' ';
+							}
+							std::cout << '(' << ++count << '/' << m_data.size() << ')';
+							const double time{ run(problem, solverParameters, maxFlowReference) };
+							m_data[index(p, s, r, sr)] = time;
+							std::cout << std::endl;
+						}
 					}
-					std::cout << '(' << ++count << '/' << m_data.size() << ')' << std::endl;
-					set(p, s, r, run(problem, solverParameters, maxFlowReference));
 				}
 			}
 		}
-		if (zeroFlows)
+		if (anyZeroFlows)
 		{
 			std::cout << "Warning: zero flows detected" << std::endl;
 		}
-	}
-
-	void Test::set(size_t _problem, size_t _solver, size_t _repetition, double _performance)
-	{
-		m_data[index(_problem, _solver, _repetition)] = _performance;
 	}
 
 	const std::vector<RandomParameters> Test::problems() const
@@ -111,54 +150,9 @@ namespace MaxFlow::App
 		return m_seed;
 	}
 
-	double Test::test(size_t _problem, size_t _solver, size_t _repetition) const
+	double Test::test(size_t _problem, size_t _solver, size_t _repetition, size_t _seedRepetition) const
 	{
-		return m_data[index(_problem, _solver, _repetition)];
-	}
-
-	double Test::testSum(size_t _problem, size_t _solver) const
-	{
-		double sum{};
-		for (size_t r{ 0 }; r < m_repetitions; r++)
-		{
-			sum += test(_problem, _solver, r);
-		}
-		return sum;
-	}
-
-	double Test::testAverage(size_t _problem, size_t _solver) const
-	{
-		return testSum(_problem, _solver) / m_repetitions;
-	}
-
-	double Test::problemSum(size_t _problem) const
-	{
-		double sum{};
-		for (size_t s{ 0 }; s < m_solvers.size(); s++)
-		{
-			sum += testSum(_problem, s);
-		}
-		return sum;
-	}
-
-	double Test::problemAverage(size_t _problem) const
-	{
-		return problemSum(_problem) / m_repetitions / m_solvers.size();
-	}
-
-	double Test::solverSum(size_t _solver) const
-	{
-		double sum{};
-		for (size_t p{ 0 }; p < m_solvers.size(); p++)
-		{
-			sum += testSum(p, _solver);
-		}
-		return sum;
-	}
-
-	double Test::solverAverage(size_t _solver) const
-	{
-		return solverSum(_solver) / m_repetitions / m_problems.size();
+		return m_data[index(_problem, _solver, _repetition, _seedRepetition)];
 	}
 
 	constexpr std::string solverName(ESolver _solver)
@@ -189,17 +183,28 @@ namespace MaxFlow::App
 	std::string solverFlagsName(ESolverFlags _flags)
 	{
 		std::stringstream ss{};
+		bool nonempty{ false };
 		if (_flags & ESolverFlags::RemoveZeroEdgeLabels)
 		{
-			ss << "[RemoveZeroEdgeLabels]";
+			ss << "RZE";
+			nonempty = true;
 		}
 		if (_flags & ESolverFlags::CapacityScalingRemoveDeltaEdges)
 		{
-			ss << "[CapacityScalingRemoveDeltaEdges]";
+			if (nonempty)
+			{
+				ss << '+';
+			}
+			ss << "RDE";
+			nonempty = true;
 		}
 		if (_flags & ESolverFlags::ShortestPathDetectMinCut)
 		{
-			ss << "[ShortestPathDetectMinCut]";
+			if (nonempty)
+			{
+				ss << '+';
+			}
+			ss << "DMC";
 		}
 		return ss.str();
 	}
@@ -216,26 +221,31 @@ namespace MaxFlow::App
 		ss << "solver,";
 		ss << "solverFlags,";
 		ss << "repetition,";
+		ss << "seedRepetition,";
 		ss << "time";
 		ss << std::endl;
 		for (size_t p{ 0 }; p < m_problems.size(); p++)
 		{
 			const RandomParameters& problem{ m_problems[p] };
-			for (size_t s{ 0 }; s < m_solvers.size(); s++)
+			for (unsigned int sr{ 0 }; sr < m_seedRepetitions; sr++)
 			{
-				const SolverParameters& solver{ m_solvers[s] };
-				for (size_t r{ 0 }; r < m_repetitions; r++)
+				for (size_t s{ 0 }; s < m_solvers.size(); s++)
 				{
-					ss << problem.maxCapacity << ',';
-					ss << problem.verticesCount << ',';
-					ss << problem.edgesCount << ',';
-					ss << problem.backwardsEdgeDensityFactor << ',';
-					ss << problem.capacityDeviance << ',';
-					ss << solverName(solver.solver) << ',';
-					ss << solverFlagsName(solver.flags) << ',';
-					ss << r + 1 << ',';
-					ss << test(p, s, r);
-					ss << std::endl;
+					const SolverParameters& solver{ m_solvers[s] };
+					for (unsigned int r{ 0 }; r < m_repetitions; r++)
+					{
+						ss << problem.maxCapacity << ',';
+						ss << problem.verticesCount << ',';
+						ss << problem.edgesCount << ',';
+						ss << problem.backwardsEdgeDensityFactor << ',';
+						ss << problem.capacityDeviance << ',';
+						ss << solverName(solver.solver) << ',';
+						ss << solverFlagsName(solver.flags) << ',';
+						ss << r + 1 << ',';
+						ss << sr + 1 << ',';
+						ss << test(p, s, r, sr);
+						ss << std::endl;
+					}
 				}
 			}
 		}

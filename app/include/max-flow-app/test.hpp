@@ -27,34 +27,30 @@ namespace MaxFlow::App
 		const std::vector<SolverParameters> m_solvers;
 		const unsigned int m_repetitions;
 		const unsigned int m_seed;
+		const unsigned int m_seedRepetitions;
+		const bool m_skipZeroFlows;
 
-		void set (size_t _problem, size_t _solver, size_t _repetition, const double _performance);
-
-		size_t index (size_t _problem, size_t _solver, size_t _repetition) const;
+		size_t index(size_t _problem, size_t _solver, size_t _repetition, size_t _seedRepetition) const;
 
 		static double run(const RandomProblem& _problem, const SolverParameters& _parameters, Graphs::flow_t _maxFlowReference);
 
 	public:
 
-		Test (const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions = 10, unsigned int _seed = 0);
+		Test(const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions = 10, unsigned int _seed = 0, unsigned int _seedRepetitions = 1, bool _skipZeroFlows = false);
 
-		const std::vector<RandomParameters> problems () const;
-		const std::vector<SolverParameters> solvers () const;
-		unsigned int repetitions () const;
-		unsigned int seed () const;
+		const std::vector<RandomParameters> problems() const;
+		const std::vector<SolverParameters> solvers() const;
+		unsigned int repetitions() const;
+		unsigned int seed() const;
+		unsigned int seedRepetitions() const;
+		bool skipZeroFlows() const;
 
-		void run ();
+		void run();
 
-		double test (size_t _problem, size_t _solver, size_t _repetition) const;
-		double testSum (size_t _problem, size_t _solver) const;
-		double testAverage (size_t _problem, size_t _solver) const;
-		double problemSum (size_t _problem) const;
-		double problemAverage (size_t _problem) const;
-		double solverSum (size_t _solver) const;
-		double solverAverage (size_t _solver) const;
+		double test(size_t _problem = 0, size_t _solver = 0, size_t _repetition = 0, size_t _seedRepetition = 0) const;
 
-		std::string toCsv () const;
-		void toCsvFile (const std::string& _file) const;
+		std::string toCsv() const;
+		void toCsvFile(const std::string& _file) const;
 
 	};
 

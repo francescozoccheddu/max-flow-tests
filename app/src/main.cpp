@@ -24,10 +24,10 @@ namespace Tests
 	namespace Internal
 	{
 
-		void test(const std::vector<App::SolverParameters>& _solvers, const std::vector<App::RandomParameters>& _problems, const std::string& _name, unsigned int _repetitions = 10, unsigned int _seed = 0)
+		void test(const std::vector<App::SolverParameters>& _solvers, const std::vector<App::RandomParameters>& _problems, const std::string& _name, unsigned int _repetitions = 10, unsigned int _seedRepetitions = 1)
 		{
 			cout << "-------- " << _name << " --------" << endl;
-			App::Test{ _problems, _solvers, _repetitions, _seed }.toCsvFile("c:/users/franc/desktop/tests/" + _name + ".csv");
+			App::Test{ _problems, _solvers, _repetitions, 0, _seedRepetitions, true }.toCsvFile("c:/users/franc/desktop/tests/" + _name + ".csv");
 		}
 
 	}
@@ -69,7 +69,7 @@ namespace Tests
 				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{40000}},
 				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{80000}},
 			},
-			"shortestPathMinCutDetection", 10, 9
+			"shortestPathMinCutDetection", 5, 5
 			);
 	}
 
@@ -94,7 +94,7 @@ namespace Tests
 				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{40000}},
 				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{80000}},
 			},
-			"capacityScalingSubSolver", 10, 9
+			"capacityScalingSubSolver", 5, 5
 			);
 	}
 

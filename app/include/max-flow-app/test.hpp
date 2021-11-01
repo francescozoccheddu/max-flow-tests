@@ -30,7 +30,7 @@ namespace MaxFlow::App
 		const unsigned int m_seedRepetitions;
 		const bool m_skipZeroFlows;
 
-		size_t index(size_t _problem, size_t _solver, size_t _repetition, size_t _seedRepetition) const;
+		size_t index(size_t _problem, size_t _solver, unsigned int _repetition, unsigned int _seedRepetition) const;
 
 		static double run(const RandomProblem& _problem, const SolverParameters& _parameters, Graphs::flow_t _maxFlowReference);
 
@@ -47,7 +47,7 @@ namespace MaxFlow::App
 
 		void run();
 
-		double test(size_t _problem = 0, size_t _solver = 0, size_t _repetition = 0, size_t _seedRepetition = 0) const;
+		double test(size_t _problem = 0, size_t _solver = 0, unsigned int _repetition = 0, unsigned int _seedRepetition = 0) const;
 
 		std::string toCsv() const;
 		void toCsvFile(const std::string& _file) const;

@@ -24,9 +24,9 @@ namespace MaxFlow::App
 		{
 			throw std::logic_error{ "verticesCount < 2" };
 		}
-		if (edgesCount < 0)
+		if (edgesCount < 0 || edgesCount >= verticesCount * (verticesCount - 1) / 2)
 		{
-			throw std::logic_error{ "edgesCount < 0" };
+			throw std::logic_error{ "edgesCount not in [0,verticesCount*(verticesCount-1)/2)" };
 		}
 		if (backwardsEdgeDensityFactor < 0 || backwardsEdgeDensityFactor > 1)
 		{
@@ -76,7 +76,7 @@ namespace MaxFlow::App
 		}
 		while (m_graph.edgesCount() < _parameters.edgesCount)
 		{
-			std::vector<std::tuple<size_t, size_t>>& pool{ fbDistribution(generator) ? backwardEdgePool : forwardEdgePool };
+			std::vector<std::tuple<size_t, size_t>>& pool{ !backwardEdgePool.empty() && (forwardEdgePool.empty() || fbDistribution(generator)) ? backwardEdgePool : forwardEdgePool };
 			const std::uniform_int_distribution<size_t> poolDistribution{ 0, pool.size() - 1 };
 			std::swap(pool[pool.size() - 1], pool[poolDistribution(generator)]);
 			const std::tuple<size_t, size_t> edge{ pool[pool.size() - 1] };

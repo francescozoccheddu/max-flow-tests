@@ -15,9 +15,9 @@ using MaxFlow::App::Performance;
 namespace MaxFlow::App
 {
 
-	size_t Test::index(size_t _problem, size_t _solver, size_t _repetition, size_t _seedRepetition) const
+	size_t Test::index(size_t _problem, size_t _solver, unsigned int _repetition, unsigned int _seedRepetition) const
 	{
-		return _repetition * m_problems.size() * m_solvers.size() * m_repetitions + _solver * m_problems.size() * m_solvers.size() + _problem * m_problems.size() + _seedRepetition;
+		return _seedRepetition * m_problems.size() * m_solvers.size() * m_repetitions + _repetition * m_problems.size() * m_solvers.size() + _solver * m_problems.size() + _problem;
 	}
 
 	Test::Test(const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions, unsigned int _seed, unsigned int _seedRepetitions, bool _skipZeroFlows)
@@ -152,7 +152,7 @@ namespace MaxFlow::App
 		return m_seed;
 	}
 
-	double Test::test(size_t _problem, size_t _solver, size_t _repetition, size_t _seedRepetition) const
+	double Test::test(size_t _problem, size_t _solver, unsigned int _repetition, unsigned int _seedRepetition) const
 	{
 		return m_data[index(_problem, _solver, _repetition, _seedRepetition)];
 	}

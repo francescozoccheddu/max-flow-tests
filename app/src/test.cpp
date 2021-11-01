@@ -10,7 +10,7 @@
 #include <array>
 #include <iostream>
 
-using MaxFlow::Utils::Performance;
+using MaxFlow::App::Performance;
 
 namespace MaxFlow::App
 {
@@ -48,10 +48,16 @@ namespace MaxFlow::App
 	void Test::run()
 	{
 		size_t count{};
+		bool zeroFlows{};
 		for (size_t p{ 0 }; p < m_problems.size(); p++)
 		{
 			const RandomProblem problem{ m_problems[p], m_seed };
 			const Graphs::flow_t maxFlowReference{ getMaxFlow(problem.graph(), problem.source(), problem.sink()) };
+			if (!maxFlowReference)
+			{
+				std::cout << "Warning: problem " << p << " has zero flow" << std::endl;
+				zeroFlows = true;
+			}
 			for (size_t s{ 0 }; s < m_solvers.size(); s++)
 			{
 				const SolverParameters& solverParameters{ m_solvers[s] };
@@ -73,6 +79,10 @@ namespace MaxFlow::App
 					set(p, s, r, run(problem, solverParameters, maxFlowReference));
 				}
 			}
+		}
+		if (zeroFlows)
+		{
+			std::cout << "Warning: zero flows detected" << std::endl;
 		}
 	}
 

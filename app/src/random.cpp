@@ -45,16 +45,22 @@ namespace MaxFlow::App
 		std::mt19937 generator{ _seed };
 		std::vector<double> capacityFactors(_parameters.edgesCount);
 		{
+			const double exponent{ 4 - _parameters.capacityDeviance * 3 };
 			const std::uniform_real_distribution<double> distribution{ 0,1 };
-			std::generate(capacityFactors.begin(), capacityFactors.end(), [&distribution, &generator]() { return distribution(generator); });
+			for (size_t i{}; i < _parameters.edgesCount; i++)
+			{
+				capacityFactors[i] = 1.0 - std::pow(distribution(generator), exponent);
+			}
 		}
 		std::vector<std::tuple<size_t, size_t>> forwardEdgePool;
 		std::vector<std::tuple<size_t, size_t>> backwardEdgePool;
 		forwardEdgePool.reserve(_parameters.verticesCount * (_parameters.verticesCount - 1) / 2);
 		backwardEdgePool.reserve(_parameters.verticesCount * (_parameters.verticesCount - 1) / 2);
-		for (size_t a{}; a < _parameters.verticesCount; a++) {
-			for (size_t b{}; b < _parameters.verticesCount; b++) {
-				if (a == b) 
+		for (size_t a{}; a < _parameters.verticesCount; a++)
+		{
+			for (size_t b{}; b < _parameters.verticesCount; b++)
+			{
+				if (a == b)
 				{
 					continue;
 				}
@@ -64,10 +70,12 @@ namespace MaxFlow::App
 		}
 		std::bernoulli_distribution fbDistribution{ _parameters.backwardsEdgeDensityFactor };
 		double maxCapacityFactor{ *std::max_element(capacityFactors.begin(), capacityFactors.end()) };
-		if (!maxCapacityFactor) {
+		if (!maxCapacityFactor)
+		{
 			capacityFactors[0] = maxCapacityFactor = 1;
 		}
-		while (m_graph.edgesCount() < _parameters.edgesCount) {
+		while (m_graph.edgesCount() < _parameters.edgesCount)
+		{
 			std::vector<std::tuple<size_t, size_t>>& pool{ fbDistribution(generator) ? backwardEdgePool : forwardEdgePool };
 			const std::uniform_int_distribution<size_t> poolDistribution{ 0, pool.size() - 1 };
 			std::swap(pool[pool.size() - 1], pool[poolDistribution(generator)]);

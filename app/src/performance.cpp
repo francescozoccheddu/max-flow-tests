@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace MaxFlow::Utils
+namespace MaxFlow::App
 {
 
 	std::chrono::high_resolution_clock::time_point Performance::s_startTime;

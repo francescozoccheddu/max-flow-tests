@@ -3,7 +3,7 @@
 
 #include <chrono>
 
-namespace MaxFlow::Utils
+namespace MaxFlow::App
 {
 
 	class Performance final

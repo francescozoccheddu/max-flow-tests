@@ -52,6 +52,7 @@ namespace MaxFlow::App
 		bool anyZeroFlows{};
 		for (size_t p{ 0 }; p < m_problems.size(); p++)
 		{
+			unsigned int zeroFlowSkips{ 0 };
 			for (unsigned int sr{ 0 }; sr < m_seedRepetitions; sr++)
 			{
 				if (m_problems.size() > 1)
@@ -62,28 +63,29 @@ namespace MaxFlow::App
 				{
 					std::cout << "Seed " << sr + 1 << '/' << m_seedRepetitions << ' ';
 				}
-				unsigned int zeroFlowTry{ 0 };
 				bool done{ false };
+				bool zeroFlowSkippedThisRound{ false };
 				while (!done)
 				{
-					const RandomProblem problem{ m_problems[p], m_seed + sr + zeroFlowTry };
+					const RandomProblem problem{ m_problems[p], m_seed + sr + zeroFlowSkips };
 					const Graphs::flow_t maxFlowReference{ getMaxFlow(problem.graph(), problem.source(), problem.sink()) };
 					if (!maxFlowReference)
 					{
 						if (m_skipZeroFlows)
 						{
-							if (!zeroFlowTry)
+							if (!zeroFlowSkippedThisRound)
 							{
 								std::cout << '[';
+								zeroFlowSkippedThisRound = true;
 							}
 							std::cout << '0';
-							zeroFlowTry++;
+							zeroFlowSkips++;
 							continue;
 						}
 						anyZeroFlows |= !maxFlowReference;
 					}
 					done = true;
-					if (zeroFlowTry)
+					if (zeroFlowSkippedThisRound)
 					{
 						std::cout << ']' << ' ';
 					}

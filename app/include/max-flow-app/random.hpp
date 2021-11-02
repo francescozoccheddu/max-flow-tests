@@ -17,7 +17,7 @@ namespace MaxFlow::App
 		size_t verticesCount{ 10 };
 		size_t edgesCount{ 30 };
 		double backwardsEdgeDensityFactor{ 0.3 };
-		double capacityDeviance{ 0.5 };
+		double capacityDeviance{ 0 };
 
 		void validate () const;
 

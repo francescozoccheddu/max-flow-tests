@@ -9,6 +9,8 @@
 #include <cmath>
 #include <tuple>
 
+#include <iostream>
+
 using MaxFlow::Graphs::flow_t;
 
 namespace MaxFlow::App
@@ -24,17 +26,17 @@ namespace MaxFlow::App
 		{
 			throw std::logic_error{ "verticesCount < 2" };
 		}
-		if (edgesCount < 0 || edgesCount >= verticesCount * (verticesCount - 1) / 2)
+		if (edgesCount < 0 || edgesCount >= verticesCount * (verticesCount - 1))
 		{
-			throw std::logic_error{ "edgesCount not in [0,verticesCount*(verticesCount-1)/2)" };
+			throw std::logic_error{ "edgesCount not in [0,verticesCount*(verticesCount-1))" };
 		}
 		if (backwardsEdgeDensityFactor < 0 || backwardsEdgeDensityFactor > 1)
 		{
 			throw std::logic_error{ "backwardsEdgeDensityFactor not in [0,1]" };
 		}
-		if (capacityDeviance < 0 || capacityDeviance > 1)
+		if (capacityDeviance < -1 || capacityDeviance > 1)
 		{
-			throw std::logic_error{ "capacityDeviance not in [0,1]" };
+			throw std::logic_error{ "capacityDeviance not in [-1,1]" };
 		}
 	}
 
@@ -43,13 +45,28 @@ namespace MaxFlow::App
 		_parameters.validate();
 		m_graph.addVertices(_parameters.verticesCount);
 		std::mt19937 generator{ _seed };
-		std::vector<double> capacityFactors(_parameters.edgesCount);
+		std::vector<double> capacities(_parameters.edgesCount);
 		{
-			const double exponent{ 4 - _parameters.capacityDeviance * 3 };
+			constexpr double maxExponent{ 3 };
+			const double exponentAbs{ 1 + std::abs(_parameters.capacityDeviance) * (maxExponent - 1) };
+			const double exponent{ _parameters.capacityDeviance < 0 ? exponentAbs : 1 / exponentAbs };
 			const std::uniform_real_distribution<double> distribution{ 0,1 };
+			double maxAlpha{};
 			for (size_t i{}; i < _parameters.edgesCount; i++)
 			{
-				capacityFactors[i] = 1.0 - std::pow(distribution(generator), exponent);
+				capacities[i] = distribution(generator);
+				if (capacities[i] > maxAlpha)
+				{
+					maxAlpha = capacities[i];
+				}
+			}
+			if (!maxAlpha && _parameters.edgesCount)
+			{
+				maxAlpha = capacities[0] = 1;
+			}
+			for (size_t i{}; i < _parameters.edgesCount; i++)
+			{
+				capacities[i] = std::pow(capacities[i] / maxAlpha, exponent) * (_parameters.maxCapacity - 1) + 1;
 			}
 		}
 		std::vector<std::tuple<size_t, size_t>> forwardEdgePool;
@@ -69,11 +86,6 @@ namespace MaxFlow::App
 			}
 		}
 		std::bernoulli_distribution fbDistribution{ _parameters.backwardsEdgeDensityFactor };
-		double maxCapacityFactor{ *std::max_element(capacityFactors.begin(), capacityFactors.end()) };
-		if (!maxCapacityFactor)
-		{
-			capacityFactors[0] = maxCapacityFactor = 1;
-		}
 		while (m_graph.edgesCount() < _parameters.edgesCount)
 		{
 			std::vector<std::tuple<size_t, size_t>>& pool{ !backwardEdgePool.empty() && (forwardEdgePool.empty() || fbDistribution(generator)) ? backwardEdgePool : forwardEdgePool };
@@ -81,9 +93,7 @@ namespace MaxFlow::App
 			std::swap(pool[pool.size() - 1], pool[poolDistribution(generator)]);
 			const std::tuple<size_t, size_t> edge{ pool[pool.size() - 1] };
 			pool.pop_back();
-			const double capacityFactor{ capacityFactors[m_graph.edgesCount()] / maxCapacityFactor };
-			const double realCapacity{ capacityFactor * (_parameters.maxCapacity - 1) + 1 };
-			Graphs::flow_t capacity{ std::clamp<Graphs::flow_t>(static_cast<Graphs::flow_t>(std::round(realCapacity)), 1, _parameters.maxCapacity) };
+			const Graphs::flow_t capacity{ std::clamp<Graphs::flow_t>(static_cast<Graphs::flow_t>(std::round(capacities[m_graph.edgesCount()])), 1, _parameters.maxCapacity) };
 			m_graph[std::get<0>(edge)].addOutEdge(std::get<1>(edge), { capacity });
 		}
 	}

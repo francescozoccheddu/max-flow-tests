@@ -32,7 +32,7 @@ namespace Tests
 
 	}
 
-	void zeroEdgeRemoval()
+	void zeroEdgeRemoval() // Zero edge removal does not affect performances
 	{
 		Internal::test(
 			{
@@ -44,7 +44,7 @@ namespace Tests
 			{
 				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{20000}},
 			},
-			"zeroEdgeRemoval", 30
+			"zeroEdgeRemoval", 10, 5
 			);
 	}
 
@@ -98,6 +98,86 @@ namespace Tests
 			);
 	}
 
+	void deltaEdgesRemoval() // Delta edge removal worsen performances
+	{
+		Internal::test(
+			{
+				{ESolver::CapacityScalingFordFulkerson},
+				{ESolver::CapacityScalingFordFulkerson, ESolverFlags::CapacityScalingRemoveDeltaEdges},
+			},
+			{
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{2000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{5000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{4000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{8000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{40000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{16000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{40000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{80000}},
+			},
+			"deltaEdgesRemoval", 5, 5
+			);
+	}
+
+	void deltaEdgesRemovalAndCapacityScalingSubSolver() // Delta edge removal worsen performances
+	{
+		Internal::test(
+			{
+				{ESolver::CapacityScalingFordFulkerson},
+				{ESolver::CapacityScalingFordFulkerson, ESolverFlags::CapacityScalingRemoveDeltaEdges},
+				{ESolver::CapacityScalingShortestPath, ESolverFlags::ShortestPathDetectMinCut},
+				{ESolver::CapacityScalingShortestPath, ESolverFlags::CapacityScalingRemoveDeltaEdges + ESolverFlags::ShortestPathDetectMinCut},
+			},
+			{
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{2000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{5000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{4000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{8000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{40000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{16000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{40000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{80000}},
+			},
+			"deltaEdgesRemovalAndCapacityScalingSubSolver", 5, 5
+			);
+	}
+
+	void capacityVariance() // Capacity variance does not affect performances
+	{
+		Internal::test(
+			{
+				{ESolver::FordFulkerson},
+			},
+			{
+				{.maxCapacity{1000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{0}},
+				{.maxCapacity{1000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1.0 / 3.0}},
+				{.maxCapacity{1000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{2.0 / 3.0}},
+				{.maxCapacity{1000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1}},
+				{.maxCapacity{10000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{0}},
+				{.maxCapacity{10000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1.0 / 3.0}},
+				{.maxCapacity{10000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{2.0 / 3.0}},
+				{.maxCapacity{10000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1}},
+				{.maxCapacity{100000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{0}},
+				{.maxCapacity{100000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1.0 / 3.0}},
+				{.maxCapacity{100000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{2.0 / 3.0}},
+				{.maxCapacity{100000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1}},
+				{.maxCapacity{1000000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{0}},
+				{.maxCapacity{1000000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1.0 / 3.0}},
+				{.maxCapacity{1000000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{2.0 / 3.0}},
+				{.maxCapacity{1000000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1}},
+			},
+			"capacityVariance", 5, 5
+			);
+	}
+
 }
 
 int main()
@@ -106,8 +186,7 @@ int main()
 	SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 #endif	
 
-	Tests::shortestPathMinCutDetection();
-	Tests::capacityScalingSubSolver();
+	Tests::zeroEdgeRemoval();
 
 #ifdef WIN32
 	Beep(400, 300);

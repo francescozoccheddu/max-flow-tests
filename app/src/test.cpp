@@ -92,7 +92,7 @@ namespace MaxFlow::App
 					for (size_t s{ 0 }; s < m_solvers.size(); s++)
 					{
 						const SolverParameters& solverParameters{ m_solvers[s] };
-						for (size_t r{ 0 }; r < m_repetitions; r++)
+						for (unsigned int r{ 0 }; r < m_repetitions; r++)
 						{
 							if ((r || s))
 							{
@@ -113,7 +113,7 @@ namespace MaxFlow::App
 							{
 								std::cout << "Solver " << s + 1 << '/' << m_solvers.size() << ' ';
 							}
-							if (m_problems.size() > 1)
+							if (m_repetitions > 1)
 							{
 								std::cout << "Repetition " << r + 1 << '/' << m_repetitions << ' ';
 							}

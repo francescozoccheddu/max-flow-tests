@@ -35,7 +35,7 @@ namespace MaxFlow::Solvers::Labeling
 	protected:
 
 		Graphs::Algorithms::Pathfinder& pathfinder ();
-		void calculatePaths ();
+		void calculatePaths (bool _depthFirst);
 		void augmentMax ();
 
 	public:

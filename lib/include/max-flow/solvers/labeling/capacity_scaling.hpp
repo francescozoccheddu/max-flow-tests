@@ -43,7 +43,8 @@ namespace MaxFlow::Solvers::Labeling
 		};
 
 		ESubSolver m_subSolver{ ESubSolver::FordFulkerson};
-		bool m_detectMinCut{ true };
+		bool m_detectMinCut{ false };
+		bool m_depthFirst{ false };
 		bool m_removeDeltaEdges{};
 
 		void solveImpl () override;
@@ -58,6 +59,9 @@ namespace MaxFlow::Solvers::Labeling
 
 		ESubSolver subSolver () const;
 		void setSubSolver (ESubSolver _subSolver);
+
+		bool depthFirst() const;
+		void setDepthFirst(bool _depthFirst);
 
 		using Solver::Solver;
 

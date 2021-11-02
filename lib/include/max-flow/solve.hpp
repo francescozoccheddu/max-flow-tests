@@ -24,6 +24,7 @@ namespace MaxFlow
 		RemoveZeroEdgeLabels = 1 << 0,
 		CapacityScalingRemoveDeltaEdges = 1 << 1,
 		ShortestPathDetectMinCut = 1 << 2,
+		FordFulkersonDepthFirst = 1 << 3,
 	};
 
 	struct CapacityMatrix

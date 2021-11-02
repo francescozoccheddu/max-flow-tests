@@ -12,59 +12,66 @@ using MaxFlow::Graphs::Algorithms::EdgeSelector;
 namespace MaxFlow::Solvers::Labeling
 {
 
-	const Pathfinder& LabelingSolver::pathfinder () const
+	const Pathfinder& LabelingSolver::pathfinder() const
 	{
 		return m_pathfinder;
 	}
 
-	Pathfinder& LabelingSolver::pathfinder ()
+	Pathfinder& LabelingSolver::pathfinder()
 	{
 		return m_pathfinder;
 	}
 
-	void LabelingSolver::calculatePaths ()
+	void LabelingSolver::calculatePaths(bool _depthFirst)
 	{
-		m_pathfinder.calculate (edgeSelector ());
+		if (_depthFirst)
+		{
+			m_pathfinder.calculateDepthFirst(edgeSelector());
+		}
+		else
+		{
+			m_pathfinder.calculateBreadthFirst(edgeSelector());
+		}
 	}
 
-	void LabelingSolver::augmentMax ()
+	void LabelingSolver::augmentMax()
 	{
-		const flow_t amount{ minCapacity (m_pathfinder.begin (), m_pathfinder.end ()) };
-		Graphs::Algorithms::augment (m_pathfinder.begin (), m_pathfinder.end (), amount, areZeroEdgesRemoved ());
-		callback ().onAugment (*this, amount);
+		const flow_t amount{ minCapacity(m_pathfinder.begin(), m_pathfinder.end()) };
+		Graphs::Algorithms::augment(m_pathfinder.begin(), m_pathfinder.end(), amount, areZeroEdgesRemoved());
+		callback().onAugment(*this, amount);
 	}
 
-	const EdgeSelector& LabelingSolver::edgeSelector () const
+	const EdgeSelector& LabelingSolver::edgeSelector() const
 	{
 		return *m_pEdgeSelector;
 	}
 
-	EdgeSelector& LabelingSolver::edgeSelector ()
+	EdgeSelector& LabelingSolver::edgeSelector()
 	{
 		return *m_pEdgeSelector;
 	}
 
-	void LabelingSolver::setEdgeSelector (EdgeSelector& _edgeSelector)
+	void LabelingSolver::setEdgeSelector(EdgeSelector& _edgeSelector)
 	{
 		m_pEdgeSelector = &_edgeSelector;
 	}
 
-	const LabelingSolver::Callback& LabelingSolver::callback () const
+	const LabelingSolver::Callback& LabelingSolver::callback() const
 	{
 		return *m_pCallback;
 	}
 
-	LabelingSolver::Callback& LabelingSolver::callback ()
+	LabelingSolver::Callback& LabelingSolver::callback()
 	{
 		return *m_pCallback;
 	}
 
-	void LabelingSolver::setCallback (Callback& _callback)
+	void LabelingSolver::setCallback(Callback& _callback)
 	{
 		m_pCallback = &_callback;
 	}
 
-	void LabelingSolver::Callback::onAugment (const LabelingSolver& _solver, flow_t _amount)
+	void LabelingSolver::Callback::onAugment(const LabelingSolver& _solver, flow_t _amount)
 	{}
 
 	LabelingSolver::Callback LabelingSolver::Callback::none{};

@@ -208,6 +208,14 @@ namespace MaxFlow::App
 			}
 			ss << "DMC";
 		}
+		if (_flags & ESolverFlags::FordFulkersonDepthFirst)
+		{
+			if (nonempty)
+			{
+				ss << '+';
+			}
+			ss << "DF";
+		}
 		return ss.str();
 	}
 

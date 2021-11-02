@@ -48,6 +48,31 @@ namespace Tests
 			);
 	}
 
+	void fordFulkersonDepthFirst()
+	{
+		Internal::test(
+			{
+				{ESolver::FordFulkerson},
+				{ESolver::FordFulkerson, ESolverFlags::FordFulkersonDepthFirst},
+			},
+			{
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{2000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{5000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{4000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{8000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{40000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{16000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{40000}},
+				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{80000}},
+			},
+			"fordFulkersonDepthFirst", 5, 5
+			);
+	}
+
 	void shortestPathMinCutDetection()
 	{
 		Internal::test(
@@ -178,40 +203,61 @@ namespace Tests
 				{.maxCapacity{1000000000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{0.5}},
 				{.maxCapacity{1000000000}, .verticesCount{5000}, .edgesCount{10000}, .capacityDeviance{1}},
 			},
-			"capacityVariance", 10, 10
+			"capacityVariance", 5, 5
 			);
 	}
 
-	void allFast()
+	void labeling()
 	{
 		Internal::test(
 			{
 				{ESolver::FordFulkerson},
 				{ESolver::ShortestPath, ESolverFlags::ShortestPathDetectMinCut},
 				{ESolver::CapacityScalingShortestPath, ESolverFlags::ShortestPathDetectMinCut},
+			},
+			{
+
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{2000}},
+				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
+				{.maxCapacity{1000000}, .verticesCount{1000}, .edgesCount{2000}},
+
+				{.maxCapacity{5000}, .verticesCount{5000}, .edgesCount{10000}},
+				{.maxCapacity{5000}, .verticesCount{5000}, .edgesCount{50000}},
+				{.maxCapacity{5000000}, .verticesCount{5000}, .edgesCount{10000}},
+
+				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{20000}},
+				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{100000}},
+				{.maxCapacity{10000000}, .verticesCount{10000}, .edgesCount{20000}},
+
+			},
+			"labeling", 1, 1
+			);
+	}
+
+	void preflowPush()
+	{
+		Internal::test(
+			{
 				{ESolver::FifoPreflowPush},
 				{ESolver::HighestLabelPreflowPush},
 				{ESolver::ExcessScalingPreflowPush},
 			},
 			{
-				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{2000}},
-				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
-				{.maxCapacity{100000}, .verticesCount{1000}, .edgesCount{2000}},
 
-				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{4000}},
-				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{20000}},
-				{.maxCapacity{200000}, .verticesCount{2000}, .edgesCount{4000}},
+				{.maxCapacity{1000000}, .verticesCount{4000}, .edgesCount{10000}},
+				{.maxCapacity{1000000}, .verticesCount{4000}, .edgesCount{20000}},
+				{.maxCapacity{1000000}, .verticesCount{4000}, .edgesCount{40000}},
 
-				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{8000}},
-				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{40000}},
-				{.maxCapacity{400000}, .verticesCount{4000}, .edgesCount{8000}},
+				{.maxCapacity{1000000}, .verticesCount{6000}, .edgesCount{15000}},
+				{.maxCapacity{1000000}, .verticesCount{6000}, .edgesCount{30000}},
+				{.maxCapacity{1000000}, .verticesCount{6000}, .edgesCount{60000}},
 
-				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{16000}},
-				{.maxCapacity{8000}, .verticesCount{8000}, .edgesCount{80000}},
-				{.maxCapacity{800000}, .verticesCount{8000}, .edgesCount{16000}},
+				{.maxCapacity{1000000}, .verticesCount{8000}, .edgesCount{20000}},
+				{.maxCapacity{1000000}, .verticesCount{8000}, .edgesCount{40000}},
+				{.maxCapacity{1000000}, .verticesCount{8000}, .edgesCount{80000}},
 
 			},
-			"allFast", 5, 5
+			"preflowPush", 1, 1
 			);
 	}
 
@@ -226,10 +272,10 @@ int main()
 	SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 #endif	
 
-	Algorithms::GraphVizSource::from(App::RandomProblem{ {.maxCapacity{1000}, .verticesCount{10}, .edgesCount{20}, .capacityDeviance{1}}, 3 }.graph()).exportToFile("c:/users/franc/desktop/r.pdf");
-	return 0;
-
+	Tests::fordFulkersonDepthFirst();
 	Tests::capacityVariance();
+	Tests::shortestPathMinCutDetection();
+	Tests::capacityScalingSubSolver();
 
 #ifdef WIN32
 	Beep(400, 300);

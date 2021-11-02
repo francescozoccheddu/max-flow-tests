@@ -40,7 +40,9 @@ namespace MaxFlow
 		{
 		case MaxFlow::ESolver::FordFulkerson:
 		{
-			pSolver = new Solvers::Labeling::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix };
+			auto pFFSolver = new Solvers::Labeling::FordFulkersonSolver{ _graph, _source, _sink, _capacityMatrix };
+			pFFSolver->setDepthFirst(_flags & ESolverFlags::FordFulkersonDepthFirst);
+			pSolver = pFFSolver;
 			break;
 		}
 		case MaxFlow::ESolver::CapacityScalingFordFulkerson:
@@ -58,6 +60,7 @@ namespace MaxFlow
 			}
 			pCSSolver->setRemoveDeltaEdges(_flags & ESolverFlags::CapacityScalingRemoveDeltaEdges);
 			pCSSolver->setMinCutDetection(_flags & ESolverFlags::ShortestPathDetectMinCut);
+			pCSSolver->setDepthFirst(_flags & ESolverFlags::FordFulkersonDepthFirst);
 			pSolver = pCSSolver;
 			break;
 		}

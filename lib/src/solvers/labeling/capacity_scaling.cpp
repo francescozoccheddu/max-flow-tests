@@ -63,7 +63,9 @@ namespace MaxFlow::Solvers::Labeling
 		{
 			case ESubSolver::FordFulkerson:
 			{
-				pSubSolver = new FordFulkersonSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities () };
+				FordFulkersonSolver* pFFSubSolver = new FordFulkersonSolver{ deltaGraph, deltaGraph[source ().index ()], deltaGraph[sink ().index ()], capacities () };
+				pFFSubSolver->setDepthFirst(depthFirst());
+				pSubSolver = pFFSubSolver;
 				break;
 			}
 			case ESubSolver::ShortestPath:
@@ -132,6 +134,17 @@ namespace MaxFlow::Solvers::Labeling
 	bool CapacityScalingSolver::DeltaEdgeSelector::operator() (const ResidualEdge& _edge)
 	{
 		return *_edge >= delta;
+	}
+
+
+	bool CapacityScalingSolver::depthFirst() const
+	{
+		return m_depthFirst;
+	}
+
+	void CapacityScalingSolver::setDepthFirst(bool _depthFirst)
+	{
+		m_depthFirst = _depthFirst;
 	}
 
 }

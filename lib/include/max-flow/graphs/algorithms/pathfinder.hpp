@@ -76,7 +76,8 @@ namespace MaxFlow::Graphs::Algorithms
 
 		void reset ();
 
-		void calculate (EdgeSelector& _edgeSelector = EdgeSelector::all);
+		void calculateDepthFirst (EdgeSelector& _edgeSelector = EdgeSelector::all);
+		void calculateBreadthFirst(EdgeSelector& _edgeSelector = EdgeSelector::all);
 
 		void setPredecessor (ResidualVertex& _vertex, ResidualVertex& _predecessor);
 		void setPredecessor (ResidualEdge& _edge);

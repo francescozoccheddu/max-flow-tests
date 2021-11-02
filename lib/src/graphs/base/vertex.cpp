@@ -64,7 +64,7 @@ namespace MaxFlow::Graphs::Base
 	void Vertex::ensureValidNewOutEdge(const Vertex& _to) const
 	{
 		Graph::ensureSameGraph(_to.graph(), graph());
-		if (hasOutEdge(_to))
+		if (hasMatrix() && hasOutEdge(_to))
 		{
 			throw std::logic_error{ "edge already exists" };
 		}
@@ -303,6 +303,8 @@ namespace MaxFlow::Graphs::Base
 		}
 		else
 		{
+			throw std::logic_error{ "no matrix" };
+			/*
 			for (Edge& edge : *this)
 			{
 				if (edge.to().index() == _to)
@@ -311,6 +313,7 @@ namespace MaxFlow::Graphs::Base
 				}
 			}
 			return nullptr;
+			*/
 		}
 	}
 

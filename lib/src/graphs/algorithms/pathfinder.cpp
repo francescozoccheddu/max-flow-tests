@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <queue>
+#include <stack>
 
 namespace MaxFlow::Graphs::Algorithms
 {
@@ -18,7 +19,7 @@ namespace MaxFlow::Graphs::Algorithms
 		std::fill (m_predecessors.begin (), m_predecessors.end (), nullptr);
 	}
 
-	void Pathfinder::calculate (EdgeSelector& _edgeSelector)
+	void Pathfinder::calculateBreadthFirst (EdgeSelector& _edgeSelector)
 	{
 		reset ();
 		setPredecessor (m_source, m_source);
@@ -34,6 +35,28 @@ namespace MaxFlow::Graphs::Algorithms
 				{
 					setPredecessor (edge.to (), vertex);
 					queue.push (&edge.to ());
+				}
+			}
+		}
+	}
+
+	void Pathfinder::calculateDepthFirst(EdgeSelector& _edgeSelector)
+	{
+		reset();
+		setPredecessor(m_source, m_source);
+		std::stack<ResidualVertex*> stack{};
+		stack.push(&m_source);
+		while (!stack.empty() && !isSinkLabeled())
+		{
+			ResidualVertex& vertex{ *stack.top() };
+			stack.pop();
+			for (auto it{ vertex.rbegin() }; it != vertex.rend(); ++it)
+			{
+				ResidualEdge& edge{ *it };
+				if (*edge && !isLabeled(edge.to()) && _edgeSelector(edge))
+				{
+					setPredecessor(edge.to(), vertex);
+					stack.push(&edge.to());
 				}
 			}
 		}

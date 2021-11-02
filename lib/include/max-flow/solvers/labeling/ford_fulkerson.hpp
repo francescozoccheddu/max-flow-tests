@@ -11,9 +11,14 @@ namespace MaxFlow::Solvers::Labeling
 
 	private:
 
+		bool m_depthFirst{false};
+
 		void solveImpl () override;
 
 	public:
+
+		bool depthFirst() const;
+		void setDepthFirst(bool _depthFirst);
 
 		using LabelingSolver::LabelingSolver;
 

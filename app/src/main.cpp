@@ -19,7 +19,9 @@ using std::endl;
 using namespace MaxFlow::Graphs;
 using namespace MaxFlow;
 
-constexpr bool fast = true;
+constexpr bool fast = false;
+constexpr unsigned int defaultRepetitions = 5;
+constexpr unsigned int defaultSeedRepetitions = 5;
 constexpr unsigned int seed = 0;
 
 namespace Tests
@@ -28,7 +30,7 @@ namespace Tests
 	namespace Internal
 	{
 
-		void test(const std::vector<App::SolverParameters>& _solvers, const std::vector<App::RandomParameters>& _problems, const std::string& _name, unsigned int _repetitions = 5, unsigned int _seedRepetitions = 5)
+		void test(const std::vector<App::SolverParameters>& _solvers, const std::vector<App::RandomParameters>& _problems, const std::string& _name, unsigned int _repetitions = defaultRepetitions, unsigned int _seedRepetitions = defaultSeedRepetitions)
 		{
 			cout << "-------- " << _name << " --------" << endl;
 			std::vector<App::RandomParameters> reversedProblems{ _problems };
@@ -265,7 +267,7 @@ int main()
 
 	if constexpr (fast)
 	{
-		cout << "Fast mode" << endl;
+		cout << "-------- " << "FAST MODE" << " --------" << endl;
 	}
 
 	Tests::labeling();

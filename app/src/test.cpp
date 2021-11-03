@@ -127,6 +127,7 @@ namespace MaxFlow::App
 						std::cout << "]";
 					}
 					log("ActualSeed", std::to_string(m_seed + sr + zeroFlowSkips));
+					log("ActualFlow", std::to_string(maxFlowReference));
 					std::cout << std::endl;
 					for (size_t s{ 0 }; s < m_solvers.size(); s++)
 					{

@@ -40,10 +40,52 @@ namespace MaxFlow::App
 		Performance::start();
 		solve(residualGraph, residualGraph[_problem.source().index()], residualGraph[_problem.sink().index()], capacityMatrix, _parameters.solver, _parameters.flags);
 		const double time{ Performance::end() };
-		std::cout << ' ' << time << 's';
 		Graphs::updateFlowsFromResidualGraph(residualGraph, workingGraph);
 		ensureMaxFlow(workingGraph, workingGraph[_problem.source().index()], workingGraph[_problem.sink().index()], _maxFlowReference);
 		return time;
+	}
+
+	void log(const std::string& _label, const std::string& _content)
+	{
+		std::cout << ' ' << _label << '[' << _content << ']';
+	}
+
+	std::string progress(size_t _current, size_t _total)
+	{
+		return std::to_string(_current + 1) + '/' + std::to_string(_total);
+	}
+
+	void log(const std::string& _label, size_t _current, size_t _total)
+	{
+		if (_total > 1)
+		{
+			log(_label, progress(_current, _total));
+		}
+	}
+
+	void Test::logProgress(size_t _current) const
+	{
+		std::cout << '(' << progress(_current, m_data.size()) << ')';
+	}
+
+	void Test::logProblem(size_t _current) const
+	{
+		log("Prob", _current, m_problems.size());
+	}
+
+	void Test::logRepetition(size_t _current) const
+	{
+		log("Rept", _current, m_repetitions);
+	}
+
+	void Test::logSeedRepetition(size_t _current) const
+	{
+		log("Seed", _current, m_seedRepetitions);
+	}
+
+	void Test::logSolver(size_t _current) const
+	{
+		log("Solv", _current, m_solvers.size());
 	}
 
 	void Test::run()
@@ -55,14 +97,9 @@ namespace MaxFlow::App
 			unsigned int zeroFlowSkips{ 0 };
 			for (unsigned int sr{ 0 }; sr < m_seedRepetitions; sr++)
 			{
-				if (m_problems.size() > 1)
-				{
-					std::cout << "Problem " << p + 1 << '/' << m_problems.size() << ' ';
-				}
-				if (m_seedRepetitions > 1)
-				{
-					std::cout << "Seed " << sr + 1 << '/' << m_seedRepetitions << ' ';
-				}
+				logProgress(count);
+				logProblem(p);
+				logSeedRepetition(sr);
 				bool done{ false };
 				bool zeroFlowSkippedThisRound{ false };
 				while (!done)
@@ -75,7 +112,7 @@ namespace MaxFlow::App
 						{
 							if (!zeroFlowSkippedThisRound)
 							{
-								std::cout << '[';
+								std::cout << " [";
 								zeroFlowSkippedThisRound = true;
 							}
 							std::cout << '0';
@@ -87,39 +124,23 @@ namespace MaxFlow::App
 					done = true;
 					if (zeroFlowSkippedThisRound)
 					{
-						std::cout << ']' << ' ';
+						std::cout << "]";
 					}
+					log("ActualSeed", std::to_string(m_seed + sr + zeroFlowSkips));
+					std::cout << std::endl;
 					for (size_t s{ 0 }; s < m_solvers.size(); s++)
 					{
 						const SolverParameters& solverParameters{ m_solvers[s] };
 						for (unsigned int r{ 0 }; r < m_repetitions; r++)
 						{
-							if ((r || s))
-							{
-								if (m_problems.size() > 1)
-								{
-									std::cout << "Problem " << p + 1 << '/' << m_problems.size() << ' ';
-								}
-								if (m_seedRepetitions > 1)
-								{
-									std::cout << "Seed " << sr + 1 << '/' << m_seedRepetitions << ' ';
-								}
-							}
-							if (!maxFlowReference)
-							{
-								std::cout << "(zero flow) ";
-							}
-							if (m_solvers.size() > 1)
-							{
-								std::cout << "Solver " << s + 1 << '/' << m_solvers.size() << ' ';
-							}
-							if (m_repetitions > 1)
-							{
-								std::cout << "Repetition " << r + 1 << '/' << m_repetitions << ' ';
-							}
-							std::cout << '(' << ++count << '/' << m_data.size() << ')';
+							logProgress(count++);
+							logProblem(p);
+							logSeedRepetition(sr);
+							logSolver(s);
+							logRepetition(r);
 							const double time{ run(problem, solverParameters, maxFlowReference) };
 							m_data[index(p, s, r, sr)] = time;
+							log("Time", std::to_string(time) + "s");
 							std::cout << std::endl;
 						}
 					}

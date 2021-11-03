@@ -34,6 +34,12 @@ namespace MaxFlow::App
 
 		static double run(const RandomProblem& _problem, const SolverParameters& _parameters, Graphs::flow_t _maxFlowReference);
 
+		void logProgress(size_t _current) const;
+		void logProblem(size_t _current) const;
+		void logSolver(size_t _current) const;
+		void logSeedRepetition(size_t _current) const;
+		void logRepetition(size_t _current) const;
+
 	public:
 
 		Test(const std::vector<RandomParameters>& _problems, const std::vector<SolverParameters>& _solvers, unsigned int _repetitions = 10, unsigned int _seed = 0, unsigned int _seedRepetitions = 1, bool _skipZeroFlows = false);

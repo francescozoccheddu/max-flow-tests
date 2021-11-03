@@ -30,15 +30,15 @@ namespace MaxFlow::Graphs::Generic
 
 		// Graph interface
 
-		BVertex& allocateVertex (size_t _index) override;
+		BVertex& allocateVertex(size_t _index) override;
 
 	public:
 
 		// Construction
 
 		using BGraph::Graph;
-		Graph (const Graph& _clone);
-		Graph (Graph&& _moved);
+		Graph(const Graph& _clone);
+		Graph(Graph&& _moved);
 
 		// Assignment
 
@@ -47,38 +47,38 @@ namespace MaxFlow::Graphs::Generic
 
 		// Getters
 
-		const Vertex& vertex (size_t _index) const;
-		Vertex& vertex (size_t _index);
+		const Vertex& vertex(size_t _index) const;
+		Vertex& vertex(size_t _index);
 
 		const Vertex& operator[] (size_t _index) const;
 		Vertex& operator[] (size_t _index);
 
 		// Vertex insertion
 
-		Vertex& addVertex ();
-		MF_U_NV_SA_D (VertexData) Vertex& addVertex (const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertex (TNonVoidVertexData&& _data);
-		Vertex& addVertexBefore (BVertex& _next);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (BVertex& _next, const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertexBefore (BVertex& _next, TNonVoidVertexData&& _data);
-		Vertex& addVertexAt (size_t _next);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertexAt (size_t _next, const TNonVoidVertexData& _data);
-		MF_U_NV_SA_D (VertexData) Vertex& addVertexAt (size_t _next, TNonVoidVertexData&& _data);
+		Vertex& addVertex();
+		MF_U_NV_SA_D(VertexData) Vertex& addVertex(const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D(VertexData) Vertex& addVertex(TNonVoidVertexData&& _data);
+		Vertex& addVertexBefore(BVertex& _next);
+		MF_U_NV_SA_D(VertexData) Vertex& addVertexBefore(BVertex& _next, const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D(VertexData) Vertex& addVertexBefore(BVertex& _next, TNonVoidVertexData&& _data);
+		Vertex& addVertexAt(size_t _next);
+		MF_U_NV_SA_D(VertexData) Vertex& addVertexAt(size_t _next, const TNonVoidVertexData& _data);
+		MF_U_NV_SA_D(VertexData) Vertex& addVertexAt(size_t _next, TNonVoidVertexData&& _data);
 
 		// Iteration
 
-		VertexIteratorFC begin () const;
-		VertexIteratorFM begin ();
-		VertexIteratorRC rbegin () const;
-		VertexIteratorRM rbegin ();
-		VertexIteratorFC cbegin () const;
-		VertexIteratorRC crbegin () const;
-		VertexIteratorFC end () const;
-		VertexIteratorFM end ();
-		VertexIteratorRC rend () const;
-		VertexIteratorRM rend ();
-		VertexIteratorFC cend () const;
-		VertexIteratorRC crend () const;
+		VertexIteratorFC begin() const;
+		VertexIteratorFM begin();
+		VertexIteratorRC rbegin() const;
+		VertexIteratorRM rbegin();
+		VertexIteratorFC cbegin() const;
+		VertexIteratorRC crbegin() const;
+		VertexIteratorFC end() const;
+		VertexIteratorFM end();
+		VertexIteratorRC rend() const;
+		VertexIteratorRM rend();
+		VertexIteratorFC cend() const;
+		VertexIteratorRC crend() const;
 
 	};
 
@@ -86,17 +86,17 @@ namespace MaxFlow::Graphs::Generic
 
 #pragma region Implementation
 
-	MF_GG_TT inline Graph<TVD, TED>::Graph (const Graph& _graph)
+	MF_GG_TT inline Graph<TVD, TED>::Graph(const Graph& _graph)
 	{
 		*this = _graph;
 	}
 
-	MF_GG_TT inline Graph<TVD, TED>::Graph (Graph&& _graph)
+	MF_GG_TT inline Graph<TVD, TED>::Graph(Graph&& _graph)
 	{
-		*this = std::move (_graph);
+		*this = std::move(_graph);
 	}
 
-	MF_GG_MS (BVertex&) allocateVertex (size_t _index)
+	MF_GG_MS(BVertex&) allocateVertex(size_t _index)
 	{
 		if constexpr (std::is_default_constructible_v<TVD> || std::is_void_v<TVD>)
 		{
@@ -109,100 +109,100 @@ namespace MaxFlow::Graphs::Generic
 	}
 
 
-	MF_GG_MS (MF_GG_TG&) operator=(const Graph& _clone)
+	MF_GG_MS(MF_GG_TG&) operator=(const Graph& _clone)
 	{
-		setMatrix (false);
-		destroyAllVertices ();
-		shrinkToFit ();
-		reserve (_clone.capacity ());
-		for (const Vertex& vertex : _clone)
+		setMatrix(false);
+		destroyAllVertices();
+		shrinkToFit();
+		reserve(_clone.capacity());
+		if constexpr (std::is_void_v<TVD>)
 		{
-			if constexpr (std::is_void_v<TVD>)
+			addVertices(_clone.verticesCount());
+		}
+		else
+		{
+			for (const Vertex& vertex : _clone)
 			{
-				addVertex ();
-			}
-			else
-			{
-				addVertex (*vertex);
+				addVertex(*vertex);
 			}
 		}
 		for (const Vertex& vertex : _clone)
 		{
-			Vertex& thisVert{ (*this)[vertex.index ()] };
+			Vertex& thisVert{ (*this)[vertex.index()] };
 			for (const Edge& edge : vertex)
 			{
 				if constexpr (std::is_void_v<TED>)
 				{
-					thisVert.addOutEdge ((*this)[edge.to ().index ()]);
+					thisVert.addOutEdge((*this)[edge.to().index()]);
 				}
 				else
 				{
-					thisVert.addOutEdge ((*this)[edge.to ().index ()], *edge);
+					thisVert.addOutEdge((*this)[edge.to().index()], *edge);
 				}
 			}
 		}
 		return *this;
 	}
 
-	MF_GG_MS (MF_GG_TG&) operator=(Graph&& _moved)
+	MF_GG_MS(MF_GG_TG&) operator=(Graph&& _moved)
 	{
-		return static_cast<Graph&>(BGraph::operator=(std::move (_moved)));
+		return static_cast<Graph&>(BGraph::operator=(std::move(_moved)));
 	}
 
-	MF_GG_PMC1 (MF_GG_A (Vertex)&, vertex, size_t);
-	MF_GG_PMC1 (MF_GG_A (Vertex)&, operator[], size_t);
-	MF_GG_PM0 (MF_GG_A (Vertex)&, addVertex);
-	MF_GG_PM1 (MF_GG_A (Vertex)&, addVertexBefore, BVertex&);
-	MF_GG_PM1 (MF_GG_A (Vertex)&, addVertexAt, size_t);
+	MF_GG_PMC1(MF_GG_A(Vertex)&, vertex, size_t);
+	MF_GG_PMC1(MF_GG_A(Vertex)&, operator[], size_t);
+	MF_GG_PM0(MF_GG_A(Vertex)&, addVertex);
+	MF_GG_PM1(MF_GG_A(Vertex)&, addVertexBefore, BVertex&);
+	MF_GG_PM1(MF_GG_A(Vertex)&, addVertexAt, size_t);
 
-	MF_GG_PC0 (MF_GG_A (VertexIteratorFC), begin);
-	MF_GG_PM0 (MF_GG_A (VertexIteratorFM), begin);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorRC), rbegin);
-	MF_GG_PM0 (MF_GG_A (VertexIteratorRM), rbegin);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorFC), cbegin);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorRC), crbegin);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorFC), end);
-	MF_GG_PM0 (MF_GG_A (VertexIteratorFM), end);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorRC), rend);
-	MF_GG_PM0 (MF_GG_A (VertexIteratorRM), rend);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorFC), cend);
-	MF_GG_PC0 (MF_GG_A (VertexIteratorRC), crend);
+	MF_GG_PC0(MF_GG_A(VertexIteratorFC), begin);
+	MF_GG_PM0(MF_GG_A(VertexIteratorFM), begin);
+	MF_GG_PC0(MF_GG_A(VertexIteratorRC), rbegin);
+	MF_GG_PM0(MF_GG_A(VertexIteratorRM), rbegin);
+	MF_GG_PC0(MF_GG_A(VertexIteratorFC), cbegin);
+	MF_GG_PC0(MF_GG_A(VertexIteratorRC), crbegin);
+	MF_GG_PC0(MF_GG_A(VertexIteratorFC), end);
+	MF_GG_PM0(MF_GG_A(VertexIteratorFM), end);
+	MF_GG_PC0(MF_GG_A(VertexIteratorRC), rend);
+	MF_GG_PM0(MF_GG_A(VertexIteratorRM), rend);
+	MF_GG_PC0(MF_GG_A(VertexIteratorFC), cend);
+	MF_GG_PC0(MF_GG_A(VertexIteratorRC), crend);
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertex (const TNonVoidVD& _data)
+	MF_GG_TT MF_U_NV_SA_I(VD) MF_GG_TMS(MF_GG_A(Vertex)&) addVertex(const TNonVoidVD& _data)
 	{
-		return addVertexAt (verticesCount (), _data);
+		return addVertexAt(verticesCount(), _data);
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertex (TNonVoidVD&& _data)
+	MF_GG_TT MF_U_NV_SA_I(VD) MF_GG_TMS(MF_GG_A(Vertex)&) addVertex(TNonVoidVD&& _data)
 	{
-		return addVertexAt (verticesCount (), std::move(_data));
+		return addVertexAt(verticesCount(), std::move(_data));
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexBefore (BVertex& _next, const TNonVoidVD& _data)
+	MF_GG_TT MF_U_NV_SA_I(VD) MF_GG_TMS(MF_GG_A(Vertex)&) addVertexBefore(BVertex& _next, const TNonVoidVD& _data)
 	{
-		ensureSameGraph (_next.graph (), *this);
-		return addVertexAt (_next.index (), _data);
+		ensureSameGraph(_next.graph(), *this);
+		return addVertexAt(_next.index(), _data);
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexAt (size_t _next, const TNonVoidVD& _data)
+	MF_GG_TT MF_U_NV_SA_I(VD) MF_GG_TMS(MF_GG_A(Vertex)&) addVertexAt(size_t _next, const TNonVoidVD& _data)
 	{
-		ensureValidOrLastVertexIndex (_next);
+		ensureValidOrLastVertexIndex(_next);
 		Vertex& vertex{ *new Vertex {*this, _next,_data} };
-		addNewValidatedVertex (vertex);
+		addNewValidatedVertex(vertex);
 		return vertex;
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexBefore (BVertex& _next, TNonVoidVD&& _data)
+	MF_GG_TT MF_U_NV_SA_I(VD) MF_GG_TMS(MF_GG_A(Vertex)&) addVertexBefore(BVertex& _next, TNonVoidVD&& _data)
 	{
-		ensureSameGraph (_next.graph (), *this);
-		return addVertexAt (_next.index (), std::move (_data));
+		ensureSameGraph(_next.graph(), *this);
+		return addVertexAt(_next.index(), std::move(_data));
 	}
 
-	MF_GG_TT MF_U_NV_SA_I (VD) MF_GG_TMS (MF_GG_A (Vertex)&) addVertexAt (size_t _next, TNonVoidVD&& _data)
+	MF_GG_TT MF_U_NV_SA_I(VD) MF_GG_TMS(MF_GG_A(Vertex)&) addVertexAt(size_t _next, TNonVoidVD&& _data)
 	{
-		ensureValidOrLastVertexIndex (_next);
-		Vertex& vertex{ *new Vertex {*this, _next, std::move (_data)} };
-		addNewValidatedVertex (vertex);
+		ensureValidOrLastVertexIndex(_next);
+		Vertex& vertex{ *new Vertex {*this, _next, std::move(_data)} };
+		addNewValidatedVertex(vertex);
 		return vertex;
 	}
 

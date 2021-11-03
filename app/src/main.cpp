@@ -20,6 +20,7 @@ using namespace MaxFlow::Graphs;
 using namespace MaxFlow;
 
 constexpr bool fast = true;
+constexpr unsigned int seed = 0;
 
 namespace Tests
 {
@@ -32,7 +33,7 @@ namespace Tests
 			cout << "-------- " << _name << " --------" << endl;
 			std::vector<App::RandomParameters> reversedProblems{ _problems };
 			std::reverse(reversedProblems.begin(), reversedProblems.end());
-			App::Test{ reversedProblems, _solvers, fast ? 1 : _repetitions, 0, fast ? 1 : _seedRepetitions, true }.toCsvFile("c:/users/franc/desktop/tests/" + _name + ".csv");
+			App::Test{ reversedProblems, _solvers, fast ? 1 : _repetitions, seed, fast ? 1 : _seedRepetitions, true }.toCsvFile("c:/users/franc/desktop/tests/" + _name + ".csv");
 		}
 
 	}
@@ -210,13 +211,13 @@ namespace Tests
 				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
 				{.maxCapacity{1000000}, .verticesCount{1000}, .edgesCount{2000}},
 
-				{.maxCapacity{5000}, .verticesCount{5000}, .edgesCount{10000}},
-				{.maxCapacity{5000}, .verticesCount{5000}, .edgesCount{50000}},
-				{.maxCapacity{5000000}, .verticesCount{5000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{4000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{20000}},
+				{.maxCapacity{2000000}, .verticesCount{2000}, .edgesCount{4000}},
 
-				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{20000}},
-				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{100000}},
-				{.maxCapacity{10000000}, .verticesCount{10000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{8000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{400000}},
+				{.maxCapacity{4000000}, .verticesCount{4000}, .edgesCount{8000}},
 
 			},
 			"labeling"
@@ -237,13 +238,13 @@ namespace Tests
 				{.maxCapacity{1000}, .verticesCount{1000}, .edgesCount{10000}},
 				{.maxCapacity{1000000}, .verticesCount{1000}, .edgesCount{2000}},
 
-				{.maxCapacity{5000}, .verticesCount{5000}, .edgesCount{10000}},
-				{.maxCapacity{5000}, .verticesCount{5000}, .edgesCount{50000}},
-				{.maxCapacity{5000000}, .verticesCount{5000}, .edgesCount{10000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{4000}},
+				{.maxCapacity{2000}, .verticesCount{2000}, .edgesCount{20000}},
+				{.maxCapacity{2000000}, .verticesCount{2000}, .edgesCount{4000}},
 
-				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{20000}},
-				{.maxCapacity{10000}, .verticesCount{10000}, .edgesCount{100000}},
-				{.maxCapacity{10000000}, .verticesCount{10000}, .edgesCount{20000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{8000}},
+				{.maxCapacity{4000}, .verticesCount{4000}, .edgesCount{400000}},
+				{.maxCapacity{4000000}, .verticesCount{4000}, .edgesCount{8000}},
 
 			},
 			"preflowPush"
@@ -266,6 +267,9 @@ int main()
 	{
 		cout << "Fast mode" << endl;
 	}
+
+	Tests::labeling();
+	return 0;
 
 	Tests::fordFulkersonDepthFirst();
 	Tests::shortestPathMinCutDetection();

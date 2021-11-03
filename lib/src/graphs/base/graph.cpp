@@ -202,10 +202,7 @@ namespace MaxFlow::Graphs::Base
 		destroyAllVertices ();
 		shrinkToFit ();
 		reserve (_clone.capacity ());
-		for (const Vertex& vertex : _clone)
-		{
-			addVertex ();
-		}
+		addVertices(_clone.verticesCount());
 		for (const Vertex& vertex : _clone)
 		{
 			Vertex& thisVert{ (*this)[vertex.index ()] };

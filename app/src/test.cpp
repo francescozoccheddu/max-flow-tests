@@ -250,6 +250,7 @@ namespace MaxFlow::App
 		ss << "edgesCount,";
 		ss << "backwardsEdgeDensityFactor,";
 		ss << "capacityDeviance,";
+		ss << "expand,";
 		ss << "solver,";
 		ss << "solverFlags,";
 		ss << "repetition,";
@@ -271,6 +272,7 @@ namespace MaxFlow::App
 						ss << problem.edgesCount << ',';
 						ss << problem.backwardsEdgeDensityFactor << ',';
 						ss << problem.capacityDeviance << ',';
+						ss << problem.expand << ',';
 						ss << solverName(solver.solver) << ',';
 						ss << solverFlagsName(solver.flags) << ',';
 						ss << r + 1 << ',';

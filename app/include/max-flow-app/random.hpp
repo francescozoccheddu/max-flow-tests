@@ -16,10 +16,11 @@ namespace MaxFlow::App
 		Graphs::flow_t maxCapacity{ 100 };
 		size_t verticesCount{ 10 };
 		size_t edgesCount{ 30 };
+		size_t expand{ 0 };
 		double backwardsEdgeDensityFactor{ 0.3 };
 		double capacityDeviance{ 0 };
 
-		void validate () const;
+		void validate() const;
 
 	};
 
@@ -32,18 +33,20 @@ namespace MaxFlow::App
 
 	public:
 
-		RandomProblem (const RandomParameters& _parameters = {}, unsigned int _seed = 0);
+		RandomProblem(const RandomParameters& _parameters = {}, unsigned int _seed = 0);
 
-		const FlowGraph& graph () const;
-		FlowGraph& graph ();
+		const FlowGraph& graph() const;
+		FlowGraph& graph();
 
-		const FlowVertex& source () const;
-		FlowVertex& source ();
+		const FlowVertex& source() const;
+		FlowVertex& source();
 
-		const FlowVertex& sink () const;
-		FlowVertex& sink ();
+		const FlowVertex& sink() const;
+		FlowVertex& sink();
 
-		void clean ();
+		void clean();
+
+		void expand(size_t _count, size_t _capacity);
 
 	};
 

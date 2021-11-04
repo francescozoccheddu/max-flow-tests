@@ -22,6 +22,10 @@ namespace MaxFlow::App
 		{
 			throw std::logic_error{ "maxCapacity <= 0" };
 		}
+		if (expand < 0)
+		{
+			throw std::logic_error{ "expand < 0" };
+		}
 		if (verticesCount < 2)
 		{
 			throw std::logic_error{ "verticesCount < 2" };
@@ -227,6 +231,7 @@ namespace MaxFlow::App
 				}
 			}
 		}
+		expand(_parameters.expand, _parameters.maxCapacity);
 	}
 
 	void RandomProblem::clean()
@@ -285,6 +290,18 @@ namespace MaxFlow::App
 	FlowVertex& RandomProblem::sink()
 	{
 		return m_graph[m_graph.verticesCount() - 1];
+	}
+
+	void RandomProblem::expand(size_t _count, size_t _capacity)
+	{
+		FlowVertex* pLast{ &sink() };
+		m_graph.addVertices(_count);
+		while (pLast != &sink())
+		{
+			FlowVertex& next{ m_graph[pLast->index() + 1] };
+			pLast->addOutEdge(next, { _capacity });
+			pLast = &next;
+		}
 	}
 
 }
